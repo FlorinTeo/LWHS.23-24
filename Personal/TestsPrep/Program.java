@@ -47,7 +47,12 @@ public class Program {
         String[] aList = {"a", "b", "c", "d", "e"};
         for(String q : qList) {
             bw.write(q+" ");
-            ArrayList<String> sAList = shuffle(new ArrayList<String>(Arrays.asList(aList)));
+            
+            ArrayList<String> sAList = new ArrayList<String>(Arrays.asList(aList));
+            if (shuffle) {
+                sAList = shuffle(sAList);
+            }
+
             for(String a: sAList) {
                 bw.write(a);
             }
@@ -63,7 +68,7 @@ public class Program {
 
         Path testIndexP = Paths.get(_root, testName, "index.html");
         BufferedWriter bw = Files.newBufferedWriter(testIndexP);
-        tHeader = tHeader.replace("#VER#", testName).replace("#NQ#", ""+metaList.size());
+        tHeader = tHeader.replaceAll("#VER#", testName).replace("#NQ#", ""+metaList.size());
         bw.write(tHeader);
         int nQ = 1;
         for (String metaLine : metaList) {
