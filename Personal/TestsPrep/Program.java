@@ -1,6 +1,5 @@
 package TestsPrep;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +11,9 @@ import java.util.List;
 
 public class Program {
 
-    private static final String _root = "D:/ODrive/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1";
+    //"O:/Florin.Teo@Inproted/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1"
+    //"D:/ODrive/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1"
+    private static final String _root = "O:/Florin.Teo@Inproted/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1";
 
     private static Path _rootP = Paths.get(_root);
     private static Path _templateP = Paths.get(_rootP.toAbsolutePath().toString(), ".template");
@@ -37,8 +38,8 @@ public class Program {
         return sList;
     }
 
-    private static void genTestMeta(String testName) throws IOException {
-        List<String> qList = shuffle(getQList());
+    private static void genTestMeta(String testName, boolean shuffle) throws IOException {
+        List<String> qList = shuffle ? shuffle(getQList()) : getQList();
         Path testP = Paths.get(_root , testName);
         Files.createDirectories(testP);
         Path testMetaP = Paths.get(_root, testName, ".meta");
@@ -62,6 +63,7 @@ public class Program {
 
         Path testIndexP = Paths.get(_root, testName, "index.html");
         BufferedWriter bw = Files.newBufferedWriter(testIndexP);
+        tHeader = tHeader.replace("#VER#", testName).replace("#NQ#", ""+metaList.size());
         bw.write(tHeader);
         int nQ = 1;
         for (String metaLine : metaList) {
@@ -72,6 +74,7 @@ public class Program {
                 hQuestion = hQuestion.replaceFirst(metaParts[0]+"#", metaParts[0] + c);
             }
             bw.write(hQuestion);
+            bw.newLine();
         }
         bw.close();
     }
@@ -88,13 +91,19 @@ public class Program {
     }
 
     public static void main(String[] args) throws IOException {
-        genTestMeta("v1");
+        genTestMeta("ref", false);
+        genTestIndex("ref");
+
+        genTestMeta("v1", true);
         genTestIndex("v1");
-        genTestMeta("v2");
+
+        genTestMeta("v2", true);
         genTestIndex("v2");
-        genTestMeta("v3");
+
+        genTestMeta("v3", true);
         genTestIndex("v3");
-        genTestMeta("v4");
+
+        genTestMeta("v4", true);
         genTestIndex("v4");
     }
 }
