@@ -12,10 +12,9 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Question {
-    private static Gson _gson = new Gson();
-
     /**
      * Schema for the Question/.meta file 
      */
@@ -27,6 +26,7 @@ public class Question {
         private String notes;
     }
 
+    private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
     private QuestionMeta _meta;
     private int _pxHeight;
 
@@ -36,9 +36,9 @@ public class Question {
      * @param list - list to be shuffled.
      * @return shuffled list.
      */
-    public static List<String> shuffle(List<String> list) {
-        LinkedList<String> sList = new LinkedList<String>();
-        for (String item : list) {
+    public static <T> List<T> shuffle(List<T> list) {
+        LinkedList<T> sList = new LinkedList<T>();
+        for (T item : list) {
             if (Math.random() < .5) {
                 sList.addFirst(item);
             } else {
@@ -52,7 +52,7 @@ public class Question {
      * Deep cloning constructor.
      * @param q - Question object to be cloned.
      */
-    private Question(Question q) {
+    public Question(Question q) {
         _meta = q._meta;
         // deep copy the map of choices
         for(Map.Entry<String, String> kvp : q._meta.choices.entrySet()) {
@@ -64,7 +64,7 @@ public class Question {
     public Question(Path pQuestion) throws IOException {
         Path pMeta = Paths.get(pQuestion.toString(), ".meta");
         String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
-        _meta = _gson.fromJson(jsonMeta, QuestionMeta.class);
+        _meta = _GSON.fromJson(jsonMeta, QuestionMeta.class);
         loadPxHeight(pQuestion);
     }
 
@@ -79,8 +79,16 @@ public class Question {
         }
     }
 
+    public String getName() {
+        return _meta.name;
+    }
+
     public String getMetaLine() {
         return _meta.name + " " + String.join("", _meta.choices.keySet());
+    }
+
+    public int getPxHeight() {
+        return _pxHeight;
     }
 
     public void shuffle() {
@@ -93,8 +101,27 @@ public class Question {
         _meta.choices = newChoices;
     }
 
+    public void adjustPath(String prefix) {
+        _meta.question = String.format("%s/%s/%s", prefix, _meta.name, _meta.question);
+        for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
+            _meta.choices.put(kvp.getKey(), String.format("%s/%s/%s", prefix, _meta.name, kvp.getValue()));
+        }
+    }
+
+    public String editHtml(String hSection1Q, String qID, String metaLine) {
+        String metaChoices = metaLine.split(" ")[1];
+        hSection1Q = hSection1Q
+            .replaceFirst("#QID#", qID)
+            .replaceFirst("#QPNG#", _meta.question);
+        for(char c : metaChoices.toCharArray()) {
+            String cPng = _meta.choices.get(""+c);
+            hSection1Q = hSection1Q.replaceFirst("#CPNG#", cPng);
+        }
+        return hSection1Q;
+    }
+
     @Override
     public String toString() {
-        return _meta.name;
+        return String.format("%s:%d", _meta.name, _pxHeight);
     }
 }

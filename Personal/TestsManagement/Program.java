@@ -149,8 +149,8 @@ public class Program {
             parser.close();
         } while(true);
         input.close();
-        System.out.println("____           ____");
-        System.out.println("    \\ Goodbye /");
+        System.out.println("________           ________");
+        System.out.println("        \\ Goodbye /");
     }
 
     private static void processHelp() {
@@ -206,7 +206,7 @@ public class Program {
     }
 
     private static void processGenRoot() throws IOException {
-        _generator.genRootIndex();
+        _generator.genRoot();
         System.out.println("DONE");
     }
 }

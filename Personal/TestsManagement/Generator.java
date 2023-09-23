@@ -5,11 +5,31 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Generator {
+        /**
+     * Schema for the Question/.meta file 
+     */
+    private class TestMeta {
+        private String name;
+        private Map<String, String> display;
+        private List<Question> questions;
+        private String notes;
+        boolean indexByName;
+        boolean isRoot;
+    }
+
+    private static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
+    private static final int _MAX_PX_PER_PAGE = 300;
+    private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
+
     private Path _pRoot;
     private List<Question> _qList;
     private String _hTemplateStyle;
@@ -76,38 +96,44 @@ public class Generator {
     }
 
     /**
-     * Generates the .meta file in the given path. The file will only contain the
-     * given list of questions, randomized or not, with their original name or an ordinal number.
-    // //  * @param pMeta - Path to the .meta file.
-     * @param questions - List of questions to be included.
-     * @param randomize - True if list should be randomized, false otherwise.
+     * Generates the TestMeta object and .meta file in the given path. The questions in the test are indexed
+     * by either an ordinal number {1, 2, 3, ...} if preserveName=false, or their original name {Q1, Q2, ..}
+     * if preserveName=true. The order of the questions in the meta.display map matches the order in meta.questions.
+     * @param pMeta - Path to the .meta file.
+     * @param qList - List of questions to be included.
      * @param preserveName - True if questions should preserve their names, false if an ordinal should be used instead.
-     * @return The list of lines in the generated .meta file.
+     * @return The TestMeta object.
      * @throws IOException
      */
-    private List<String> genMeta(Path pMeta, List<Question> qList, boolean randomize, boolean preserveName ) throws IOException {
-        List<String> metaLines = new LinkedList<String>();
-        BufferedWriter bw = Files.newBufferedWriter(pMeta);
-        for(Question question : qList) {
-            String metaLine = question.getMetaLine();
-            metaLines.add(metaLine);
-            bw.write(metaLine);
-            bw.newLine();
+    private TestMeta genMeta(Path pMeta, List<Question> qList, boolean preserveName ) throws IOException {
+        TestMeta tMeta = new TestMeta();
+        tMeta.indexByName = preserveName;
+        tMeta.isRoot = _pRoot.toFile().getName().equals(pMeta.getParent().toFile().getName());
+        tMeta.name = tMeta.isRoot ? "." : pMeta.getParent().toFile().getName();
+        tMeta.display = new HashMap<String, String>();
+        tMeta.questions = new LinkedList<Question>();
+        for(int i = 0; i < _qList.size(); i++) {
+            Question q = _qList.get(i);
+            tMeta.display.put(preserveName ? q.getName() : "" + (i+1), q.getMetaLine());
+            tMeta.questions.add(new Question(q));
         }
+
+        BufferedWriter bw = Files.newBufferedWriter(pMeta);
+        bw.write(_GSON.toJson(tMeta));
         bw.close();
-        return metaLines;
+        return tMeta;
     }
 
-    /**
-     * Writes the styling information in the index.html file.
-     * @param bwIndex - index writer.
-     * @throws IOException
-     */
-    private void genIndexStyle(BufferedWriter bwIndex) throws IOException {
-        bwIndex.write(_hTemplateStyle);
-        bwIndex.newLine();
+    private void genIndexHtml(Path pIndex, TestMeta tMeta, boolean includeBooklet) throws IOException {
+        BufferedWriter bw = Files.newBufferedWriter(pIndex);
+        bw.write(_hTemplateStyle);
+        if (includeBooklet) {
+            //genBookletHtml(bw, tMeta);
+        }
+        genSection1Html(bw, tMeta);
+        bw.close();
     }
-    
+
     /**
      * Generates the index.html file in the given path. The questions and their answers are read from the metaLines and
      * are expected to exist in the .template folder.
@@ -115,22 +141,39 @@ public class Generator {
      * @param metaLines - Meta lines indicating what questions and what answers should be indexed.
      * @throws IOException
      */
-    private void genIndexSection1(BufferedWriter bwIndex, List<String> metaLines, boolean isRoot) throws IOException {
-        String hSection1H = _hTemplateSection1Header.replaceAll("#VER#", "").replace("#NQ#", ""+ _qList.size());
+    private void genSection1Html(BufferedWriter bwIndex, TestMeta tMeta) throws IOException {
+        String hSection1H = _hTemplateSection1Header
+            .replaceAll("#TNAME#", tMeta.isRoot ? "." : tMeta.name)
+            .replace("#QNUM#", "" + tMeta.questions.size());
         bwIndex.write(hSection1H);
         bwIndex.newLine();
-        for (int i = 0; i < metaLines.size(); i++) {
-            String[] metaParts = metaLines.get(i).split(" ");
-            String hQuestion = _hTemplateSection1Question.replaceFirst("#N#", "" + metaParts[0]);
-            if (isRoot) {
-                hQuestion = hQuestion.replaceAll("\\.\\./", "");
+
+        int pxSum = 0;
+        for (int i = 0; i < tMeta.questions.size(); i++) {
+            Question q = tMeta.questions.get(i);
+            String qID = tMeta.indexByName ? q.getName() : "" + (i+1);
+            String qMetaLine = tMeta.display.get(qID);
+            String hSection1Q = q.editHtml(_hTemplateSection1Question, qID, qMetaLine);
+            if (pxSum + q.getPxHeight() > _MAX_PX_PER_PAGE) {
+                bwIndex.write(_PRINT_BREAK);
+                bwIndex.newLine();
+                pxSum = q.getPxHeight();
+            } else {
+                pxSum += q.getPxHeight();
             }
-            hQuestion = hQuestion.replaceAll("Q#", metaParts[0]);
-            for(char c : metaParts[1].toCharArray()) {
-                hQuestion = hQuestion.replaceFirst(metaParts[0]+"#", metaParts[0] + c);
-            }
-            bwIndex.write(hQuestion);
+            bwIndex.write(hSection1Q);
             bwIndex.newLine();
+        }
+    }
+
+    /**
+     * Adjusts all paths in the TestMeta object by prefixing them with the given pathPrefix
+     * @param testMeta - TestMeta object to be adjusted.
+     * @param pathPrefix - Path prefix to be inserted in front of all paths.
+     */
+    private void adjustPaths(TestMeta testMeta, String pathPrefix) {
+        for(Question q : testMeta.questions) {
+            q.adjustPath(pathPrefix);
         }
     }
 
@@ -138,14 +181,11 @@ public class Generator {
      * Generates .meta and index.html for the full set of questions loaded in this generator.
      * @throws IOException
      */
-    public void genRootIndex() throws IOException {
+    public void genRoot() throws IOException {
         Path pMeta = Paths.get(_pRoot.toString(), ".meta");
+        TestMeta testMeta = genMeta(pMeta, _qList, true);
+        adjustPaths(testMeta, ".template/");
         Path pIndex = Paths.get(_pRoot.toString(), "index.html");
-
-        List<String> metaLines = genMeta(pMeta, _qList, false, false);
-        BufferedWriter bw = Files.newBufferedWriter(pIndex);
-        genIndexStyle(bw);
-        genIndexSection1(bw, metaLines, true);
-        bw.close();
+        genIndexHtml(pIndex, testMeta, false);
     }
 }
