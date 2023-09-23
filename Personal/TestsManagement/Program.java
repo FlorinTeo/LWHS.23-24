@@ -138,7 +138,10 @@ public class Program {
                         processGetQuestions();
                         break;
                     case "gen-root":
-                        processGenRoot();
+                        processResetRoot(true);
+                        break;
+                    case "refresh-root":
+                        processResetRoot(false);
                         break;
                     default:
                         throw new RuntimeException("Unrecognized command!");
@@ -149,8 +152,8 @@ public class Program {
             parser.close();
         } while(true);
         input.close();
-        System.out.println("________           ________");
-        System.out.println("        \\ Goodbye /");
+        System.out.println("____________           ____________");
+        System.out.println("            \\ Goodbye /");
     }
 
     private static void processHelp() {
@@ -159,8 +162,9 @@ public class Program {
         System.out.println("legacy:\n  Legacy command doing it all.");
         System.out.println("root {path_to_folder}:\n  Targets the test generator to path_to_folder.");
         System.out.println("root?:\n  Prints the current test generator folder.");
-        System.out.println("questions?\n  Prints out stats on questions loaded from the root\\.template");
-        System.out.println("gen-root:\n  Generates the index.html for the all questions in root\\.template");
+        System.out.println("questions?\n  Prints out stats on questions loaded from the root\\.template.");
+        System.out.println("gen-root:\n  Generates the index.html for the all questions in root\\.template.");
+        System.out.println("refresh-root:\n  Loads pre-existing generator .meta file and reconstructs the index.html.");
     }
 
     private static void processLegacy() throws IOException {
@@ -205,8 +209,8 @@ public class Program {
         }
     }
 
-    private static void processGenRoot() throws IOException {
-        _generator.genRoot();
+    private static void processResetRoot(boolean regenMeta) throws IOException {
+        _generator.resetRoot(regenMeta);
         System.out.println("DONE");
     }
 }

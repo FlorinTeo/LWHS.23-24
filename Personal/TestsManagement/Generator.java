@@ -9,9 +9,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import TestsManagement.Question.QuestionMeta;
 
 public class Generator {
     /**
@@ -27,10 +30,11 @@ public class Generator {
     }
 
     private static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
-    private static final int _MAX_PX_PER_PAGE = 300;
+    private static final int _MAX_PX_PER_PAGE = 800;
     private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private Path _pRoot;
+    private Map<String, Question> _qMap;
     private List<Question> _qList;
     private String _hTemplateStyle;
     private String _hTemplateBooklet;
@@ -43,12 +47,26 @@ public class Generator {
      */
     private void loadQuestions(Path pTemplate) throws IOException {
         _qList = new LinkedList<Question>();
+        _qMap = new TreeMap<String, Question>();
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
                 Question question = new Question(qDir);
                 _qList.add(question);
+                _qMap.put(question.getName(),question);
             }
         }
+    }
+
+    /**
+     * Loads the GeneratorMeta that is found at the given path.
+     * @param pMeta - Path where the Generator .meta file is expected to be found.
+     * @return The GeneratorMeta object loaded from the .meta file.
+     * @throws IOException
+     */
+    private GeneratorMeta loadMeta(Path pMeta) throws IOException {
+        String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
+        GeneratorMeta gMeta  = _GSON.fromJson(jsonMeta, GeneratorMeta.class);
+        return gMeta;
     }
 
     /**
@@ -107,22 +125,24 @@ public class Generator {
      * @throws IOException
      */
     private GeneratorMeta genMeta(Path pMeta, List<Question> qList, boolean preserveName ) throws IOException {
-        GeneratorMeta tMeta = new GeneratorMeta();
-        tMeta.indexByName = preserveName;
-        tMeta.isRoot = _pRoot.toFile().getName().equals(pMeta.getParent().toFile().getName());
-        tMeta.name = tMeta.isRoot ? "." : pMeta.getParent().toFile().getName();
-        tMeta.display = new HashMap<String, String>();
-        tMeta.questions = new LinkedList<Question>();
+        GeneratorMeta gMeta = new GeneratorMeta();
+        gMeta.indexByName = preserveName;
+        gMeta.isRoot = _pRoot.toFile().getName().equals(pMeta.getParent().toFile().getName());
+        gMeta.name = gMeta.isRoot ? "." : pMeta.getParent().toFile().getName();
+        gMeta.display = new HashMap<String, String>();
+        gMeta.questions = new LinkedList<Question>();
         for(int i = 0; i < _qList.size(); i++) {
-            Question q = _qList.get(i);
-            tMeta.display.put(preserveName ? q.getName() : "" + (i+1), q.getMetaLine());
-            tMeta.questions.add(new Question(q));
+            Question q = new Question(_qList.get(i));
+            gMeta.display.put(preserveName ? q.getName() : "" + (i+1), q.getMetaLine());
+            gMeta.questions.add(q);
         }
+        return gMeta;
+    }
 
+    private void saveMeta(Path pMeta, GeneratorMeta gMeta) throws IOException {
         BufferedWriter bw = Files.newBufferedWriter(pMeta);
-        bw.write(_GSON.toJson(tMeta));
+        bw.write(_GSON.toJson(gMeta));
         bw.close();
-        return tMeta;
     }
 
     private void genIndexHtml(Path pIndex, GeneratorMeta tMeta, boolean includeBooklet) throws IOException {
@@ -182,10 +202,22 @@ public class Generator {
      * Generates .meta and index.html for the full set of questions loaded in this generator.
      * @throws IOException
      */
-    public void genRoot() throws IOException {
+    public void resetRoot(boolean regenMeta) throws IOException {
         Path pMeta = Paths.get(_pRoot.toString(), ".meta");
-        GeneratorMeta gMeta = genMeta(pMeta, _qList, true);
+        GeneratorMeta gMeta;
+        if (regenMeta) {
+            gMeta = genMeta(pMeta, _qList, true);
+        } else {
+            gMeta = loadMeta(pMeta);
+            gMeta.questions.clear();
+            for(Map.Entry<String, String> kvp : gMeta.display.entrySet()) {
+                String qName = kvp.getValue().split(" ")[0];
+                Question q = new Question(_qMap.get(qName));
+                gMeta.questions.add(q);
+            }
+        }
         adjustPaths(gMeta, ".template/");
+        saveMeta(pMeta, gMeta);
         Path pIndex = Paths.get(_pRoot.toString(), "index.html");
         genIndexHtml(pIndex, gMeta, false);
     }

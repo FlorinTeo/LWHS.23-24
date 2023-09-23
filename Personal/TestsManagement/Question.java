@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -24,6 +25,18 @@ public class Question {
         private Map<String, String> choices;
         private String correct;
         private String notes;
+
+        public QuestionMeta(QuestionMeta qm) {
+            name = qm.name;
+            question = qm.question;
+            // deep copy the map of choices
+            choices = new TreeMap<String, String>(qm.choices);
+            // for(Map.Entry<String, String> kvp : qm.choices.entrySet()) {
+            //     choices.put(kvp.getKey(), kvp.getValue());
+            // }
+            correct = qm.correct;
+            notes = qm.notes;
+        }
     }
 
     private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -53,11 +66,7 @@ public class Question {
      * @param q - Question object to be cloned.
      */
     public Question(Question q) {
-        _meta = q._meta;
-        // deep copy the map of choices
-        for(Map.Entry<String, String> kvp : q._meta.choices.entrySet()) {
-            _meta.choices.put(kvp.getKey(), kvp.getValue());
-        }
+        _meta = new QuestionMeta(q._meta);
         _pxHeight = q._pxHeight;
     }
 
