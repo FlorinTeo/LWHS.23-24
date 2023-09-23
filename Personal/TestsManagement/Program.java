@@ -1,4 +1,4 @@
-package TestsPrep;
+package TestsManagement;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -107,7 +107,7 @@ public class Program {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Test Generator!");
+        System.out.println("____/Tests Management Console \\____");
         Scanner input = new Scanner(System.in);
         do {
             System.out.print("Command > ");
@@ -149,6 +149,8 @@ public class Program {
             parser.close();
         } while(true);
         input.close();
+        System.out.println("____           ____");
+        System.out.println("    \\ Goodbye /");
     }
 
     private static void processHelp() {

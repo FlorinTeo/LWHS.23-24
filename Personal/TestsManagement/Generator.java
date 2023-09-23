@@ -1,52 +1,32 @@
-package TestsPrep;
+package TestsManagement;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Generator {
-    private static final String[] _QANSWERS = {"a", "b", "c", "d", "e"};
     private Path _pRoot;
-    private List<String> _qList;
+    private List<Question> _qList;
     private String _hTemplateStyle;
     private String _hTemplateBooklet;
     private String _hTemplateSection1Header;
     private String _hTemplateSection1Question;
 
     /**
-     * Utility method to shuffle a given list into another one.
-     * Method does not modify its {list} parameter.
-     * @param list - list to be shuffled.
-     * @return shuffled list.
-     */
-    private static List<String> shuffle(List<String> list) {
-        LinkedList<String> sList = new LinkedList<String>();
-        for (String item : list) {
-            if (Math.random() < .5) {
-                sList.addFirst(item);
-            } else {
-                sList.addLast(item);
-            }
-        }
-        return sList;
-    }
-
-    /**
      * Loads the list of questions found in the ".template" sub-folder.
      * @throws IOException
      */
     private void loadQList(Path pTemplate) throws IOException {
-        _qList = new ArrayList<String>();
+        _qList = new LinkedList<Question>();
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
-                String qName = qDir.getFileName().toString();
-                _qList.add(qName);
+                Question question = new Question(qDir);
+                _qList.add(question);
             }
         }
     }
@@ -98,23 +78,18 @@ public class Generator {
     /**
      * Generates the .meta file in the given path. The file will only contain the
      * given list of questions, randomized or not, with their original name or an ordinal number.
-     * @param pMeta - Path to the .meta file.
+    // //  * @param pMeta - Path to the .meta file.
      * @param questions - List of questions to be included.
      * @param randomize - True if list should be randomized, false otherwise.
      * @param preserveName - True if questions should preserve their names, false if an ordinal should be used instead.
      * @return The list of lines in the generated .meta file.
      * @throws IOException
      */
-    private List<String> genMeta(Path pMeta, List<String> questions, boolean randomize, boolean preserveName ) throws IOException {
+    private List<String> genMeta(Path pMeta, List<Question> qList, boolean randomize, boolean preserveName ) throws IOException {
         List<String> metaLines = new LinkedList<String>();
         BufferedWriter bw = Files.newBufferedWriter(pMeta);
-        for(String question : questions) {
-            String metaLine = question + " ";
-            List<String> answers = Arrays.asList(_QANSWERS);
-            if (randomize) {
-                answers = shuffle(answers);
-            }
-            metaLine += String.join("", answers);
+        for(Question question : qList) {
+            String metaLine = question.getMetaLine();
             metaLines.add(metaLine);
             bw.write(metaLine);
             bw.newLine();
