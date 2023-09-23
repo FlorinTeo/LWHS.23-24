@@ -14,10 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Generator {
-        /**
-     * Schema for the Question/.meta file 
-     */
-    private class TestMeta {
+    /**
+    * Schema for the root & test .meta files
+    */
+    private class GeneratorMeta {
         private String name;
         private Map<String, String> display;
         private List<Question> questions;
@@ -41,7 +41,7 @@ public class Generator {
      * Loads the list of questions found in the ".template" sub-folder.
      * @throws IOException
      */
-    private void loadQList(Path pTemplate) throws IOException {
+    private void loadQuestions(Path pTemplate) throws IOException {
         _qList = new LinkedList<Question>();
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
@@ -52,8 +52,9 @@ public class Generator {
     }
 
     /**
-     * Constructs a TestsGenerator object targetting the given {root} folder. The root is
-     * expected to contain a ".template" subfolder.
+     * Constructs a Generator object targetting the given {root} folder. The root is
+     * expected to contain a ".template" subfolder, containing ".html" templates and Questions subfolder,
+     * each with their own ".meta" and ".png" files.
      * @param root - working folder for this generator.
      * @throws IOException
      */
@@ -69,7 +70,7 @@ public class Generator {
             throw new IOException("Template folder is missing or invalid!");
         }
 
-        loadQList(pTemplate);
+        loadQuestions(pTemplate);
         _hTemplateStyle = String.join("\n", Files.readAllLines(phStyle));
         _hTemplateBooklet = String.join("\n", Files.readAllLines(phBooklet));
         _hTemplateSection1Header = String.join("\n", Files.readAllLines(phSection1H));
@@ -96,17 +97,17 @@ public class Generator {
     }
 
     /**
-     * Generates the TestMeta object and .meta file in the given path. The questions in the test are indexed
+     * Generates the GeneratorMeta object and .meta file in the given path. The questions in the test are indexed
      * by either an ordinal number {1, 2, 3, ...} if preserveName=false, or their original name {Q1, Q2, ..}
      * if preserveName=true. The order of the questions in the meta.display map matches the order in meta.questions.
      * @param pMeta - Path to the .meta file.
      * @param qList - List of questions to be included.
      * @param preserveName - True if questions should preserve their names, false if an ordinal should be used instead.
-     * @return The TestMeta object.
+     * @return The GeneratorMeta object.
      * @throws IOException
      */
-    private TestMeta genMeta(Path pMeta, List<Question> qList, boolean preserveName ) throws IOException {
-        TestMeta tMeta = new TestMeta();
+    private GeneratorMeta genMeta(Path pMeta, List<Question> qList, boolean preserveName ) throws IOException {
+        GeneratorMeta tMeta = new GeneratorMeta();
         tMeta.indexByName = preserveName;
         tMeta.isRoot = _pRoot.toFile().getName().equals(pMeta.getParent().toFile().getName());
         tMeta.name = tMeta.isRoot ? "." : pMeta.getParent().toFile().getName();
@@ -124,7 +125,7 @@ public class Generator {
         return tMeta;
     }
 
-    private void genIndexHtml(Path pIndex, TestMeta tMeta, boolean includeBooklet) throws IOException {
+    private void genIndexHtml(Path pIndex, GeneratorMeta tMeta, boolean includeBooklet) throws IOException {
         BufferedWriter bw = Files.newBufferedWriter(pIndex);
         bw.write(_hTemplateStyle);
         if (includeBooklet) {
@@ -141,7 +142,7 @@ public class Generator {
      * @param metaLines - Meta lines indicating what questions and what answers should be indexed.
      * @throws IOException
      */
-    private void genSection1Html(BufferedWriter bwIndex, TestMeta tMeta) throws IOException {
+    private void genSection1Html(BufferedWriter bwIndex, GeneratorMeta tMeta) throws IOException {
         String hSection1H = _hTemplateSection1Header
             .replaceAll("#TNAME#", tMeta.isRoot ? "." : tMeta.name)
             .replace("#QNUM#", "" + tMeta.questions.size());
@@ -167,12 +168,12 @@ public class Generator {
     }
 
     /**
-     * Adjusts all paths in the TestMeta object by prefixing them with the given pathPrefix
-     * @param testMeta - TestMeta object to be adjusted.
+     * Adjusts all paths in the GeneratorMeta object by prefixing them with the given pathPrefix
+     * @param gMeta - GeneratorMeta object to be adjusted.
      * @param pathPrefix - Path prefix to be inserted in front of all paths.
      */
-    private void adjustPaths(TestMeta testMeta, String pathPrefix) {
-        for(Question q : testMeta.questions) {
+    private void adjustPaths(GeneratorMeta gMeta, String pathPrefix) {
+        for(Question q : gMeta.questions) {
             q.adjustPath(pathPrefix);
         }
     }
@@ -183,9 +184,9 @@ public class Generator {
      */
     public void genRoot() throws IOException {
         Path pMeta = Paths.get(_pRoot.toString(), ".meta");
-        TestMeta testMeta = genMeta(pMeta, _qList, true);
-        adjustPaths(testMeta, ".template/");
+        GeneratorMeta gMeta = genMeta(pMeta, _qList, true);
+        adjustPaths(gMeta, ".template/");
         Path pIndex = Paths.get(_pRoot.toString(), "index.html");
-        genIndexHtml(pIndex, testMeta, false);
+        genIndexHtml(pIndex, gMeta, false);
     }
 }
