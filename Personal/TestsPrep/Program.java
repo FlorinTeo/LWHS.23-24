@@ -17,7 +17,7 @@ public class Program {
 
     //"O:/Florin.Teo@Inproted/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1"
     //"D:/ODrive/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1"
-    private static final String _root = "O:/Florin.Teo@Inproted/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1";
+    private static final String _root = "D:/ODrive/TEALS_LWHS/LWHS CS.23-24 - Documents/General/AP CS-A/ap/unit1";
 
     private static Path _rootP = Paths.get(_root);
     private static Path _templateP = Paths.get(_rootP.toAbsolutePath().toString(), ".template");
@@ -65,6 +65,7 @@ public class Program {
         bw.close();
     }
 
+    private static final String _choiceLine = "    <tr><td class=\"refText\">#N#.</td><td style=\"width: 200px; text-align: right;\">(A) (B) (C) (D) (E)</td></tr>";
     private static void genTestIndex(String testName) throws IOException {
         List<String> metaList = loadMeta(testName);
         String tHeader = loadTemplate(".header.html");
@@ -73,11 +74,17 @@ public class Program {
         Path testIndexP = Paths.get(_root, testName, "index.html");
         BufferedWriter bw = Files.newBufferedWriter(testIndexP);
         tHeader = tHeader.replaceAll("#VER#", testName).replace("#NQ#", ""+metaList.size());
+        for (int i = 0; i < metaList.size(); i++) {
+            String choice = _choiceLine.replace("#N#", ""+(i+1));
+            tHeader = tHeader.replace("#ANS#", choice + "\n    #ANS#");
+        }
+        tHeader = tHeader.replace("    #ANS#", "");
         bw.write(tHeader);
-        int nQ = 1;
-        for (String metaLine : metaList) {
+
+        for (int i = 0; i < metaList.size(); i++) {
+            String metaLine = metaList.get(i);
             String[] metaParts = metaLine.split(" ");
-            String hQuestion = tQuestion.replaceFirst("#N#", "" + nQ++);
+            String hQuestion = tQuestion.replaceFirst("#N#", "" + (i+1));
             hQuestion = hQuestion.replaceAll("Q#", metaParts[0]);
             for(char c : metaParts[1].toCharArray()) {
                 hQuestion = hQuestion.replaceFirst(metaParts[0]+"#", metaParts[0] + c);
