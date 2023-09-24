@@ -23,6 +23,7 @@ public class Question {
         private String question;
         private Map<String, String> choices;
         private String correct;
+        private String answer;
         private String notes;
 
         public QuestionMeta(QuestionMeta qm) {
@@ -30,10 +31,8 @@ public class Question {
             question = qm.question;
             // deep copy the map of choices
             choices = new TreeMap<String, String>(qm.choices);
-            // for(Map.Entry<String, String> kvp : qm.choices.entrySet()) {
-            //     choices.put(kvp.getKey(), kvp.getValue());
-            // }
             correct = qm.correct;
+            answer = qm.answer;
             notes = qm.notes;
         }
     }
@@ -105,18 +104,22 @@ public class Question {
 
     public void adjustPath(String prefix) {
         _meta.question = String.format("%s%s/%s", prefix, _meta.name, _meta.question);
+        _meta.answer = String.format("%s%s/%s", prefix, _meta.name, _meta.answer);
         for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
             _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", prefix, _meta.name, kvp.getValue()));
         }
     }
 
-    public String editHtml(String hSection1Q, String qID, String metaLine) {
+    public String editHtml(String hSection1Q, String qID, String metaLine, boolean isAnswer) {
         String metaChoices = metaLine.split(" ")[1];
         hSection1Q = hSection1Q
             .replaceFirst("#QID#", qID)
-            .replaceFirst("#QPNG#", _meta.question);
+            .replaceFirst("#QPNG#", isAnswer ? _meta.answer : _meta.question);
         for(char c : metaChoices.toCharArray()) {
             String cPng = _meta.choices.get(""+c);
+            hSection1Q = isAnswer && _meta.correct.equals(""+c)
+                ? hSection1Q.replaceFirst("#ANS#", "ansTd")
+                : hSection1Q.replaceFirst("#ANS#", "refTd");
             hSection1Q = hSection1Q.replaceFirst("#CPNG#", cPng);
         }
         return hSection1Q;

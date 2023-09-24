@@ -14,6 +14,9 @@ public class Program {
         do {
             System.out.print("Command > ");
             Scanner parser = new Scanner(input.nextLine().trim());
+            if (!parser.hasNext()) {
+                continue;
+            }
             String cmd = parser.next().toLowerCase();
             if (cmd.isEmpty()) {
                 continue;
@@ -77,7 +80,7 @@ public class Program {
         System.out.println("refresh-root:\n  Loads pre-existing generator .meta file and reconstructs the index.html.");
         System.out.println("gen-test {testName} {Questions_csv}:\n  Generates .meta and index.html files for the given questions in root\\test\\...");
         System.out.println("refresh-test {testName}:\n  Loads pre-existing .meta and reconstructs the index.html in given root\\test\\...");
-        System.out.println("gen-variants {testName} {nVariants}:\n  Generates .meta and index.html files {nVariants} of {testName}");
+        System.out.println("gen-variants {testName} {Variants_csv}:\n  Generates .meta and index.html files for {Variants_csv} of {testName}");
         System.out.println("refresh-variants {testName} {Variants_csv}:\n  Loads pre-existing .meta and reconstructs the index.html for the given {Variants_csv}");
     }
 
@@ -133,17 +136,7 @@ public class Program {
         if (!argParser.hasNext()) {
             throw new IllegalArgumentException("Missing or invalid variant arguments!");
         }
-        if (regenMeta) {
-            if (!argParser.hasNextInt()) {
-                throw new IllegalArgumentException("Missing or invalid variants count!");
-            }
-            vIDs = new String[argParser.nextInt()];
-            for (int i = 0; i < vIDs.length; i++) {
-                vIDs[i] = String.format("v%d", i+1);
-            }
-        } else {
-            vIDs = argParser.next().split(",");
-        }
+        vIDs = argParser.next().split(",");
         
         _generator.resetTestVariants(testName, vIDs, regenMeta);
         System.out.println("DONE");
