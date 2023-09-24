@@ -143,6 +143,18 @@ public class Program {
                     case "refresh-root":
                         processResetRoot(false);
                         break;
+                    case "gen-test":
+                        processResetTest(parser, true);
+                        break;
+                    case "refresh-test":
+                        processResetTest(parser, false);
+                        break;
+                    case "gen-variants":
+                        processResetVariants(parser, true);
+                        break;
+                    case "refresh-variants":
+                        processResetVariants(parser, false);
+                        break;
                     default:
                         throw new RuntimeException("Unrecognized command!");
                 }
@@ -163,8 +175,12 @@ public class Program {
         System.out.println("root {path_to_folder}:\n  Targets the test generator to path_to_folder.");
         System.out.println("root?:\n  Prints the current test generator folder.");
         System.out.println("questions?\n  Prints out stats on questions loaded from the root\\.template.");
-        System.out.println("gen-root:\n  Generates the index.html for the all questions in root\\.template.");
+        System.out.println("gen-root:\n  Generates the .meta and index.html for the all questions in root\\.template.");
         System.out.println("refresh-root:\n  Loads pre-existing generator .meta file and reconstructs the index.html.");
+        System.out.println("gen-test {testName} {Questions_csv}:\n  Generates .meta and index.html files for the given questions in root\\test\\...");
+        System.out.println("refresh-test {testName}:\n  Loads pre-existing .meta and reconstructs the index.html in given root\\test\\...");
+        System.out.println("gen-variants {testName} {nVariants}:\n  Generates .meta and index.html files {nVariants} of {testName}");
+        System.out.println("refresh-variants {testName} {Variants_csv}:\n  Loads pre-exixsting .meta and reconstructs the index.html for the given {Variants_csv}");
     }
 
     private static void processLegacy() throws IOException {
@@ -211,6 +227,44 @@ public class Program {
 
     private static void processResetRoot(boolean regenMeta) throws IOException {
         _generator.resetRoot(regenMeta);
+        System.out.println("DONE");
+    }
+
+    private static void processResetTest(Scanner argParser, boolean regenMeta) throws IOException {
+        if (!argParser.hasNext()) {
+            throw new IllegalArgumentException("Missing or invalid test name!");
+        }
+        String testName = argParser.next();
+        String[] qIDs = {};
+        if (argParser.hasNext()) {
+            qIDs = argParser.next().split(",");
+        }
+        _generator.resetTest(testName, qIDs, regenMeta);
+        System.out.println("DONE");
+    }
+
+    private static void processResetVariants(Scanner argParser, boolean regenMeta) throws IOException {
+        if (!argParser.hasNext()) {
+            throw new IllegalArgumentException("Missing or invalid test name!");
+        }
+        String testName = argParser.next();
+        String[] vIDs = {};
+        if (!argParser.hasNext()) {
+            throw new IllegalArgumentException("Missing or invalid variant arguments!");
+        }
+        if (regenMeta) {
+            if (!argParser.hasNextInt()) {
+                throw new IllegalArgumentException("Missing or invalid variants count!");
+            }
+            vIDs = new String[argParser.nextInt()];
+            for (int i = 0; i < vIDs.length; i++) {
+                vIDs[i] = String.format("v%d", i+1);
+            }
+        } else {
+            vIDs = argParser.next().split(",");
+        }
+        
+        _generator.resetTestVariants(testName, vIDs, regenMeta);
         System.out.println("DONE");
     }
 }

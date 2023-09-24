@@ -92,28 +92,22 @@ public class Question {
         return _meta.name;
     }
 
-    public String getMetaLine() {
-        return _meta.name + " " + String.join("", _meta.choices.keySet());
+    public String getMetaLine(boolean shuffle) {
+        List<String> choices = new LinkedList<String>(_meta.choices.keySet());
+        if (shuffle) {
+            choices = shuffle(choices);
+        }
+        return _meta.name + " " + String.join("", choices);
     }
 
     public int getPxHeight() {
         return _pxHeight;
     }
 
-    public void shuffle() {
-        List<String> choiceKeys = new LinkedList<String>(_meta.choices.keySet());
-        Map<String, String> newChoices = new HashMap<String, String>();
-        choiceKeys = shuffle(choiceKeys);
-        for (String choiceKey : choiceKeys) {
-            newChoices.put(choiceKey, _meta.choices.get(choiceKey));
-        }
-        _meta.choices = newChoices;
-    }
-
     public void adjustPath(String prefix) {
-        _meta.question = String.format("%s/%s/%s", prefix, _meta.name, _meta.question);
+        _meta.question = String.format("%s%s/%s", prefix, _meta.name, _meta.question);
         for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
-            _meta.choices.put(kvp.getKey(), String.format("%s/%s/%s", prefix, _meta.name, kvp.getValue()));
+            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", prefix, _meta.name, kvp.getValue()));
         }
     }
 

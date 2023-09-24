@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,6 @@ import java.util.TreeMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import TestsManagement.Question.QuestionMeta;
 
 public class Generator {
     /**
@@ -27,6 +26,15 @@ public class Generator {
         private String notes;
         boolean indexByName;
         boolean isRoot;
+
+        private void shuffle() {
+            questions = Question.shuffle(questions);
+            display.clear();
+            for(int i = 0; i < questions.size(); i++) {
+                Question q = questions.get(i);
+                display.put(indexByName ? q.getName() : "" + (i+1), q.getMetaLine(true));
+            }
+        }
     }
 
     private static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
@@ -66,6 +74,12 @@ public class Generator {
     private GeneratorMeta loadMeta(Path pMeta) throws IOException {
         String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
         GeneratorMeta gMeta  = _GSON.fromJson(jsonMeta, GeneratorMeta.class);
+        gMeta.questions.clear();
+        for(Map.Entry<String, String> kvp : gMeta.display.entrySet()) {
+            String qName = kvp.getValue().split(" ")[0];
+            Question q = new Question(_qMap.get(qName));
+            gMeta.questions.add(q);
+        }
         return gMeta;
     }
 
@@ -131,15 +145,18 @@ public class Generator {
         gMeta.name = gMeta.isRoot ? "." : pMeta.getParent().toFile().getName();
         gMeta.display = new HashMap<String, String>();
         gMeta.questions = new LinkedList<Question>();
-        for(int i = 0; i < _qList.size(); i++) {
-            Question q = new Question(_qList.get(i));
-            gMeta.display.put(preserveName ? q.getName() : "" + (i+1), q.getMetaLine());
+        for(int i = 0; i < qList.size(); i++) {
+            Question q = new Question(qList.get(i));
+            gMeta.display.put(preserveName ? q.getName() : "" + (i+1), q.getMetaLine(false));
             gMeta.questions.add(q);
         }
         return gMeta;
     }
 
     private void saveMeta(Path pMeta, GeneratorMeta gMeta) throws IOException {
+        if (!gMeta.isRoot || !Files.exists(pMeta.getParent())) {
+            Files.createDirectories(pMeta.getParent());
+        }
         BufferedWriter bw = Files.newBufferedWriter(pMeta);
         bw.write(_GSON.toJson(gMeta));
         bw.close();
@@ -209,16 +226,67 @@ public class Generator {
             gMeta = genMeta(pMeta, _qList, true);
         } else {
             gMeta = loadMeta(pMeta);
-            gMeta.questions.clear();
-            for(Map.Entry<String, String> kvp : gMeta.display.entrySet()) {
-                String qName = kvp.getValue().split(" ")[0];
-                Question q = new Question(_qMap.get(qName));
-                gMeta.questions.add(q);
-            }
         }
         adjustPaths(gMeta, ".template/");
         saveMeta(pMeta, gMeta);
         Path pIndex = Paths.get(_pRoot.toString(), "index.html");
         genIndexHtml(pIndex, gMeta, false);
+    }
+
+    /**
+     * Generates .meta and index.html files for the given test
+     * @throws IOException
+     */
+    public void resetTest(String testName, String[] qIDs, boolean regenMeta) throws IOException {
+        Path pMeta = Paths.get(_pRoot.toString(), testName, ".meta");
+        GeneratorMeta gMeta;
+        if (regenMeta) {
+            List<Question> qList;
+            if (qIDs.length == 0) {
+                qList = _qList;
+            } else {
+                HashSet<Question> qSet = new HashSet<Question>();
+                for(String qID : qIDs) {
+                    if (!_qMap.containsKey(qID) || qSet.contains(qID)) {
+                        throw new IllegalArgumentException(String.format("Question %s is non-existent or duplicated!", qID));
+                    }
+                    qSet.add(_qMap.get(qID));
+                }
+                qList = new LinkedList<Question>(qSet);
+            }
+            gMeta = genMeta(pMeta, qList, false);
+        } else {
+            gMeta = loadMeta(pMeta);
+        }
+        adjustPaths(gMeta, "../.template/");
+        saveMeta(pMeta, gMeta);
+        Path pIndex = Paths.get(_pRoot.toString(), testName, "index.html");
+        genIndexHtml(pIndex, gMeta, true);
+    }
+
+    /**
+    * Generates .meta and index.html files for each variant of the given test
+    * @throws IOException
+    */
+    public void resetTestVariants(String testName, String[] vIDs, boolean regenMeta) throws IOException {
+        Path pTMeta = Paths.get(_pRoot.toString(), testName, ".meta");
+        GeneratorMeta gTMeta = loadMeta(pTMeta);
+
+        for(int i = 0; i < vIDs.length; i++) {
+            Path pVMeta = Paths.get(_pRoot.toString(), testName, vIDs[i], ".meta");
+            GeneratorMeta gVMeta;
+            if (regenMeta) {
+                gVMeta = genMeta(pVMeta, gTMeta.questions, false);
+                // Adjust variant name to include the test name
+                gVMeta.name = String.format("%s.%s", gTMeta.name, gVMeta.name);
+                gVMeta.shuffle();
+            } else {
+                gVMeta = loadMeta(pVMeta);
+            }
+            adjustPaths(gVMeta, "../../.template/");
+            saveMeta(pVMeta, gVMeta);
+            Path pVIndex = Paths.get(_pRoot.toString(), testName, vIDs[i], "index.html");
+            genIndexHtml(pVIndex, gVMeta, true);
+        }
     }
 }
