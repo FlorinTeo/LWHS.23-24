@@ -38,7 +38,7 @@ public class Generator {
     }
 
     private static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
-    private static final int _MAX_PX_PER_PAGE = 800;
+    private static final int _MAX_PX_PER_PAGE = 600;
     private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private Path _pRoot;
@@ -167,11 +167,21 @@ public class Generator {
 
     private void genIndexHtml(Path pIndex, GeneratorMeta gMeta, boolean includeBooklet) throws IOException {
         BufferedWriter bw = Files.newBufferedWriter(pIndex);
+        // fill in the styling portion
         bw.write(_hTemplateStyle);
+        // optionally fill in the booklet
         if (includeBooklet) {
             genBookletHtml(bw, gMeta);
         }
-        genSection1Html(bw, gMeta);
+        // finally fill in the questions
+        genSection1Html(bw, gMeta, false);
+        bw.close();
+    }
+
+    private void genAnswersHtml(Path pAnswers, GeneratorMeta gMeta) throws IOException {
+        BufferedWriter bw = Files.newBufferedWriter(pAnswers);
+        bw.write(_hTemplateStyle);
+        genSection1Html(bw, gMeta, true);
         bw.close();
     }
 
@@ -194,7 +204,7 @@ public class Generator {
      * @param metaLines - Meta lines indicating what questions and what answers should be indexed.
      * @throws IOException
      */
-    private void genSection1Html(BufferedWriter bwIndex, GeneratorMeta gMeta) throws IOException {
+    private void genSection1Html(BufferedWriter bwIndex, GeneratorMeta gMeta, boolean isAnswer) throws IOException {
         String hSection1H = _hTemplateSection1Header
             .replaceAll("#TNAME#", gMeta.isRoot ? "." : gMeta.name)
             .replace("#QNUM#", "" + gMeta.questions.size());
@@ -206,7 +216,7 @@ public class Generator {
             Question q = gMeta.questions.get(i);
             String qID = gMeta.indexByName ? q.getName() : "" + (i+1);
             String qMetaLine = gMeta.display.get(qID);
-            String hSection1Q = q.editHtml(_hTemplateSection1Question, qID, qMetaLine);
+            String hSection1Q = q.editHtml(_hTemplateSection1Question, qID, qMetaLine, isAnswer);
             if (pxSum + q.getPxHeight() > _MAX_PX_PER_PAGE) {
                 bwIndex.write(_PRINT_BREAK);
                 bwIndex.newLine();
@@ -246,6 +256,8 @@ public class Generator {
         saveMeta(pMeta, gMeta);
         Path pIndex = Paths.get(_pRoot.toString(), "index.html");
         genIndexHtml(pIndex, gMeta, false);
+        Path pAnswers = Paths.get(_pRoot.toString(), "answers.html");
+        genAnswersHtml(pAnswers, gMeta);
     }
 
     /**
@@ -278,6 +290,8 @@ public class Generator {
         saveMeta(pMeta, gMeta);
         Path pIndex = Paths.get(_pRoot.toString(), testName, "index.html");
         genIndexHtml(pIndex, gMeta, true);
+        Path pAnswers = Paths.get(_pRoot.toString(), testName, "answers.html");
+        genAnswersHtml(pAnswers, gMeta);
     }
 
     /**
@@ -303,6 +317,8 @@ public class Generator {
             saveMeta(pVMeta, gVMeta);
             Path pVIndex = Paths.get(_pRoot.toString(), testName, vIDs[i], "index.html");
             genIndexHtml(pVIndex, gVMeta, true);
+            Path pVAnswers = Paths.get(_pRoot.toString(), testName, vIDs[i], "answers.html");
+            genAnswersHtml(pVAnswers, gVMeta);
         }
     }
 }
