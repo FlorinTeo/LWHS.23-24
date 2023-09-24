@@ -46,6 +46,7 @@ public class Generator {
     private List<Question> _qList;
     private String _hTemplateStyle;
     private String _hTemplateBooklet;
+    private String _hTemplateBookletAns;
     private String _hTemplateSection1Header;
     private String _hTemplateSection1Question;
 
@@ -95,6 +96,7 @@ public class Generator {
         Path pTemplate = Paths.get(root, ".template");
         Path phStyle = Paths.get(root, ".template", ".style.html");
         Path phBooklet = Paths.get(root, ".template", ".booklet.html");
+        Path phBookletAns = Paths.get(root, ".template", ".bookletAns.html");
         Path phSection1H = Paths.get(root, ".template", ".section1H.html");
         Path phSection1Q = Paths.get(root, ".template", ".section1Q.html");
 
@@ -105,6 +107,7 @@ public class Generator {
         loadQuestions(pTemplate);
         _hTemplateStyle = String.join("\n", Files.readAllLines(phStyle));
         _hTemplateBooklet = String.join("\n", Files.readAllLines(phBooklet));
+        _hTemplateBookletAns = String.join("\n", Files.readAllLines(phBookletAns));
         _hTemplateSection1Header = String.join("\n", Files.readAllLines(phSection1H));
         _hTemplateSection1Question = String.join("\n", Files.readAllLines(phSection1Q));
     }
@@ -162,14 +165,26 @@ public class Generator {
         bw.close();
     }
 
-    private void genIndexHtml(Path pIndex, GeneratorMeta tMeta, boolean includeBooklet) throws IOException {
+    private void genIndexHtml(Path pIndex, GeneratorMeta gMeta, boolean includeBooklet) throws IOException {
         BufferedWriter bw = Files.newBufferedWriter(pIndex);
         bw.write(_hTemplateStyle);
         if (includeBooklet) {
-            //genBookletHtml(bw, tMeta);
+            genBookletHtml(bw, gMeta);
         }
-        genSection1Html(bw, tMeta);
+        genSection1Html(bw, gMeta);
         bw.close();
+    }
+
+    private void genBookletHtml(BufferedWriter bwIndex, GeneratorMeta gMeta) throws IOException {
+        String hBooklet = _hTemplateBooklet
+            .replaceAll("#TNAME#", gMeta.isRoot ? "." : gMeta.name)
+            .replace("#QNUM#", "" + gMeta.questions.size());
+        for (int i = 0; i < gMeta.questions.size(); i++) {
+            String hAnswer = _hTemplateBookletAns.replace("#N#", "" + (i+1));
+            hBooklet = hBooklet.replace("#ANS#", hAnswer + "\n    #ANS#");
+        }
+        hBooklet = hBooklet.replace("\n    #ANS#", "");
+        bwIndex.write(hBooklet);
     }
 
     /**
@@ -179,18 +194,18 @@ public class Generator {
      * @param metaLines - Meta lines indicating what questions and what answers should be indexed.
      * @throws IOException
      */
-    private void genSection1Html(BufferedWriter bwIndex, GeneratorMeta tMeta) throws IOException {
+    private void genSection1Html(BufferedWriter bwIndex, GeneratorMeta gMeta) throws IOException {
         String hSection1H = _hTemplateSection1Header
-            .replaceAll("#TNAME#", tMeta.isRoot ? "." : tMeta.name)
-            .replace("#QNUM#", "" + tMeta.questions.size());
+            .replaceAll("#TNAME#", gMeta.isRoot ? "." : gMeta.name)
+            .replace("#QNUM#", "" + gMeta.questions.size());
         bwIndex.write(hSection1H);
         bwIndex.newLine();
 
         int pxSum = 0;
-        for (int i = 0; i < tMeta.questions.size(); i++) {
-            Question q = tMeta.questions.get(i);
-            String qID = tMeta.indexByName ? q.getName() : "" + (i+1);
-            String qMetaLine = tMeta.display.get(qID);
+        for (int i = 0; i < gMeta.questions.size(); i++) {
+            Question q = gMeta.questions.get(i);
+            String qID = gMeta.indexByName ? q.getName() : "" + (i+1);
+            String qMetaLine = gMeta.display.get(qID);
             String hSection1Q = q.editHtml(_hTemplateSection1Question, qID, qMetaLine);
             if (pxSum + q.getPxHeight() > _MAX_PX_PER_PAGE) {
                 bwIndex.write(_PRINT_BREAK);
@@ -246,8 +261,9 @@ public class Generator {
                 qList = _qList;
             } else {
                 HashSet<Question> qSet = new HashSet<Question>();
+                // make sure there are no duplicates in the qIDs
                 for(String qID : qIDs) {
-                    if (!_qMap.containsKey(qID) || qSet.contains(qID)) {
+                    if (!_qMap.containsKey(qID) || qSet.contains((Object)qID)) {
                         throw new IllegalArgumentException(String.format("Question %s is non-existent or duplicated!", qID));
                     }
                     qSet.add(_qMap.get(qID));
