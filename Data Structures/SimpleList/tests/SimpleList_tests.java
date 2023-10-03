@@ -6,10 +6,10 @@ import org.junit.Test;
 
 import SimpleList.main.SimpleList;
 
-class SimpleList_tests {
+public class SimpleList_tests {
 
     @Test
-    void test_add() {
+    public void test_add() {
         // Create a simple list: [11, 22, 33]
         SimpleList sList = new SimpleList();
         sList.add(11);
@@ -24,7 +24,7 @@ class SimpleList_tests {
     }
     
     @Test
-    void test_addAtIndex() {
+    public void test_addAtIndex() {
         // Create a simple list
         SimpleList sList = new SimpleList();
         sList.add(0, "abc"); // ["abc"]
@@ -39,7 +39,7 @@ class SimpleList_tests {
     }
     
     @Test
-    void test_remove() {
+    public void test_remove() {
         // Create a simple list ["x", "y", "z"]
         SimpleList sList = new SimpleList();
         sList.add(0, "x");
