@@ -40,22 +40,22 @@ public class Program {
                         processGetQuestions();
                         break;
                     case "gen-root":
-                        processResetRoot(true);
+                        processGenRoot(true);
                         break;
-                    case "refresh-root":
-                        processResetRoot(false);
+                    case "regen-root":
+                        processGenRoot(false);
                         break;
                     case "gen-test":
-                        processResetTest(parser, true);
+                        processGenTest(parser, true);
                         break;
-                    case "refresh-test":
-                        processResetTest(parser, false);
+                    case "regen-test":
+                        processGenTest(parser, false);
                         break;
                     case "gen-variants":
-                        processResetVariants(parser, true);
+                        processGenVariants(parser, true);
                         break;
-                    case "refresh-variants":
-                        processResetVariants(parser, false);
+                    case "regen-variants":
+                        processGenVariants(parser, false);
                         break;
                     default:
                         throw new RuntimeException("Unrecognized command!");
@@ -72,16 +72,16 @@ public class Program {
 
     private static void processHelp() {
         System.out.println("? | help:\n  This help.");
-        System.out.println("exit | quit:\n  Exits the program.");
-        System.out.println("root {path_to_folder}:\n  Targets the test generator to path_to_folder.");
-        System.out.println("root?:\n  Prints the current test generator folder.");
-        System.out.println("questions?\n  Prints out stats on questions loaded from the root\\.template.");
-        System.out.println("gen-root:\n  Generates the .meta and index.html for the all questions in root\\.template.");
-        System.out.println("refresh-root:\n  Loads pre-existing generator .meta file and reconstructs the index.html.");
-        System.out.println("gen-test {testName} {Questions_csv}:\n  Generates .meta and index.html files for the given questions in root\\test\\...");
-        System.out.println("refresh-test {testName}:\n  Loads pre-existing .meta and reconstructs the index.html in given root\\test\\...");
-        System.out.println("gen-variants {testName} {Variants_csv}:\n  Generates .meta and index.html files for {Variants_csv} of {testName}");
-        System.out.println("refresh-variants {testName} {Variants_csv}:\n  Loads pre-existing .meta and reconstructs the index.html for the given {Variants_csv}");
+        System.out.println("exit | quit:\n    Exits the program.");
+        System.out.println("root {path_to_folder}:\n    Targets the test generator to path_to_folder.");
+        System.out.println("root?:\n    Prints the current test generator folder.");
+        System.out.println("questions?\n    Prints out stats on questions loaded from the root\\.template.");
+        System.out.println("gen-root:\n    Generates the .meta and index.html for the all questions in root\\.template.");
+        System.out.println("regen-root:\n    Loads pre-existing generator .meta file and reconstructs the index.html.");
+        System.out.println("gen-test {testName} {Questions_csv}:\n    Generates .meta and index.html files for the given questions in root\\test\\...");
+        System.out.println("regen-test {testName}:\n    Loads pre-existing .meta and reconstructs the index.html in given root\\test\\...");
+        System.out.println("gen-variants {testName} {Variants_csv}:\n    Generates .meta and index.html files for {Variants_csv} of {testName}");
+        System.out.println("regen-variants {testName} {Variants_csv}:\n    Loads pre-existing .meta and reconstructs the index.html for the given {Variants_csv}");
     }
 
     private static void processSetRoot(String root) throws IOException {
@@ -109,12 +109,12 @@ public class Program {
         }
     }
 
-    private static void processResetRoot(boolean regenMeta) throws IOException {
-        _generator.resetRoot(regenMeta);
+    private static void processGenRoot(boolean regenMeta) throws IOException {
+        _generator.genRoot(regenMeta);
         System.out.println("DONE");
     }
 
-    private static void processResetTest(Scanner argParser, boolean regenMeta) throws IOException {
+    private static void processGenTest(Scanner argParser, boolean regenMeta) throws IOException {
         if (!argParser.hasNext()) {
             throw new IllegalArgumentException("Missing or invalid test name!");
         }
@@ -123,11 +123,11 @@ public class Program {
         if (argParser.hasNext()) {
             qIDs = argParser.next().split(",");
         }
-        _generator.resetTest(testName, qIDs, regenMeta);
+        _generator.genTest(testName, qIDs, regenMeta);
         System.out.println("DONE");
     }
 
-    private static void processResetVariants(Scanner argParser, boolean regenMeta) throws IOException {
+    private static void processGenVariants(Scanner argParser, boolean regenMeta) throws IOException {
         if (!argParser.hasNext()) {
             throw new IllegalArgumentException("Missing or invalid test name!");
         }
@@ -138,7 +138,7 @@ public class Program {
         }
         vIDs = argParser.next().split(",");
         
-        _generator.resetTestVariants(testName, vIDs, regenMeta);
+        _generator.genTestVariants(testName, vIDs, regenMeta);
         System.out.println("DONE");
     }
 }

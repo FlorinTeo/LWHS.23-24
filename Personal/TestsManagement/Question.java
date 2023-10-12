@@ -103,10 +103,16 @@ public class Question {
     }
 
     public void adjustPath(String prefix) {
-        _meta.question = String.format("%s%s/%s", prefix, _meta.name, _meta.question);
-        _meta.answer = String.format("%s%s/%s", prefix, _meta.name, _meta.answer);
+        // question file name
+        String qFile = Paths.get(_meta.question).getFileName().toString();
+        // answer file name
+        String aFile = Paths.get(_meta.answer).getFileName().toString();
+        _meta.question = String.format("%s%s/%s", prefix, _meta.name,qFile);
+        _meta.answer = String.format("%s%s/%s", prefix, _meta.name, aFile);
         for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
-            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", prefix, _meta.name, kvp.getValue()));
+            // choice file name
+            String cFile = Paths.get(kvp.getValue()).getFileName().toString();
+            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", prefix, _meta.name, cFile));
         }
     }
 
