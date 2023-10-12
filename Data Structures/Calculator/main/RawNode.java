@@ -4,22 +4,16 @@ public class RawNode {
     
     /**
      * Class fields:
-     * Raw content in this node, as a string.
-     * References to the previous and next node, or null respectively if nodes do not exist. 
+     * TODO: Raw content in this node, as a string.
+     * TODO: References to the previous and next node, or null respectively if nodes do not exist. 
      */
-    private String _rawContent;
-    private RawNode _prev;
-    private RawNode _next;
     
     /**
      * Class constructor. Builds a new generic raw content node.
      * @param rawContent - the raw content stored in this node.
      */
     protected RawNode(String rawContent) {
-        // configures / initializes class fields.
-        _rawContent = rawContent;
-        _prev = null;
-        _next = null;
+        // TODO: configures / initializes class fields.
     }
     
     /**

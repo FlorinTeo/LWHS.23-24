@@ -8,15 +8,6 @@ public class NumCalc {
      * TODO: Expression list: a double-linked list containing the numbers and operators to be evaluated.
      * TODO: Tracing list: a double-linked list containing raw nodes, each holding a trace frame as a string. 
      */
-
-     // [[^]
-     //  [*, /, %]
-     //  [+, -]]
-     private OpNode.OpCode[][] _precedenceTbl = {
-        { OpNode.OpCode.POWER },
-        { OpNode.OpCode.MULTIPLICATION, OpNode.OpCode.DIVISION, OpNode.OpCode.MODULO },
-        { OpNode.OpCode.ADDITION, OpNode.OpCode.SUBTRACTION }
-     };
     
     /**
      * Class constructor.

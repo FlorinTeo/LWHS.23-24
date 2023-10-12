@@ -16,7 +16,6 @@ public class OpNode extends RawNode {
      * Class fields:
      * TODO: Operator code for this node
      */
-    private OpCode _operator = OpCode.UNKNOWN;
     
     /**
      * Class constructor. Builds a new operator node.
@@ -26,9 +25,6 @@ public class OpNode extends RawNode {
         super(rawContent);
         // TODO: UNKNOWN initial value for this node's operator code
         // TODO: since the raw content is not parsed.
-
-        // if rawContent is something that's not recognized (i.e "~")
-        // then we'll ... throw an exception!
     }
     
     /**
@@ -50,7 +46,7 @@ public class OpNode extends RawNode {
      */
     public OpCode getOpCode() {
         // TODO: returns the operator code (OpCode)
-        return _operator;
+        return null;
     }
     
     /**
