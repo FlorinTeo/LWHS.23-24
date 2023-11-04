@@ -1,6 +1,9 @@
 package TestsManagement;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Program {
@@ -57,6 +60,10 @@ public class Program {
                     case "regen-variants":
                         processGenVariants(parser, false);
                         break;
+                    case "debug":
+                        Path phIndex = Paths.get("D:/ODrive/Admin@Inproted/TEALS_LWHS/LWHS CS.23-24 - Documents/General/Data Structures/ds/unit1/.template/.index.html");
+                        WebDoc wd = new WebDoc(Files.readAllLines(phIndex));
+                        System.out.println(wd);
                     default:
                         throw new RuntimeException("Unrecognized command!");
                 }

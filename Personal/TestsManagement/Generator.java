@@ -49,6 +49,7 @@ public class Generator {
     private String _hTemplateBookletAns;
     private String _hTemplateSection1Header;
     private String _hTemplateSection1Question;
+    private WebDoc _webDoc;
 
     /**
      * Loads the list of questions found in the ".template" sub-folder.
@@ -88,6 +89,8 @@ public class Generator {
     public Generator(String root) throws IOException {
         _pRoot = Paths.get(root);
         Path pTemplate = Paths.get(root, ".template");
+        Path phIndex = Paths.get(root,".template", ".index.html");
+
         Path phStyle = Paths.get(root, ".template", ".style.html");
         Path phBooklet = Paths.get(root, ".template", ".booklet.html");
         Path phBookletAns = Paths.get(root, ".template", ".bookletAns.html");
@@ -104,6 +107,8 @@ public class Generator {
         _hTemplateBookletAns = String.join("\n", Files.readAllLines(phBookletAns));
         _hTemplateSection1Header = String.join("\n", Files.readAllLines(phSection1H));
         _hTemplateSection1Question = String.join("\n", Files.readAllLines(phSection1Q));
+    
+        _webDoc = new WebDoc(Files.readAllLines(phIndex));
     }
 
     /**
