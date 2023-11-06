@@ -155,14 +155,14 @@ public class WebDoc {
     private void genBookletHtml(BufferedWriter bw, GMeta gMeta) throws IOException {
         String bkHtml = _answers
             .replaceAll("#TNAME#", gMeta.getName())
-            .replace("#QNUM#", "" + gMeta.getQuestions().size());
+            .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
 
         int iMCQ = bkHtml.indexOf(_TAG_ANSWERS_MCQ);
         int iFRQ = bkHtml.indexOf(_TAG_ANSWERS_FRQ);
         bw.write(bkHtml.substring(0, iMCQ));
         bw.newLine();       
         //Write mcq answer lines
-        for (int i = 0; i < gMeta.getQuestions().size(); i++) {
+        for (int i = 0; i < gMeta.getMCQuestions().size(); i++) {
             String bkMCQLine = _answersMCQ.replace("#N#", "" + (i + 1));
             bw.write(bkMCQLine);
         }
@@ -182,7 +182,7 @@ public class WebDoc {
     private void genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
         String s1Html = _section1
             .replaceAll("#TNAME#", gMeta.getName())
-            .replace("#QNUM#", "" + gMeta.getQuestions().size());
+            .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
 
         int iMCQ = s1Html.indexOf(_TAG_SECTION1_MCQ);
         bw.write(s1Html.substring(0, iMCQ));

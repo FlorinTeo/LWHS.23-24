@@ -88,8 +88,24 @@ public class GMeta {
         return _name;
     }
 
-    public List<Question> getQuestions() {
+    public List<Question> getMCQuestions() {
         return _mcQuestions;
+    }
+
+    public List<Question> getFRQuestions() {
+        return _frQuestions;
+    }
+
+    public List<Question> getAppendix() {
+        return _appendix;
+    }
+
+    public List<Question> getQuestions() {
+        List<Question> allQuestions = new LinkedList<Question>();
+        allQuestions.addAll(_mcQuestions);
+        allQuestions.addAll(_frQuestions);
+        allQuestions.addAll(_appendix);
+        return allQuestions;
     }
 
     public void adjustPath(String pathPrefix) {
