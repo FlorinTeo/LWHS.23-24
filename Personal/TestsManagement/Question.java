@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Question {
+    private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
+
     /**
      * Schema for the Question/.meta file 
      */
@@ -37,9 +39,9 @@ public class Question {
         }
     }
 
-    private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
     private QuestionMeta _meta;
-    private int _pxHeight;
+    private int _pxHeightQ;
+    private int _pxHeightA;
 
      /**
      * Utility method to shuffle a given list into another one.
@@ -65,7 +67,8 @@ public class Question {
      */
     public Question(Question q) {
         _meta = new QuestionMeta(q._meta);
-        _pxHeight = q._pxHeight;
+        _pxHeightQ = q._pxHeightQ;
+        _pxHeightA = q._pxHeightA;
     }
 
     public Question(Path pQuestion) throws IOException {
@@ -76,13 +79,18 @@ public class Question {
     }
 
     private void loadPxHeight(Path pQuestion) throws IOException {
-        Path pPng = Paths.get(pQuestion.toString(), _meta.question);
-        BufferedImage bi = ImageIO.read(pPng.toFile());
-        _pxHeight = bi.getHeight();
+        Path pPngQ = Paths.get(pQuestion.toString(), _meta.question);
+        BufferedImage bi = ImageIO.read(pPngQ.toFile());
+        _pxHeightQ = bi.getHeight();
+        Path pPngA = Paths.get(pQuestion.toString(), _meta.answer);
+        bi = ImageIO.read(pPngA.toFile());
+        _pxHeightA = bi.getHeight();
+
         for(String choice : _meta.choices.values()) {
-            pPng = Paths.get(pQuestion.toString(), choice);
-            bi = ImageIO.read(pPng.toFile());
-            _pxHeight += bi.getHeight();
+            Path pPngC = Paths.get(pQuestion.toString(), choice);
+            bi = ImageIO.read(pPngC.toFile());
+            _pxHeightQ += bi.getHeight();
+            _pxHeightA += bi.getHeight();
         }
     }
 
@@ -98,21 +106,32 @@ public class Question {
         return _meta.name + " " + String.join("", choices);
     }
 
-    public int getPxHeight() {
-        return _pxHeight;
+    public int getPxHeightQ() {
+        return _pxHeightQ;
     }
 
-    public void adjustPath(String prefix) {
-        // question file name
-        String qFile = Paths.get(_meta.question).getFileName().toString();
-        // answer file name
-        String aFile = Paths.get(_meta.answer).getFileName().toString();
-        _meta.question = String.format("%s%s/%s", prefix, _meta.name,qFile);
-        _meta.answer = String.format("%s%s/%s", prefix, _meta.name, aFile);
+    public int getPxHeightA() {
+        return _pxHeightA;
+    }
+
+    public String getPathPrefix() {
+        String pathPrefix = "";
+        int iQFile = _meta.question.indexOf(_meta.name);
+        if (iQFile != -1) {
+            pathPrefix = _meta.question.substring(0, iQFile);
+        }
+        return pathPrefix;
+    }
+
+    public void adjustPath(String pathPrefix) {
+        String qFile = Paths.get(_meta.question).toFile().getName();
+        String aFile = Paths.get(_meta.answer).toFile().getName();
+        _meta.question = String.format("%s%s/%s", pathPrefix, _meta.name, qFile);
+        _meta.answer = String.format("%s%s/%s", pathPrefix, _meta.name, aFile);
         for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
             // choice file name
-            String cFile = Paths.get(kvp.getValue()).getFileName().toString();
-            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", prefix, _meta.name, cFile));
+            String cFile = Paths.get(kvp.getValue()).toFile().getName();
+            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", pathPrefix, _meta.name, cFile));
         }
     }
 
@@ -133,6 +152,6 @@ public class Question {
 
     @Override
     public String toString() {
-        return String.format("%s:%d", _meta.name, _pxHeight);
+        return String.format("%s:pxQ=%d,pxA=%d", _meta.name, _pxHeightQ, _pxHeightA);
     }
 }

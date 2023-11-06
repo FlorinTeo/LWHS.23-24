@@ -1,10 +1,18 @@
 package TestsManagement;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 public class WebDoc {
+    public static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
+    public static final int _MAX_PX_PER_PAGE = 880;
+    public static final int _FRQ_ANSWER_PAGES = 4;
 
     private static final String _TAG_STYLE = "<!--======== STYLE ========-->";
     private String _style;
@@ -31,7 +39,7 @@ public class WebDoc {
     private static final String _TAG_APPENDIX_PAGE = "<!--~~~~~~~~ APPENDIX PAGE ~~~~~~~~-->";
     private String _appendixPage;
 
-    // #region private methods
+    // #region: [private methods] Loading HTML web document template
     private String loadEmptyLines(Queue<String> qLines) {
         String emptyLines = "";
         while(!qLines.isEmpty() && qLines.peek().isBlank()) {
@@ -141,7 +149,49 @@ public class WebDoc {
         }
         throw new RuntimeException("Invalid .index[section2] format");
     }
-    // #endregion private methods
+    // #endregion: [private methods] Loading web document template
+
+    // #region: [private methods] Writing HTML web document parts
+    private void genBookletHtml(BufferedWriter bw, GMeta gMeta) throws IOException {
+        String bkHtml = _answers
+            .replaceAll("#TNAME#", gMeta.getName())
+            .replace("#QNUM#", "" + gMeta.getQuestions().size());
+
+        int iMCQ = bkHtml.indexOf(_TAG_ANSWERS_MCQ);
+        int iFRQ = bkHtml.indexOf(_TAG_ANSWERS_FRQ);
+        bw.write(bkHtml.substring(0, iMCQ));
+        bw.newLine();       
+        //Write mcq answer lines
+        for (int i = 0; i < gMeta.getQuestions().size(); i++) {
+            String bkMCQLine = _answersMCQ.replace("#N#", "" + (i + 1));
+            bw.write(bkMCQLine);
+        }
+
+        bw.write(bkHtml.substring(iMCQ + _TAG_ANSWERS_MCQ.length(), iFRQ));
+        bw.newLine();
+        //Write frq answer pages
+        for (int i = 0; i < _FRQ_ANSWER_PAGES; i++) {
+            String bkFRQPage = _answersFRQ.replace("#GRIDPATH#", gMeta.getPathPrefix());
+            bw.write(bkFRQPage);
+        }
+
+        bw.write(bkHtml.substring(iFRQ + _TAG_ANSWERS_FRQ.length()));
+        System.out.printf("ansBk pages = 6\n");
+    }
+
+    private void genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
+        String s1Html = _section1
+            .replaceAll("#TNAME#", gMeta.getName())
+            .replace("#QNUM#", "" + gMeta.getQuestions().size());
+
+        int iMCQ = s1Html.indexOf(_TAG_SECTION1_MCQ);
+        bw.write(s1Html.substring(0, iMCQ));
+        bw.newLine();       
+        int nPages = gMeta.genMCQHtml(bw, _section1MCQ, answers);
+        bw.write(s1Html.substring(iMCQ + _TAG_SECTION1_MCQ.length()));
+        System.out.printf("mcq pages = %d\n", nPages);
+    }
+    // #endregion: [private methods] Writing HTML web document parts
 
     public WebDoc(List<String> lines) {
         Queue<String> qLines = new LinkedList<String>(lines);
@@ -152,28 +202,36 @@ public class WebDoc {
         loadAppendix(qLines);
     }
 
-    @Override
-    public String toString() {
-        String output = "";
-        output += "########################" + _TAG_STYLE + "\n" + _style;
-        output += "\n\n\n";
-        output += "########################" + _TAG_ANSWERS + "\n" + _answers;
-        output += "\n\n\n";
-        output += "########################" + _TAG_ANSWERS_MCQ + "\n" + _answersMCQ;
-        output += "\n\n\n";
-        output += "########################" + _TAG_ANSWERS_FRQ + "\n" + _answersFRQ;
-        output += "\n\n\n";
-        output += "########################" + _TAG_SECTION1 + "\n" + _section1;
-        output += "\n\n\n";
-        output += "########################" + _TAG_SECTION1_MCQ + "\n" + _section1MCQ;
-        output += "\n\n\n";
-        output += "########################" + _TAG_SECTION2 + "\n" + _section2;
-        output += "\n\n\n";
-        output += "########################" + _TAG_SECTION2_PAGE + "\n" + _section2Page;
-        output += "\n\n\n";
-        output += "########################" + _TAG_APPENDIX + "\n" + _appendix;
-        output += "\n\n\n";
-        output += "########################" + _TAG_APPENDIX_PAGE + "\n" + _appendixPage;
-        return output;
+    public void genIndexHtml(GMeta gMeta, Path pRoot) throws IOException {
+        Path pIndexHtml = Paths.get(pRoot.toString(), "index.html");
+        BufferedWriter bw = Files.newBufferedWriter(pIndexHtml);
+        // fill in the styling portion
+        bw.write(_style);
+        // fill in the section 1 answers
+        genSection1Html(bw, gMeta, true);
+        bw.close();
+    }
+
+    public void genTestHtml(GMeta gMeta, Path pTest) throws IOException {
+        Path pTestHtml = Paths.get(pTest.toString(), "test.html");
+        BufferedWriter bw = Files.newBufferedWriter(pTestHtml);
+        // fill in the styling portion
+        bw.write(_style);
+        // fill in the booklet
+        genBookletHtml(bw, gMeta);
+        // fill in the section 1 questions
+        genSection1Html(bw, gMeta, false);
+        // TODO: fill in the section 2 pages
+        // TODO: fill in the appendix pages
+        bw.close();
+
+        Path pAnswersHtml = Paths.get(pTest.toString(), "answers.html");
+        bw = Files.newBufferedWriter(pAnswersHtml);
+        // fill in the styling portion
+        bw.write(_style);
+        // fill in the section 1 answers
+        genSection1Html(bw, gMeta, true);
+        // TODO: fill in the section 2 answers
+        bw.close();
     }
 }
