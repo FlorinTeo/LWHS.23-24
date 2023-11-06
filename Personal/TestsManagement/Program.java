@@ -69,6 +69,7 @@ public class Program {
                 }
             } catch (Exception e) {
                 System.out.printf("##ERR##: %s\n", e.getMessage());
+                e.printStackTrace();             
             }
             parser.close();
         } while(true);

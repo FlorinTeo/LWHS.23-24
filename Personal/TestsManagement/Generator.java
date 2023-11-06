@@ -21,14 +21,36 @@ public class Generator {
      * @throws IOException
      */
     private void loadQuestions(Path pTemplate) throws IOException {
-        _qList = new LinkedList<Question>();
-        _qMap = new TreeMap<String, Question>();
+        List<Question> mcq = new LinkedList<Question>();
+        List<Question> frq = new LinkedList<Question>();
+        List<Question> apx = new LinkedList<Question>();
+
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
                 Question question = new Question(qDir);
-                _qList.add(question);
-                _qMap.put(question.getName(),question);
+                switch(question.getType().toLowerCase()) {
+                    case "mcq":
+                        mcq.add(question);
+                        break;
+                    case "frq":
+                        frq.add(question);
+                        break;
+                    case "apx":
+                        apx.add(question);
+                        break;
+                    default:
+                        throw new RuntimeException("Invalid question type");
+                }
             }
+        }
+
+        _qList = new LinkedList<Question>();
+        _qList.addAll(mcq);
+        _qList.addAll(frq);
+        _qList.addAll(apx);
+        _qMap = new TreeMap<String, Question>();
+        for(Question q : _qList) {
+            _qMap.put(q.getName(), q);
         }
     }
 

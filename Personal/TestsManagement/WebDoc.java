@@ -209,6 +209,8 @@ public class WebDoc {
         bw.write(_style);
         // fill in the section 1 answers
         genSection1Html(bw, gMeta, true);
+        // TODO: fill in the section 2 pages
+        // TODO: fill in the appendix pages
         bw.close();
     }
 

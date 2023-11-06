@@ -29,14 +29,18 @@ public class GMeta {
      *     },
      */
     private Map<String, String> _display;
-    private List<Question> _questions;
+    private List<Question> _mcQuestions;
+    private List<Question> _frQuestions;
+    private List<Question> _appendix;
     private String _notes;
     private boolean _isAnonymized;
 
     private void reset() {
         _name = "";
         _display = new TreeMap<String, String>();
-        _questions = new LinkedList<Question>();
+        _mcQuestions = new LinkedList<Question>();
+        _frQuestions = new LinkedList<Question>();
+        _appendix = new LinkedList<Question>();
         _notes = "";
         _isAnonymized = false;
     }
@@ -51,7 +55,9 @@ public class GMeta {
         GMeta loaded  = _GSON.fromJson(jsonMeta,GMeta.class);
         _name = loaded._name;
         _display = loaded._display;
-        _questions = loaded._questions;
+        _mcQuestions = loaded._mcQuestions;
+        _frQuestions = loaded._frQuestions;
+        _appendix = loaded._appendix;
         _notes = loaded._notes;
         _isAnonymized = loaded._isAnonymized;
     }
@@ -61,8 +67,18 @@ public class GMeta {
         _name = name;
         for(int i = 0; i < qList.size(); i++) {
             Question q = new Question(qList.get(i));
-            _display.put(q.getName(), q.getMetaLine(false));
-            _questions.add(q);
+            switch(q.getType().toLowerCase()) {
+                case "mcq":
+                    _display.put(q.getName(), q.getMetaLine(false));
+                    _mcQuestions.add(q);
+                    break;
+                case "frq":
+                    _frQuestions.add(q);
+                    break;
+                case "apx":
+                    _appendix.add(q);
+                    break;
+            }
         }
         _notes = "";
         _isAnonymized = false;
@@ -73,26 +89,32 @@ public class GMeta {
     }
 
     public List<Question> getQuestions() {
-        return _questions;
+        return _mcQuestions;
     }
 
     public void adjustPath(String pathPrefix) {
-        for(Question q : _questions) {
+        for(Question q : _mcQuestions) {
+            q.adjustPath(pathPrefix);
+        }
+        for(Question q : _frQuestions) {
+            q.adjustPath(pathPrefix);
+        }
+        for(Question q : _appendix) {
             q.adjustPath(pathPrefix);
         }
     }
 
     public String getPathPrefix() {
-        return _questions.get(0).getPathPrefix();
+        return _mcQuestions.get(0).getPathPrefix();
     }
 
     public void anonymize(boolean randomize) {
         if (randomize) {
-            _questions = Question.shuffle(_questions);
+            _mcQuestions = Question.shuffle(_mcQuestions);
         }
         _display.clear();
-        for(int i = 0; i < _questions.size(); i++) {
-            Question q = _questions.get(i);
+        for(int i = 0; i < _mcQuestions.size(); i++) {
+            Question q = _mcQuestions.get(i);
             _display.put("" + (i+1), q.getMetaLine(randomize));
         }
         _isAnonymized = true;
@@ -112,11 +134,11 @@ public class GMeta {
     public int genMCQHtml(BufferedWriter bw, String format, boolean answers) throws IOException {
         int pxSum = 0;
         int nPages = 1;
-        for (int i = 0; i < _questions.size(); i++) {
-            Question q = _questions.get(i);
+        for (int i = 0; i < _mcQuestions.size(); i++) {
+            Question q = _mcQuestions.get(i);
             String qID = _isAnonymized ? "" + (i+1) : q.getName();
             String qMetaLine = _display.get(qID);
-            String hSection1Q = q.editHtml(format, qID, qMetaLine, answers);
+            String hSection1Q = q.editMCQHtml(format, qID, qMetaLine, answers);
             int pxHeight = answers ? q.getPxHeightA() : q.getPxHeightQ();
             if (pxSum + pxHeight > WebDoc._MAX_PX_PER_PAGE) {
                 nPages++;
@@ -132,3 +154,4 @@ public class GMeta {
         return nPages;
     }
 }
+

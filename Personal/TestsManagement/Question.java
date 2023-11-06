@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,26 +21,32 @@ public class Question {
     /**
      * Schema for the Question/.meta file 
      */
-    public class QuestionMeta {
+    public class QMeta {
         private String name;
+        private String type;
         private String question;
         private Map<String, String> choices;
         private String correct;
         private String answer;
         private String notes;
+        private List<String> textPages;
+        private List<String> solutionPages;
 
-        public QuestionMeta(QuestionMeta qm) {
+        public QMeta(QMeta qm) {
             name = qm.name;
+            type = qm.type;
             question = qm.question;
             // deep copy the map of choices
-            choices = new TreeMap<String, String>(qm.choices);
+            choices = (qm.choices != null) ? new TreeMap<String, String>(qm.choices) : null;
             correct = qm.correct;
             answer = qm.answer;
             notes = qm.notes;
+            textPages = (qm.textPages != null) ? new ArrayList<String>(qm.textPages) : null;
+            solutionPages = (qm.solutionPages != null) ? new ArrayList<String>(qm.solutionPages) : null;
         }
     }
 
-    private QuestionMeta _meta;
+    private QMeta _meta;
     private int _pxHeightQ;
     private int _pxHeightA;
 
@@ -66,7 +73,7 @@ public class Question {
      * @param q - Question object to be cloned.
      */
     public Question(Question q) {
-        _meta = new QuestionMeta(q._meta);
+        _meta = new QMeta(q._meta);
         _pxHeightQ = q._pxHeightQ;
         _pxHeightA = q._pxHeightA;
     }
@@ -74,11 +81,15 @@ public class Question {
     public Question(Path pQuestion) throws IOException {
         Path pMeta = Paths.get(pQuestion.toString(), ".meta");
         String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
-        _meta = _GSON.fromJson(jsonMeta, QuestionMeta.class);
+        _meta = _GSON.fromJson(jsonMeta, QMeta.class);
         loadPxHeight(pQuestion);
     }
 
     private void loadPxHeight(Path pQuestion) throws IOException {
+        if (!_meta.type.equalsIgnoreCase("mcq")) {
+            return;
+        }
+
         Path pPngQ = Paths.get(pQuestion.toString(), _meta.question);
         BufferedImage bi = ImageIO.read(pPngQ.toFile());
         _pxHeightQ = bi.getHeight();
@@ -96,6 +107,10 @@ public class Question {
 
     public String getName() {
         return _meta.name;
+    }
+
+    public String getType() {
+        return _meta.type;
     }
 
     public String getMetaLine(boolean shuffle) {
@@ -124,18 +139,36 @@ public class Question {
     }
 
     public void adjustPath(String pathPrefix) {
-        String qFile = Paths.get(_meta.question).toFile().getName();
-        String aFile = Paths.get(_meta.answer).toFile().getName();
-        _meta.question = String.format("%s%s/%s", pathPrefix, _meta.name, qFile);
-        _meta.answer = String.format("%s%s/%s", pathPrefix, _meta.name, aFile);
-        for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
-            // choice file name
-            String cFile = Paths.get(kvp.getValue()).toFile().getName();
-            _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", pathPrefix, _meta.name, cFile));
+        switch(_meta.type.toLowerCase()) {
+            case "mcq":
+                String qFile = Paths.get(_meta.question).toFile().getName();
+                String aFile = Paths.get(_meta.answer).toFile().getName();
+                _meta.question = String.format("%s%s/%s", pathPrefix, _meta.name, qFile);
+                _meta.answer = String.format("%s%s/%s", pathPrefix, _meta.name, aFile);
+                for(Map.Entry<String, String> kvp : _meta.choices.entrySet()) {
+                    // choice file name
+                    String cFile = Paths.get(kvp.getValue()).toFile().getName();
+                    _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", pathPrefix, _meta.name, cFile));
+                }
+                break;
+            case "frq":
+            case "apx":
+                for(int i = 0; i < _meta.textPages.size(); i++) {
+                    String tpFile = Paths.get(_meta.textPages.get(i)).toFile().getName();
+                    _meta.textPages.set(i, String.format("%s%s/%s", pathPrefix, _meta.name, tpFile));
+                }
+                if (_meta.type.equalsIgnoreCase("apx")) {
+                    break;
+                }
+                for(int i = 0; i < _meta.solutionPages.size(); i++) {
+                    String spFile = Paths.get(_meta.solutionPages.get(i)).toFile().getName();
+                    _meta.solutionPages.set(i, String.format("%s%s/%s", pathPrefix, _meta.name, spFile));
+                }
+                break;
         }
     }
 
-    public String editHtml(String hSection1Q, String qID, String metaLine, boolean isAnswer) {
+    public String editMCQHtml(String hSection1Q, String qID, String metaLine, boolean isAnswer) {
         String metaChoices = metaLine.split(" ")[1];
         hSection1Q = hSection1Q
             .replaceFirst("#QID#", qID)
