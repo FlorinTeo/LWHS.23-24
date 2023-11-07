@@ -169,5 +169,42 @@ public class GMeta {
         }
         return nPages;
     }
-}
 
+    public int genFRQHtml(BufferedWriter bw, String format, boolean solutions) throws IOException {
+        int pxSum = 0;
+        int nPages = 1;
+        for (int i = 0; i < _frQuestions.size(); i++) {
+            Question q = _frQuestions.get(i);
+            String qID = _isAnonymized ? "" + (i+1) : q.getName();
+            int pxHeight = q.genFRQHtml(bw, format, qID, solutions);
+            if (pxSum + pxHeight > WebDoc._MAX_PX_PER_PAGE) {
+                nPages++;
+                bw.write(WebDoc._PRINT_BREAK);
+                bw.newLine();
+                pxSum = pxHeight;
+            } else {
+                pxSum += pxHeight;
+            }
+        }
+        return nPages;
+    }
+
+    public int genApxHtml(BufferedWriter bw, String format) throws IOException {
+        int pxSum = 0;
+        int nPages = 1;
+        for (int i = 0; i < _appendix.size(); i++) {
+            Question q = _appendix.get(i);
+            String qID = _isAnonymized ? "" + (i+1) : q.getName();
+            int pxHeight = q.genApxHtml(bw, format, qID);
+            if (pxSum + pxHeight > WebDoc._MAX_PX_PER_PAGE) {
+                nPages++;
+                bw.write(WebDoc._PRINT_BREAK);
+                bw.newLine();
+                pxSum = pxHeight;
+            } else {
+                pxSum += pxHeight;
+            }
+        }
+        return nPages;
+    }
+}

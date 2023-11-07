@@ -42,7 +42,7 @@ public class WebDoc {
     // #region: [private methods] Loading HTML web document template
     private String loadEmptyLines(Queue<String> qLines) {
         String emptyLines = "";
-        while(!qLines.isEmpty() && qLines.peek().isBlank()) {
+        while(!qLines.isEmpty() && qLines.peek().isEmpty()) {
             emptyLines += "\n";
             qLines.remove();
         }
@@ -152,7 +152,7 @@ public class WebDoc {
     // #endregion: [private methods] Loading web document template
 
     // #region: [private methods] Writing HTML web document parts
-    private void genBookletHtml(BufferedWriter bw, GMeta gMeta) throws IOException {
+    private int genBookletHtml(BufferedWriter bw, GMeta gMeta) throws IOException {
         String bkHtml = _answers
             .replaceAll("#TNAME#", gMeta.getName())
             .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
@@ -176,10 +176,10 @@ public class WebDoc {
         }
 
         bw.write(bkHtml.substring(iFRQ + _TAG_ANSWERS_FRQ.length()));
-        System.out.printf("ansBk pages = 6\n");
+        return 2 + _FRQ_ANSWER_PAGES;
     }
 
-    private void genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
+    private int genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
         String s1Html = _section1
             .replaceAll("#TNAME#", gMeta.getName())
             .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
@@ -189,7 +189,29 @@ public class WebDoc {
         bw.newLine();       
         int nPages = gMeta.genMCQHtml(bw, _section1MCQ, answers);
         bw.write(s1Html.substring(iMCQ + _TAG_SECTION1_MCQ.length()));
-        System.out.printf("mcq pages = %d\n", nPages);
+        return nPages;
+    }
+
+    private int genSection2Html(BufferedWriter bw, GMeta gMeta, boolean solutions) throws IOException {
+        String s2Html = _section2
+            .replaceAll("#TNAME#", gMeta.getName())
+            .replace("#PNUM#", "" + gMeta.getFRQuestions().size());
+
+        int iFRQ = s2Html.indexOf(_TAG_SECTION2_PAGE);
+        bw.write(s2Html.substring(0, iFRQ));
+        int nPages = gMeta.genFRQHtml(bw, _section2Page, solutions);
+        bw.write(s2Html.substring(iFRQ + _TAG_SECTION2_PAGE.length()));
+        return 1 + nPages;
+    }
+
+    private int genAppendix(BufferedWriter bw, GMeta gMeta) throws IOException {
+        String apxHtml = _appendix
+            .replaceAll("#TNAME#", gMeta.getName());
+        int iAPX = apxHtml.indexOf(_TAG_APPENDIX_PAGE);
+        bw.write(apxHtml.substring(0, iAPX));
+        int nPages = gMeta.genApxHtml(bw, _appendixPage);
+        bw.write(apxHtml.substring(iAPX + _TAG_APPENDIX_PAGE.length()));
+        return 1 + nPages;
     }
     // #endregion: [private methods] Writing HTML web document parts
 
@@ -209,8 +231,10 @@ public class WebDoc {
         bw.write(_style);
         // fill in the section 1 answers
         genSection1Html(bw, gMeta, true);
-        // TODO: fill in the section 2 pages
-        // TODO: fill in the appendix pages
+        // fill in the section 2 pages
+        genSection2Html(bw, gMeta, true);
+        // fill in the appendix pages
+        genAppendix(bw, gMeta);
         bw.close();
     }
 
@@ -223,8 +247,10 @@ public class WebDoc {
         genBookletHtml(bw, gMeta);
         // fill in the section 1 questions
         genSection1Html(bw, gMeta, false);
-        // TODO: fill in the section 2 pages
-        // TODO: fill in the appendix pages
+        // fill in the section 2 pages
+        genSection2Html(bw, gMeta, false);
+        // fill in the appendix pages
+        genAppendix(bw, gMeta);
         bw.close();
 
         Path pAnswersHtml = Paths.get(pTest.toString(), "answers.html");
@@ -233,7 +259,10 @@ public class WebDoc {
         bw.write(_style);
         // fill in the section 1 answers
         genSection1Html(bw, gMeta, true);
-        // TODO: fill in the section 2 answers
+        // fill in the section 2 answers
+        genSection2Html(bw, gMeta, true);
+        // fill in the appendix pages
+        genAppendix(bw, gMeta);
         bw.close();
     }
 }

@@ -1,5 +1,6 @@
 package TestsManagement;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,26 +83,37 @@ public class Question {
         Path pMeta = Paths.get(pQuestion.toString(), ".meta");
         String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
         _meta = _GSON.fromJson(jsonMeta, QMeta.class);
-        loadPxHeight(pQuestion);
+        loadPxHeight(pQuestion.toString());
     }
 
-    private void loadPxHeight(Path pQuestion) throws IOException {
-        if (!_meta.type.equalsIgnoreCase("mcq")) {
-            return;
-        }
+    private int pngHeight(Path pPng) throws IOException {
+        return ImageIO.read(pPng.toFile()).getHeight();
+    }
 
-        Path pPngQ = Paths.get(pQuestion.toString(), _meta.question);
-        BufferedImage bi = ImageIO.read(pPngQ.toFile());
-        _pxHeightQ = bi.getHeight();
-        Path pPngA = Paths.get(pQuestion.toString(), _meta.answer);
-        bi = ImageIO.read(pPngA.toFile());
-        _pxHeightA = bi.getHeight();
+    private void loadPxHeight(String relPath) throws IOException {
+        if (_meta.type.equalsIgnoreCase("mcq")) {
+            _pxHeightQ = pngHeight(Paths.get(relPath, _meta.question));
+            _pxHeightA = pngHeight(Paths.get(relPath, _meta.answer));
 
-        for(String choice : _meta.choices.values()) {
-            Path pPngC = Paths.get(pQuestion.toString(), choice);
-            bi = ImageIO.read(pPngC.toFile());
-            _pxHeightQ += bi.getHeight();
-            _pxHeightA += bi.getHeight();
+            for(String choice : _meta.choices.values()) {
+                int pxHeightC = pngHeight(Paths.get(relPath, choice));
+                _pxHeightQ += pxHeightC;
+                _pxHeightA += pxHeightC;
+            }
+        } else if (_meta.type.equalsIgnoreCase("frq")) {
+            _pxHeightQ = 0;
+            for(String textPage : _meta.textPages) {
+                _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
+            }
+            _pxHeightA = 0;
+            for(String solPage : _meta.solutionPages) {
+                _pxHeightA += pngHeight(Paths.get(relPath, solPage));
+            }
+        } else if (_meta.type.equalsIgnoreCase("apx")) {
+            _pxHeightQ = 0;
+            for(String textPage : _meta.textPages) {
+                _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
+            }
         }
     }
 
@@ -181,6 +193,14 @@ public class Question {
             hSection1Q = hSection1Q.replaceFirst("#CPNG#", cPng);
         }
         return hSection1Q;
+    }
+
+    public int genFRQHtml(BufferedWriter bw, String format, String qID, boolean solutions) {
+        return 0;
+    }
+
+    public int genApxHtml(BufferedWriter bw, String format, String qID) {
+        return 0;
     }
 
     @Override
