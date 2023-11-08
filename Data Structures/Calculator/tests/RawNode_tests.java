@@ -1,11 +1,11 @@
-package tests;
+package Calculator.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import main.RawNode;
+import Calculator.main.RawNode;
 
 public class RawNode_tests {
 

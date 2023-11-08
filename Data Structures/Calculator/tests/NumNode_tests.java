@@ -1,4 +1,4 @@
-package tests;
+package Calculator.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import main.NumNode;
+import Calculator.main.NumNode;
 
 public class NumNode_tests {
 

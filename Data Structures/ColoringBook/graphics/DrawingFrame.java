@@ -1,4 +1,4 @@
-package graphics;
+package ColoringBook.graphics;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.IOException;
 
-import graphics.DbgButton.BtnState;
+import ColoringBook.graphics.DbgButton.BtnState;
 
 /**
  * Encapsulates a representation of a generic drawing image frame as a window that 

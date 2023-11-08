@@ -1,4 +1,4 @@
-package main;
+package Calculator.main;
 
 public class NumNode extends RawNode {
     

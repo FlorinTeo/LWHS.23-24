@@ -1,10 +1,10 @@
-package tests;
+package Calculator.tests;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import main.NumCalc;
+import Calculator.main.NumCalc;
 
 public class NumCalc_tests {
 

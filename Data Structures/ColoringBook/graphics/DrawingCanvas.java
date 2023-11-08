@@ -1,4 +1,4 @@
-package graphics;
+package ColoringBook.graphics;
 import java.awt.Canvas;
 import java.awt.Graphics;
 
