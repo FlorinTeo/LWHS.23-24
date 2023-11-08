@@ -43,7 +43,7 @@ public class Program {
         System.out.println("Welcome to the Coloring Festival!");
         
         // pick a drawing
-        _drawing = new Drawing("drawings/bird.jpg");
+        _drawing = new Drawing("ColoringBook/drawings/bird.jpg");
         
         // put it in a frame
         _frame = new DrawingFrame(_drawing);
