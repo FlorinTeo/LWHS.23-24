@@ -1,18 +1,30 @@
 package tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+
+import main.NumNode;
 
 public class NumNode_tests {
 
     @Test
     public void test_createNode() {
-        // TODO: Create a few numerical nodes with various correct numerical values given strings
-        // TODO: and verify they reflect their content correctly as a double value.
-        // TODO: Try create a numerical node with an invalid string and
-        // TODO: verify the result is a null reference.
-        fail("Test not implemented");
+        NumNode num = NumNode.createNode("123");
+        assertNotNull(num);
+        assertEquals(123, num.getNumValue(), 0.00);
+        
+        num = NumNode.createNode("");
+        assertNull(num);
+        
+        num = NumNode.createNode("-12.34");
+        assertNotNull(num);
+        assertEquals(-12.34, num.getNumValue(), 0.00);
+        
+        num = NumNode.createNode("abc");
+        assertNull(num);
     }
 
 }

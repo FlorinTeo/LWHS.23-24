@@ -2,18 +2,14 @@ package main;
 
 public class NumNode extends RawNode {
     
-    /**
-     * Class fields:
-     * TODO: Numerical content (double) of this node
-     */
+    private double _numContent;
 
     /**
      * Class constructor. Builds a new numerical node.
      * @param rawContent - the raw content stored in this node.
      */
-    protected NumNode(String rawContent) {
-        // Initializes the raw content of this node
-        super(rawContent);
+    protected NumNode(String numContent) {
+        super(numContent);
     }
     
     /**
@@ -23,11 +19,16 @@ public class NumNode extends RawNode {
      * @return the new numerical node.
      */
     public static NumNode createNode(String rawContent) {
-        // TODO: Tries to parse the raw content into a double value
-        // TODO: if successful, creates a NumNode for it and save the value within,
-        // TODO: otherwise returns null 
+        NumNode numNode;
+        try {
+            double numContent = Double.parseDouble(rawContent);
+            numNode = new NumNode(rawContent);
+            numNode._numContent = numContent;
+        } catch (Exception e) {
+            numNode = null;
+        }
         
-        return null;
+        return numNode;
     }
     
     /**
@@ -35,7 +36,6 @@ public class NumNode extends RawNode {
      * @return
      */
     public double getNumValue() {
-        // TODO: returns the numerical (double) content
-        return 0.0;
+        return _numContent;
     }
 }

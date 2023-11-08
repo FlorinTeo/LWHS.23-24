@@ -1,34 +1,52 @@
 package tests;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+
+import main.RawNode;
 
 public class RawNode_tests {
 
     @Test
     public void test_createRawNode() {
-        // TODO: Create a new RawNode
-        // TODO: and verify the content is as expected
-        // TODO: and that its links are null.
-        fail("Test not implemented");
+        RawNode n = RawNode.createNode("raw content");
+        assertEquals("raw content", n.getRawContent());
+        assertNull(n.getNext());
+        assertNull(n.getPrev());
     }
     
     @Test
     public void test_addNext() {
-        // TODO: Create two nodes, n1 and n2, add one next to the other and
-        // TODO: verify their links are pointing to their respective nodes.
-        // TODO: Create a third node n3, add it after n1 and verify its links
-        // TODO: are pointing to n1 and n2 respectively, and that
-        // TODO: the n1 and n2 links were adjusted accordingly as well.
-        fail("Test not implemented");
+        RawNode n1 = RawNode.createNode("A");
+        RawNode n2 = RawNode.createNode("B");
+        n1.addNext(n2);
+        assertEquals(n2, n1.getNext());
+        assertEquals(n1, n2.getPrev());
+        assertNull(n1.getPrev());
+        assertNull(n2.getNext());
+        
+        RawNode n3 = RawNode.createNode("C");
+        n1.addNext(n3);
+        assertEquals(n1, n3.getPrev());
+        assertEquals(n2, n3.getNext());
+        assertEquals(n3, n1.getNext());
+        assertEquals(n3, n2.getPrev());
     }
     
     @Test
     public void test_addTail() {
-        // TODO: Create three nodes, n1, n2 and n3, add them into a three nodes list
-        // TODO: then create a fourth node n, adding it to the tail of the list pointed by n1.
-        // TODO: verify n links are pointing to n3 and null, while n3 next link is now pointing to n.
-        fail("Test not implemented");
+        RawNode n1 = RawNode.createNode("A");
+        RawNode n2 = RawNode.createNode("B");
+        RawNode n3 = RawNode.createNode("C");
+        n1.addNext(n2);
+        n2.addNext(n3);
+        
+        RawNode n = RawNode.createNode("D");
+        n1.addTail(n);
+        assertEquals(n, n3.getNext());
+        assertEquals(n3, n.getPrev());
+        assertNull(n.getNext());
     }
 }

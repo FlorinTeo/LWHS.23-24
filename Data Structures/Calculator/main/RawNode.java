@@ -2,18 +2,18 @@ package main;
 
 public class RawNode {
     
-    /**
-     * Class fields:
-     * TODO: Raw content in this node, as a string.
-     * TODO: References to the previous and next node, or null respectively if nodes do not exist. 
-     */
+    protected String _rawContent;
+    protected RawNode _prev;
+    protected RawNode _next;
     
     /**
      * Class constructor. Builds a new generic raw content node.
      * @param rawContent - the raw content stored in this node.
      */
     protected RawNode(String rawContent) {
-        // TODO: configures / initializes class fields.
+        _rawContent = rawContent;
+        _prev = null;
+        _next = null;
     }
     
     /**
@@ -31,17 +31,7 @@ public class RawNode {
      * @return the raw content.
      */
     public String getRawContent() {
-        // TODO: returns the raw content
-        return "";
-    }
-    
-    /**
-     * Gets the previous node.
-     * @return the reference to the previous node, or null if none exists.
-     */
-    public RawNode getPrev() {
-        // TODO: returns the reference to the previous node
-        return null;
+        return _rawContent;
     }
     
     /**
@@ -49,8 +39,15 @@ public class RawNode {
      * @return the reference to the next node, or null if none exists.
      */
     public RawNode getNext() {
-        // TODO: returns the reference to the next node
-        return null;
+        return _next;
+    }
+    
+    /**
+     * Gets the previous node.
+     * @return the reference to the previous node, or null if none exists.
+     */
+    public RawNode getPrev() {
+        return _prev;
     }
     
     /**
@@ -59,8 +56,13 @@ public class RawNode {
      * @return the node that's been added.
      */
     public RawNode addNext(RawNode other) {
-        // TODO: code inserting the other node after this node
-        return null;
+        other._next = _next;
+        other._prev = this;
+        if (_next != null) {
+            _next._prev = other;
+        }
+        _next = other;
+        return other;
     }
     
     /**
@@ -69,8 +71,10 @@ public class RawNode {
      * @return the new tail of the list.
      */
     public RawNode addTail(RawNode other) {
-        // TODO: code inserting the other node at the very end of
-        // TODO: the list where this node is part of.
-        return null;
+        if (_next == null) {
+            return addNext(other);
+        } else {
+            return _next.addTail(other);
+        }
     }
 }
