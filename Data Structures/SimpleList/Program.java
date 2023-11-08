@@ -1,4 +1,4 @@
-package SimpleList.main;
+package SimpleList;
 
 import java.util.ArrayList;
 import java.util.List;
