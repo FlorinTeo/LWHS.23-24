@@ -189,7 +189,7 @@ public class WebDoc {
         bw.newLine();       
         int nPages = gMeta.genMCQHtml(bw, _section1MCQ, answers);
         bw.write(s1Html.substring(iMCQ + _TAG_SECTION1_MCQ.length()));
-        return nPages;
+        return 1 + nPages;
     }
 
     private int genSection2Html(BufferedWriter bw, GMeta gMeta, boolean solutions) throws IOException {
@@ -244,15 +244,28 @@ public class WebDoc {
         // fill in the styling portion
         bw.write(_style);
         // fill in the booklet
-        genBookletHtml(bw, gMeta);
+        int nPages = genBookletHtml(bw, gMeta);
+        if (nPages % 2 != 0) {
+            bw.write(_PRINT_BREAK);
+            nPages++;
+        }
         // fill in the section 1 questions
-        genSection1Html(bw, gMeta, false);
+        nPages += genSection1Html(bw, gMeta, false);
+        if (nPages % 2 != 0) {
+            bw.write(_PRINT_BREAK);
+            nPages++;
+        }
         // fill in the section 2 pages
-        genSection2Html(bw, gMeta, false);
+        nPages += genSection2Html(bw, gMeta, false);
+        if (nPages % 2 != 0) {
+            bw.write(_PRINT_BREAK);
+            nPages++;
+        }
         // fill in the appendix pages
         genAppendix(bw, gMeta);
         bw.close();
 
+        nPages = 0;
         Path pAnswersHtml = Paths.get(pTest.toString(), "answers.html");
         bw = Files.newBufferedWriter(pAnswersHtml);
         // fill in the styling portion

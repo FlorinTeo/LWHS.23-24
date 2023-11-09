@@ -195,12 +195,30 @@ public class Question {
         return hSection1Q;
     }
 
-    public int genFRQHtml(BufferedWriter bw, String format, String qID, boolean solutions) {
-        return 0;
+    public String editFRQHtml(String format, String qID, boolean solutions) {
+        String hSection2 = "";
+        List<String> pages = solutions ? _meta.solutionPages : _meta.textPages; 
+        boolean firstPage = true;
+        for(String page : pages) {
+            hSection2 += format
+                .replace("#PID#", firstPage ? qID : "")
+                .replace("#PPNG#", page);
+            firstPage = false;
+        }
+        return hSection2;
     }
 
-    public int genApxHtml(BufferedWriter bw, String format, String qID) {
-        return 0;
+    public String editApxHtml(String format, String qID) {
+        String hAppendix = "";
+        boolean firstPage = true;
+        for(String page : _meta.textPages) {
+            hAppendix += format
+                //.replace("#AID#", firstPage ? qID : "")
+                .replace("#AID#", "")
+                .replace("#APNG#", page);
+                firstPage = false;
+        }
+        return hAppendix;
     }
 
     @Override
