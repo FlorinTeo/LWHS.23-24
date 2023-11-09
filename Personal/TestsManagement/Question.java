@@ -210,7 +210,6 @@ public class Question {
         String hAppendix = "";
         for(String page : _meta.textPages) {
             hAppendix += format
-                //.replace("#AID#", firstPage ? qID : "")
                 .replace("#AID#", "")
                 .replace("#APNG#", page);
         }
