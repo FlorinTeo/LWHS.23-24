@@ -208,13 +208,11 @@ public class Question {
 
     public String editApxHtml(String format, String qID) {
         String hAppendix = "";
-        boolean firstPage = true;
         for(String page : _meta.textPages) {
             hAppendix += format
                 //.replace("#AID#", firstPage ? qID : "")
                 .replace("#AID#", "")
                 .replace("#APNG#", page);
-                firstPage = false;
         }
         return hAppendix;
     }
