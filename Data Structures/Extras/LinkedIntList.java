@@ -16,6 +16,40 @@ public class LinkedIntList {
         }
     }
 
+    public int size() {
+        int n = 0;
+        for (ListNode node = _front; node != null; node = node._next) {
+            n++;
+        }
+        return n;
+    }
+
+    public void swap(int i) {
+        int length = size();
+        if (i < 0 || i > length-2) {
+            throw new IndexOutOfBoundsException();
+        }
+        ListNode newFront = new ListNode(0, null);
+        ListNode tail = newFront;
+        ListNode cur = _front;
+        for (int j = 0; j < length; j++) {
+            if (j == i) {
+                ListNode tmp = cur;
+                cur = cur._next._next;
+                j++;
+                tail = tail._next = tmp._next;
+                tail = tail._next = tmp;                
+
+            } else {
+                ListNode tmp = cur;
+                cur = cur._next;
+                tail = tail._next = tmp;
+            }
+        }
+        tail._next = null;
+        _front = newFront._next;
+    }
+
     public void reverse() {
         reverse(_front)._next = null;
     }
