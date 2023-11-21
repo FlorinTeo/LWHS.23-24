@@ -4,17 +4,37 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Generator {
     private Path _pRoot;
     private Map<String, Question> _qMap;
     private List<Question> _qList;
     private WebDoc _webDoc;
+    private static Pattern regex = Pattern.compile("\\d+");
+
+    private List<Question> sort(List<Question> lq) {
+        Map<Integer, Question> map = new TreeMap<Integer, Question>();
+        for(int i = lq.size(); i > 0; i--) {
+            Question q = lq.remove(0);
+            Matcher m = regex.matcher(q.getName());
+            if (m.find()) {
+                map.put(Integer.parseInt(m.group()), q);
+            } else {
+                lq.add(q);
+            }
+        }
+        Collection<Question> c = map.values();
+        c.addAll(lq);
+        return new LinkedList<Question>(c);
+    }
 
     /**
      * Loads the list of questions found in the ".template" sub-folder.
@@ -45,9 +65,9 @@ public class Generator {
         }
 
         _qList = new LinkedList<Question>();
-        _qList.addAll(mcq);
-        _qList.addAll(frq);
-        _qList.addAll(apx);
+        _qList.addAll(sort(mcq));
+        _qList.addAll(sort(frq));
+        _qList.addAll(sort(apx));
         _qMap = new TreeMap<String, Question>();
         for(Question q : _qList) {
             _qMap.put(q.getName(), q);
