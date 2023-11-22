@@ -180,6 +180,10 @@ public class WebDoc {
     }
 
     private int genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
+        if (gMeta.getMCQuestions().size() == 0) {
+            return 0;
+        }
+
         String s1Html = _section1
             .replaceAll("#TNAME#", gMeta.getName())
             .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
@@ -193,6 +197,10 @@ public class WebDoc {
     }
 
     private int genSection2Html(BufferedWriter bw, GMeta gMeta, boolean solutions) throws IOException {
+        if (gMeta.getFRQuestions().size() == 0) {
+            return 0;
+        }
+
         String s2Html = _section2
             .replaceAll("#TNAME#", gMeta.getName())
             .replace("#PNUM#", "" + gMeta.getFRQuestions().size());
@@ -205,6 +213,10 @@ public class WebDoc {
     }
 
     private int genAppendix(BufferedWriter bw, GMeta gMeta) throws IOException {
+        if (gMeta.getAppendix().size() == 0) {
+            return 0;
+        }
+        
         String apxHtml = _appendix
             .replaceAll("#TNAME#", gMeta.getName());
         int iAPX = apxHtml.indexOf(_TAG_APPENDIX_PAGE);
