@@ -3,25 +3,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import TestsManagement.QMeta;
-
 public class Question {
     private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    public static final String _MCQ = "mcq";
+    public static final String _MCB = "mcb";
+    public static final String _FRQ = "frq";
+    public static final String _APX = "apx";
 
     private QMeta _meta;
     private int _pxHeightQ;
     private int _pxHeightA;
+
+    private List<Question> _bQuestions;
 
      /**
      * Utility method to shuffle a given list into another one.
@@ -56,6 +59,14 @@ public class Question {
         String jsonMeta = String.join("\n", Files.readAllLines(pMeta));
         _meta = _GSON.fromJson(jsonMeta, QMeta.class);
         loadPxHeight(pQuestion.toString());
+        // if this is a bundle, load all questions in this bundle
+        if (_meta.type.equalsIgnoreCase(_MCB)) {
+            _bQuestions = new LinkedList<Question>();
+            for(String pBQuestion : _meta.questions) {
+                Path pbQuestion = Paths.get(pQuestion.toString(), pBQuestion);
+                _bQuestions.add(new Question(pbQuestion));
+            }
+        }
     }
 
     private int pngHeight(Path pPng) throws IOException {
@@ -63,29 +74,37 @@ public class Question {
     }
 
     private void loadPxHeight(String relPath) throws IOException {
-        if (_meta.type.equalsIgnoreCase("mcq")) {
-            _pxHeightQ = pngHeight(Paths.get(relPath, _meta.question));
-            _pxHeightA = pngHeight(Paths.get(relPath, _meta.answer));
+        switch (_meta.type.toLowerCase()) {
+            case _MCQ:
+                _pxHeightQ = pngHeight(Paths.get(relPath, _meta.question));
+                _pxHeightA = pngHeight(Paths.get(relPath, _meta.answer));
 
-            for(String choice : _meta.choices.values()) {
-                int pxHeightC = pngHeight(Paths.get(relPath, choice));
-                _pxHeightQ += pxHeightC;
-                _pxHeightA += pxHeightC;
-            }
-        } else if (_meta.type.equalsIgnoreCase("frq")) {
-            _pxHeightQ = 0;
-            for(String textPage : _meta.textPages) {
-                _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
-            }
-            _pxHeightA = 0;
-            for(String solPage : _meta.solutionPages) {
-                _pxHeightA += pngHeight(Paths.get(relPath, solPage));
-            }
-        } else if (_meta.type.equalsIgnoreCase("apx")) {
-            _pxHeightQ = 0;
-            for(String textPage : _meta.textPages) {
-                _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
-            }
+                for(String choice : _meta.choices.values()) {
+                    int pxHeightC = pngHeight(Paths.get(relPath, choice));
+                    _pxHeightQ += pxHeightC;
+                    _pxHeightA += pxHeightC;
+                }
+                break;
+            case _MCB:
+                _pxHeightQ = pngHeight(Paths.get(relPath, _meta.question));
+                _pxHeightA = pngHeight(Paths.get(relPath, _meta.answer));
+                break;
+            case _FRQ:
+                _pxHeightQ = 0;
+                for(String textPage : _meta.textPages) {
+                    _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
+                }
+                _pxHeightA = 0;
+                for(String solPage : _meta.solutionPages) {
+                    _pxHeightA += pngHeight(Paths.get(relPath, solPage));
+                }
+                break;
+            case _APX:
+                _pxHeightQ = 0;
+                for(String textPage : _meta.textPages) {
+                    _pxHeightQ += pngHeight(Paths.get(relPath, textPage));
+                }
+                break;
         }
     }
 
@@ -124,7 +143,7 @@ public class Question {
 
     public void adjustPath(String pathPrefix) {
         switch(_meta.type.toLowerCase()) {
-            case "mcq":
+            case _MCQ:
                 String qFile = Paths.get(_meta.question).toFile().getName();
                 String aFile = Paths.get(_meta.answer).toFile().getName();
                 _meta.question = String.format("%s%s/%s", pathPrefix, _meta.name, qFile);
@@ -135,8 +154,8 @@ public class Question {
                     _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", pathPrefix, _meta.name, cFile));
                 }
                 break;
-            case "frq":
-            case "apx":
+            case _FRQ:
+            case _APX:
                 for(int i = 0; i < _meta.textPages.size(); i++) {
                     String tpFile = Paths.get(_meta.textPages.get(i)).toFile().getName();
                     _meta.textPages.set(i, String.format("%s%s/%s", pathPrefix, _meta.name, tpFile));

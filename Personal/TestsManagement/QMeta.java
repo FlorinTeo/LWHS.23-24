@@ -9,20 +9,16 @@ import java.util.TreeMap;
  * Schema for the JSON Deserialization of Question/.meta file 
  */
 public class QMeta {
-    String name;
-    String type;
-    String notes;
-    // fields for multiple-choice questions (mcq) 
-    String question;
-    Map<String, String> choices;
-    String correct;
-    String answer;
-    // fields for multiple-choice bundles (mcb)
-    String context;
-    List<String> questions;
-    // fields for free-response questions (frq) and appendix pages (apx)
-    List<String> textPages;
-    List<String> solutionPages;
+    String name;                    // *
+    String type;                    // *
+    String notes;                   // *
+    String question;                // _MCQ, _MCB
+    Map<String, String> choices;    // _MCQ
+    String correct;                 // _MCQ
+    String answer;                  // _MCQ, _MCB
+    List<String> questions;         // _MCB
+    List<String> textPages;         // _FRQ, _APX
+    List<String> solutionPages;     // _FRQ
 
     QMeta(QMeta qm) {
         name = qm.name;

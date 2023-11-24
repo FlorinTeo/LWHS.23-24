@@ -47,18 +47,18 @@ public class Generator {
 
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
+                // Load the question from the given directory
                 Question question = new Question(qDir);
+                // Dispatch question to its specific bucket
                 switch(question.getType().toLowerCase()) {
-                    case "mcq": // multiple-choice question
+                    case Question._MCQ: // multiple-choice question or bundle
+                    case Question._MCB:
                         mcq.add(question);
                         break;
-                    case "mcb": // multiple-choice bundle
-                        // TODO: load bundle question
-                        break;
-                    case "frq": // free-response question
+                    case Question._FRQ: // free-response question
                         frq.add(question);
                         break;
-                    case "apx": // appendix
+                    case Question._APX: // appendix
                         apx.add(question);
                         break;
                     default:
