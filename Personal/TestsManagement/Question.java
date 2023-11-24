@@ -14,36 +14,10 @@ import javax.imageio.ImageIO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import TestsManagement.QMeta;
+
 public class Question {
     private static final Gson _GSON = new GsonBuilder().setPrettyPrinting().create();
-
-    /**
-     * Schema for the Question/.meta file 
-     */
-    public class QMeta {
-        private String name;
-        private String type;
-        private String question;
-        private Map<String, String> choices;
-        private String correct;
-        private String answer;
-        private String notes;
-        private List<String> textPages;
-        private List<String> solutionPages;
-
-        public QMeta(QMeta qm) {
-            name = qm.name;
-            type = qm.type;
-            question = qm.question;
-            // deep copy the map of choices
-            choices = (qm.choices != null) ? new TreeMap<String, String>(qm.choices) : null;
-            correct = qm.correct;
-            answer = qm.answer;
-            notes = qm.notes;
-            textPages = (qm.textPages != null) ? new ArrayList<String>(qm.textPages) : null;
-            solutionPages = (qm.solutionPages != null) ? new ArrayList<String>(qm.solutionPages) : null;
-        }
-    }
 
     private QMeta _meta;
     private int _pxHeightQ;

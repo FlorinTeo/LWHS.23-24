@@ -49,13 +49,16 @@ public class Generator {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
                 Question question = new Question(qDir);
                 switch(question.getType().toLowerCase()) {
-                    case "mcq":
+                    case "mcq": // multiple-choice question
                         mcq.add(question);
                         break;
-                    case "frq":
+                    case "mcb": // multiple-choice bundle
+                        // TODO: load bundle question
+                        break;
+                    case "frq": // free-response question
                         frq.add(question);
                         break;
-                    case "apx":
+                    case "apx": // appendix
                         apx.add(question);
                         break;
                     default:
