@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +35,12 @@ public class Question {
      * @return shuffled list.
      */
     public static <T> List<T> shuffle(List<T> list) {
-        LinkedList<T> sList = new LinkedList<T>();
+        ArrayList<T> aList = new ArrayList<T>();
         for (T item : list) {
-            if (Math.random() < .5) {
-                sList.addFirst(item);
-            } else {
-                sList.addLast(item);
-            }
+            int i = (int)((aList.size() + 1) * Math.random());
+            aList.add(i, item);
         }
-        return sList;
+        return aList;
     }
 
     public void prependBundle(LinkedList<Question> qList) {
