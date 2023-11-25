@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeMap;
 
 import com.google.gson.Gson;
@@ -68,14 +69,20 @@ public class GMeta {
         for(int i = 0; i < qList.size(); i++) {
             Question q = new Question(qList.get(i));
             switch(q.getType().toLowerCase()) {
-                case "mcq":
+                case Question._MCQ:
                     _display.put(q.getName(), q.getMetaLine(false));
                     _mcQuestions.add(q);
                     break;
-                case "frq":
+                case Question._MCB:
+                    for(Question bQ : q.getBQuestions()) {
+                        _display.put(bQ.getName(), bQ.getMetaLine(false));
+                    }
+                    _mcQuestions.add(q);
+                    break;
+                case Question._FRQ:
                     _frQuestions.add(q);
                     break;
-                case "apx":
+                case Question._APX:
                     _appendix.add(q);
                     break;
             }
@@ -86,6 +93,10 @@ public class GMeta {
 
     public String getName() {
         return _name;
+    }
+
+    public int getMCQCount() {
+        return _display.keySet().size();
     }
 
     public List<Question> getMCQuestions() {
@@ -129,9 +140,16 @@ public class GMeta {
             _mcQuestions = Question.shuffle(_mcQuestions);
         }
         _display.clear();
-        for(int i = 0; i < _mcQuestions.size(); i++) {
-            Question q = _mcQuestions.get(i);
-            _display.put("" + (i+1), q.getMetaLine(randomize));
+        int i = 0;
+        LinkedList<Question> mcQuestions = new LinkedList<Question>(_mcQuestions);
+        while(!mcQuestions.isEmpty()) {
+            Question q = mcQuestions.remove(0);
+            if (q.getType().equalsIgnoreCase(Question._MCB)) {
+                q.prependBundle(mcQuestions);
+            } else {
+                _display.put("" + (i+1), q.getMetaLine(randomize));
+                i++;
+            }
         }
         _isAnonymized = true;
     }
@@ -147,14 +165,23 @@ public class GMeta {
         bw.close();
     }
 
-    public int genMCQHtml(BufferedWriter bw, String format, boolean answers) throws IOException {
+    public int genMCQHtml(BufferedWriter bw, String formatMCB, String formatMCQ, boolean answers) throws IOException {
         int pxSum = 0;
         int nPages = 1;
-        for (int i = 0; i < _mcQuestions.size(); i++) {
-            Question q = _mcQuestions.get(i);
-            String qID = _isAnonymized ? "" + (i+1) : q.getName();
-            String qMetaLine = _display.get(qID);
-            String hSection1Q = q.editMCQHtml(format, qID, qMetaLine, answers);
+        int i = 0;
+        LinkedList<Question> mcQuestions = new LinkedList<Question>(_mcQuestions);
+        while(!mcQuestions.isEmpty()) {
+            Question q = mcQuestions.remove(0);
+            String qDisplayID = q.getDisplayName(_isAnonymized, i+1);
+            String hSection1Q = "";
+            if (q.getType().equalsIgnoreCase(Question._MCB)) {
+                hSection1Q = q.editMCBHtml(formatMCB, qDisplayID, answers);
+                q.prependBundle(mcQuestions);
+            } else if (q.getType().equalsIgnoreCase(Question._MCQ)) {
+                String qMetaLine = _display.get(qDisplayID);
+                hSection1Q = q.editMCQHtml(formatMCQ, qDisplayID, qMetaLine, answers);
+                i++;
+            }
             int pxHeight = answers ? q.getPxHeightA() : q.getPxHeightQ();
             if (pxSum + pxHeight > WebDoc._MAX_PX_PER_PAGE) {
                 nPages++;

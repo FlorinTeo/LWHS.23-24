@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.imageio.ImageIO;
 
@@ -24,7 +25,7 @@ public class Question {
     private int _pxHeightQ;
     private int _pxHeightA;
 
-    private List<Question> _bQuestions;
+    private List<Question> _bQuestions = null;
 
      /**
      * Utility method to shuffle a given list into another one.
@@ -44,6 +45,18 @@ public class Question {
         return sList;
     }
 
+    public void prependBundle(LinkedList<Question> qList) {
+        if (_bQuestions != null) {
+            Stack<Question> bStack = new Stack<Question>();
+            for(Question bQ : _bQuestions) {
+                bStack.push(bQ);
+            }
+            while(!bStack.isEmpty()) {
+                qList.add(0, bStack.pop());
+            }
+        }
+    }
+    
     /**
      * Deep cloning constructor.
      * @param q - Question object to be cloned.
@@ -52,6 +65,12 @@ public class Question {
         _meta = new QMeta(q._meta);
         _pxHeightQ = q._pxHeightQ;
         _pxHeightA = q._pxHeightA;
+        if (q._bQuestions != null) {
+            _bQuestions = new LinkedList<>();
+            for(Question bQuestion : q._bQuestions) {
+                _bQuestions.add(new Question(bQuestion));
+            }
+        }
     }
 
     public Question(Path pQuestion) throws IOException {
@@ -112,6 +131,14 @@ public class Question {
         return _meta.name;
     }
 
+    public String getDisplayName(boolean isAnonimized, int qIdx) {
+        return isAnonimized
+            ? _meta.type.equalsIgnoreCase(_MCB)
+                ? String.format("%d-%d", qIdx, qIdx + _bQuestions.size()-1)
+                : String.format("%d",qIdx)
+            : _meta.name;
+    }
+
     public String getType() {
         return _meta.type;
     }
@@ -141,6 +168,10 @@ public class Question {
         return pathPrefix;
     }
 
+    public List<Question> getBQuestions() {
+        return _bQuestions;
+    }
+
     public void adjustPath(String pathPrefix) {
         switch(_meta.type.toLowerCase()) {
             case _MCQ:
@@ -152,6 +183,16 @@ public class Question {
                     // choice file name
                     String cFile = Paths.get(kvp.getValue()).toFile().getName();
                     _meta.choices.put(kvp.getKey(), String.format("%s%s/%s", pathPrefix, _meta.name, cFile));
+                }
+                break;
+            case _MCB:
+                qFile = Paths.get(_meta.question).toFile().getName();
+                aFile = Paths.get(_meta.answer).toFile().getName();
+                _meta.question = String.format("%s%s/%s", pathPrefix, _meta.name, qFile);
+                _meta.answer = String.format("%s%s/%s", pathPrefix, _meta.name, aFile);
+                String bPathPrefix = String.format("%s%s/", pathPrefix, _meta.name);
+                for(Question bQuestion : _bQuestions) {
+                    bQuestion.adjustPath(bPathPrefix);
                 }
                 break;
             case _FRQ:
@@ -169,6 +210,13 @@ public class Question {
                 }
                 break;
         }
+    }
+
+    public String editMCBHtml(String hSection1Q, String qID, boolean isAnswer) {
+        hSection1Q = hSection1Q
+            .replace("#QID#", qID)
+            .replace("#QPNG#", isAnswer ? _meta.answer : _meta.question);
+        return hSection1Q;
     }
 
     public String editMCQHtml(String hSection1Q, String qID, String metaLine, boolean isAnswer) {

@@ -28,6 +28,9 @@ public class WebDoc {
     private String _section1;
     private static final String _TAG_SECTION1_MCQ = "<!--~~~~~~~~ MULTIPLE CHOICE QUESTION (MCQ) ~~~~~~~~-->";
     private String _section1MCQ;
+    private static final String _TAG_SECTION1_MCB = "<!--~~~~~~~~ MULTIPLE CHOICE BUNDLE (MCB) ~~~~~~~~-->";
+    private String _section1MCB;
+
 
     private static final String _TAG_SECTION2 = "<!--======== SECTION 2 (FRQ) ========-->";
     private String _section2;
@@ -99,6 +102,9 @@ public class WebDoc {
                 if (line.contains(_TAG_SECTION1_MCQ)) {
                     _section1MCQ = loadBlock(_TAG_SECTION1_MCQ, qLines);
                     _section1 += _TAG_SECTION1_MCQ + "\n";
+                } else if (line.contains(_TAG_SECTION1_MCB)) {
+                    _section1MCB = loadBlock(_TAG_SECTION1_MCB, qLines);
+                    _section1 += _TAG_SECTION1_MCB + "\n";
                 } else {
                     _section1 += qLines.remove() + "\n";
                 }
@@ -155,14 +161,14 @@ public class WebDoc {
     private int genBookletHtml(BufferedWriter bw, GMeta gMeta) throws IOException {
         String bkHtml = _answers
             .replaceAll("#TNAME#", gMeta.getName())
-            .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
+            .replace("#QNUM#", "" + gMeta.getMCQCount());
 
         int iMCQ = bkHtml.indexOf(_TAG_ANSWERS_MCQ);
         int iFRQ = bkHtml.indexOf(_TAG_ANSWERS_FRQ);
         bw.write(bkHtml.substring(0, iMCQ));
         bw.newLine();       
         //Write mcq answer lines
-        for (int i = 0; i < gMeta.getMCQuestions().size(); i++) {
+        for (int i = 0; i < gMeta.getMCQCount(); i++) {
             String bkMCQLine = _answersMCQ.replace("#N#", "" + (i + 1));
             bw.write(bkMCQLine);
         }
@@ -191,7 +197,7 @@ public class WebDoc {
         int iMCQ = s1Html.indexOf(_TAG_SECTION1_MCQ);
         bw.write(s1Html.substring(0, iMCQ));
         bw.newLine();       
-        int nPages = gMeta.genMCQHtml(bw, _section1MCQ, answers);
+        int nPages = gMeta.genMCQHtml(bw, _section1MCB, _section1MCQ, answers);
         bw.write(s1Html.substring(iMCQ + _TAG_SECTION1_MCQ.length()));
         return 1 + nPages;
     }

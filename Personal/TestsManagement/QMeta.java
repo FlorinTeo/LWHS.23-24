@@ -31,5 +31,8 @@ public class QMeta {
         notes = qm.notes;
         textPages = (qm.textPages != null) ? new ArrayList<String>(qm.textPages) : null;
         solutionPages = (qm.solutionPages != null) ? new ArrayList<String>(qm.solutionPages) : null;
+        // deep copy of the list of questions
+        questions = (qm.questions != null) ? new ArrayList<String>(qm.questions) : null;
+
     }
 }
