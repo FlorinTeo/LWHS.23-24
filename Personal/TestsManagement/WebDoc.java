@@ -275,12 +275,14 @@ public class WebDoc {
         }
         // fill in the section 2 pages
         nPages += genSection2Html(bw, gMeta, false);
-        if (nPages % 2 != 0) {
-            bw.write(_PRINT_BREAK);
-            nPages++;
+        if (gMeta.getAppendix().size() != 0) {
+            if (nPages % 2 != 0) {
+                bw.write(_PRINT_BREAK);
+                nPages++;
+            }
+            // fill in the appendix pages
+            genAppendix(bw, gMeta);
         }
-        // fill in the appendix pages
-        genAppendix(bw, gMeta);
         bw.close();
 
         nPages = 0;

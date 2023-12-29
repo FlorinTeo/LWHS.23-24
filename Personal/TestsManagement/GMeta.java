@@ -201,7 +201,7 @@ public class GMeta {
         for (int i = 0; i < _frQuestions.size(); i++) {
             Question q = _frQuestions.get(i);
             String qID = _isAnonymized ? "" + (i+1) : q.getName();
-            String hSection2P = q.editFRQHtml(format, qID, solutions);
+            String hSection2P = q.editFRQHtml(format, qID + ".", solutions);
             bw.write(hSection2P);
             bw.newLine();
             int nPixels = solutions ? q.getPxHeightA() : q.getPxHeightQ();
