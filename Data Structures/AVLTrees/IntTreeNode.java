@@ -42,7 +42,7 @@ public class IntTreeNode {
             }
         }
         // update height
-        height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
+        refreshHeight();
     }
 
     /**
