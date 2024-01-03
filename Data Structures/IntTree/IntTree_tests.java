@@ -16,11 +16,11 @@ public class IntTree_tests {
         assertTrue(t.contains(18));
         assertFalse(t.contains(10));
         assertFalse(t.contains(13));
-        t._count = 0;
+        IntTree._count = 0;
         assertTrue(t.contains(14));
-        assertEquals(10, t._count);
-        t._count = 0;
+        assertEquals(10, IntTree._count);
+        IntTree._count = 0;
         assertFalse(t.contains(28));
-        assertEquals(13, t._count);
+        assertEquals(13, IntTree._count);
     }
 }

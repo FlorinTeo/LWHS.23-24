@@ -169,12 +169,8 @@ public class IntTreeNode {
      */
     public Queue<String> toPrettyPrint() {
         String nodeLabel = toString();
-        Queue<String> qLeft = left != null 
-                ? left.toPrettyPrint() 
-                : new LinkedList<String>();
-        Queue<String> qRight = right != null 
-                ? right.toPrettyPrint()
-                : new LinkedList<String>();
+        Queue<String> qLeft = (left != null) ? left.toPrettyPrint() : new LinkedList<String>();
+        Queue<String> qRight = (right != null) ? right.toPrettyPrint() : new LinkedList<String>();
         Queue<String> qOutput = initializeQueue(qLeft, nodeLabel, qRight);
         mergeQueues(qLeft, nodeLabel, qRight, qOutput);
         return qOutput;
