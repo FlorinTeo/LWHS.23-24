@@ -5,9 +5,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class IntTreeNode {
-    private int data;            // data stored at this node
-    private IntTreeNode left;    // reference to left subtree
-    private IntTreeNode right;   // reference to right subtree
+    private int data;           // data stored at this node
+    private IntTreeNode left;   // reference to left subtree
+    private IntTreeNode right;  // reference to right subtree
+    private int height;         // AVL balance factor: height(right) - height(left)
     
     /**
      * Constructs a node with no (null) left/right subtrees,
@@ -18,8 +19,140 @@ public class IntTreeNode {
         this.data = data;
         this.left = null;
         this.right = null;
+        this.height = 1;
+    }
+
+    /**
+     * Adds data to the binary search tree in a simplistic way: data smaller than the one in the node is
+     * added to the left subtree, larger than the one in the node is added to the right subtree.
+     * @param data - data value to be added.
+     */
+    public void addValue(int data) {
+        if (data <= this.data) {
+           if (left == null) {
+               left = new IntTreeNode(data);
+           } else {
+               left.addValue(data);
+           }
+        } else {
+            if (right == null) {
+                right = new IntTreeNode(data);
+            } else {
+                right.addValue(data);
+            }
+        }
+        // update height
+        height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
     }
     
+    /**
+     * Returns the balance factor (height of the right subtree minus height of the left subtree) of this node.
+     * @return
+     */
+    public int getBF() {
+        return (right != null ? right.height : 0) - (left != null ? left.height : 0);
+    }
+
+    /**
+     * Adds data to the binary search tree just like in the simplistic case, but it includes
+     * an AVL rebalancing of the tree on the backtracking path of the recursion.
+     * @param data - data value to be added.
+     * @return the rebalanced tree after the data had been inserted in the node.
+     */
+    public IntTreeNode addValueAVL(int data) {
+        if (data <= this.data) {
+           if (left == null) {
+               left = new IntTreeNode(data);
+           } else {
+               left = left.addValueAVL(data);
+           }
+        } else {
+            if (right == null) {
+                right = new IntTreeNode(data);
+            } else {
+                right = right.addValueAVL(data);
+            }
+        }
+        // update height
+        height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
+        return rebalance();
+    }
+
+    /**
+     * Rebalances the subtree under this node and returns the new root of the balanced tree.
+     * @return new root of the reorganized tree originally under this node.
+     */
+    public IntTreeNode rebalance() {
+        int bf = getBF();
+        if (bf == -2) {
+            // left heavy
+            if (left.getBF() < 0) {
+                // left-left heavy
+                IntTreeNode a = this;
+                IntTreeNode b = a.left;
+                IntTreeNode c = a.right;
+                IntTreeNode d = b.left;
+                IntTreeNode e = b.right;
+                a.left = e;
+                a.right = c;
+                b.left = d;
+                b.right = a;
+                return b;
+            } else {
+                // left-right heavy
+                IntTreeNode a = this;
+                IntTreeNode b = a.left;
+                IntTreeNode c = a.right;
+                IntTreeNode d = b.left;
+                IntTreeNode e = b.right;
+                IntTreeNode f = e.left;
+                IntTreeNode g = e.right;
+                b.left = d;
+                b.right = f;
+                a.left = g;
+                a.right = c;
+                e.left = b;
+                e.right = a;
+                return e;
+            }
+        } else if (bf == 2) {
+            // right heavy
+            if (right.getBF() > 0) {
+                // right-right heavy
+                IntTreeNode a = this;
+                IntTreeNode b = a.left;
+                IntTreeNode c = a.right;
+                IntTreeNode d = c.left;
+                IntTreeNode e = c.right;
+                a.left = b;
+                a.right = d;
+                c.left = a;
+                c.right = e;
+                return c;
+            } else {
+                // right-left heavy
+                IntTreeNode a = this;
+                IntTreeNode b = a.left;
+                IntTreeNode c = a.right;
+                IntTreeNode d = c.left;
+                IntTreeNode e = c.right;
+                IntTreeNode f = d.left;
+                IntTreeNode g = d.right;
+                a.left = b;
+                a.right = f;
+                c.left = g;
+                c.right = e;
+                d.left = a;
+                d.right = c;
+                return d;
+            }
+        } else {
+            // tree is balanced
+            return this;
+        }
+    } 
+
+    //#region - PrettyPrint methods
     /**
      * Returns a string containing a character repeated a given number of times.
      * @param ch - character to be repeated.
@@ -107,26 +240,6 @@ public class IntTreeNode {
     }
     
     /**
-     * Adds data to the binary search tree. Duplicated data values are allowed.
-     * @param data - data value to be added.
-     */
-    public void addValue(int data) {
-        if (data <= this.data) {
-           if (left == null) {
-               left = new IntTreeNode(data);
-           } else {
-               left.addValue(data);
-           }
-        } else {
-            if (right == null) {
-                right = new IntTreeNode(data);
-            } else {
-                right.addValue(data);
-            }
-        }
-    }
- 
-    /**
      * Constructs all lines for the pretty-print of this node and
      * add then to a queue. First line in the queue is the line 
      * corresponding to the tree with the root in this node.
@@ -140,8 +253,9 @@ public class IntTreeNode {
         mergeQueues(qLeft, nodeLabel, qRight, qOutput);
         return qOutput;
     }
+    //#endregion
     
     public String toString() {
-        return String.format("[%d]", data);
+        return String.format("[%d:%d]", data, height);
     }
 }
