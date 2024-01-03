@@ -44,6 +44,13 @@ public class IntTreeNode {
         // update height
         height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
     }
+
+    /**
+     * Refreshes the height of the tree with this node as root.
+     */
+    public void refreshHeight() {
+        height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
+    }
     
     /**
      * Returns the balance factor (height of the right subtree minus height of the left subtree) of this node.
@@ -74,7 +81,7 @@ public class IntTreeNode {
             }
         }
         // update height
-        height = Math.max((right != null ? right.height : 0), (left != null ? left.height : 0)) + 1;
+        refreshHeight();
         return rebalance();
     }
 
@@ -95,8 +102,10 @@ public class IntTreeNode {
                 IntTreeNode e = b.right;
                 a.left = e;
                 a.right = c;
+                a.refreshHeight();
                 b.left = d;
                 b.right = a;
+                b.refreshHeight();
                 return b;
             } else {
                 // left-right heavy
@@ -109,10 +118,13 @@ public class IntTreeNode {
                 IntTreeNode g = e.right;
                 b.left = d;
                 b.right = f;
+                b.refreshHeight();
                 a.left = g;
                 a.right = c;
+                a.refreshHeight();
                 e.left = b;
                 e.right = a;
+                e.refreshHeight();
                 return e;
             }
         } else if (bf == 2) {
@@ -126,8 +138,10 @@ public class IntTreeNode {
                 IntTreeNode e = c.right;
                 a.left = b;
                 a.right = d;
+                a.refreshHeight();
                 c.left = a;
                 c.right = e;
+                c.refreshHeight();
                 return c;
             } else {
                 // right-left heavy
@@ -140,10 +154,13 @@ public class IntTreeNode {
                 IntTreeNode g = d.right;
                 a.left = b;
                 a.right = f;
+                a.refreshHeight();
                 c.left = g;
                 c.right = e;
+                c.refreshHeight();
                 d.left = a;
                 d.right = c;
+                d.refreshHeight();
                 return d;
             }
         } else {
@@ -256,6 +273,6 @@ public class IntTreeNode {
     //#endregion
     
     public String toString() {
-        return String.format("[%d:%d]", data, height);
+        return String.format("[%d]", data);
     }
 }

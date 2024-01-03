@@ -20,6 +20,18 @@ public class IntTree {
             overallRoot.addValue(data);
         }
     }
+
+     /**
+     * Adds a new data value to the binary search tree
+     * @param data - value to be added to the tree.
+     */
+    public void addValueAVL(int data) {
+        if (overallRoot == null) {
+            overallRoot = new IntTreeNode(data);
+        } else {
+            overallRoot = overallRoot.addValueAVL(data);
+        }
+    }
     
     /**
      * Returns a multi-line "pretty-print" representation of the tree.
