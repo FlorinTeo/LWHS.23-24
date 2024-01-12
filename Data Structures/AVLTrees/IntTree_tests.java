@@ -23,7 +23,7 @@ public class IntTree_tests {
     }
 
     @Test
-    public void test_bstTree() {
+    public void test_bstTree_add() {
         IntTree tree = newTree(1,2,3,4,5,6);
         String expected = 
         "[1]               \n" +
@@ -44,7 +44,7 @@ public class IntTree_tests {
     }
 
     @Test
-    public void test_avlTree() {
+    public void test_avlTree_add() {
         IntTree tree = newTreeAVL(1, 2, 3, 4, 5, 6);
         String expected =
         "      ___[4]      \n" +
@@ -55,6 +55,25 @@ public class IntTree_tests {
         "                  \n";
         String output = tree.toPrettyPrint();
         System.out.println(output);
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void test_bstTree_remove() {
+        IntTree tree = newTree(6,4,5,1,3,8,7,10,9,11);
+        String expected = 
+        "         ___[6]___           \n" +
+        "        /         \\          \n" +
+        "   ___[4]         [9]        \n" +
+        "  /      \\       /   \\       \n" +
+        "[1]      [5]   [7]   [10]    \n" +
+        "   \\                     \\   \n" +
+        "   [3]                   [11]\n" +
+        "                             \n";
+        System.out.println(tree.toPrettyPrint());
+        tree.removeValue(8);
+        String output = tree.toPrettyPrint();
+        System.out.printf("-8\n%s\n",output);
         assertEquals(expected, output);
     }
 }

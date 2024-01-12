@@ -46,6 +46,69 @@ public class IntTreeNode {
     }
 
     /**
+     * Removes data from the binary search tree in a simplistic way: data smaller than the one in the node is
+     * removed from the left subtree, larger than the one in the node is removed from the right subtree.
+     * If node matches the data, it is removed from the tree and the root of the new tree is returned.
+     * @param data - data value to be added.
+     * @return root of the new tree.
+     */
+    public IntTreeNode removeValue(int data) {
+        IntTreeNode newRoot = this;
+        if (data < this.data) {
+            if (left != null) {
+                left = left.removeValue(data);
+            }
+        } else if (data > this.data) {
+            if (right != null) {
+                right = right.removeValue(data);
+            }
+        } else {
+            // the node to be removed is *this*
+            if (left == null || right == null) {
+                // the trivial case: the node to be removed has only one subtree
+                // so that subtree, whichever it is, replaces the current tree.
+                newRoot = (left == null) ? right : left;
+            } else {
+                // the node to be removed has two children!
+                if (right.left == null) {
+                    // the smallest node greater than *this* one IS the immediate right child
+                    right.left = left;
+                    newRoot = right;
+                } else {
+                    // the smallest node greater than *this* is NOT the immediate right child
+                    newRoot = right.removeSmallestNode();
+                    newRoot.left = left;
+                    newRoot.right = right;
+                }
+            }
+        }
+        // refresh the height for the new root before returning it
+        newRoot.refreshHeight();
+        return newRoot;
+    }
+
+    /**
+     * Removes and returns the smallest node from the tree with the root in this node.
+     * Precondition: *this* node has valid (non-null) left and right subtrees.
+     * This means the smallest node is somewhere in the left subtree which also means
+     * the root of the resulting tree (with the node removed) does not change.
+     * @return - the node that had been removed.
+     */
+    private IntTreeNode removeSmallestNode() {
+        IntTreeNode removedNode = null;
+        if (left.left == null) {
+            // the immediate left child is the smallest node!
+            removedNode = left;
+            left = null;
+        } else {
+            // the immediate left child is not the smallest, so we'll recursively remove on the left.
+            removedNode = left.removeSmallestNode();
+        }
+        refreshHeight();
+        return removedNode;
+    }
+
+    /**
      * Refreshes the height of the tree with this node as root.
      */
     public void refreshHeight() {

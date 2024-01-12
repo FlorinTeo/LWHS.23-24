@@ -21,6 +21,12 @@ public class IntTree {
         }
     }
 
+    public void removeValue(int data) {
+        if (overallRoot != null) {
+            overallRoot = overallRoot.removeValue(data);
+        }
+    }
+
      /**
      * Adds a new data value to the binary search tree
      * @param data - value to be added to the tree.
