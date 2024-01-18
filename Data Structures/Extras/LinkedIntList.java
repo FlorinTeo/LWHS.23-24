@@ -50,6 +50,23 @@ public class LinkedIntList {
         _front = newFront._next;
     }
 
+    public int mystery(int k) {
+        ListNode n1 = _front;
+        ListNode n2 = _front;
+        while(n1 != null) {
+            n1 = n1._next;
+            if (k > 0) {
+                k--;
+            } else {
+                n2 = n2._next;
+            }
+        }
+        if (k != 0 || n2 == null) {
+            throw new IndexOutOfBoundsException();
+        }
+        return n2.getData();
+    }
+
     public void reverse() {
         reverse(_front)._next = null;
     }
@@ -80,6 +97,32 @@ public class LinkedIntList {
 
         crtN._next = backN;
         _front = crtN;
+    }
+
+    public void frontToTail() {
+        if (_front != null && _front._next != null) {
+            ListNode crt = _front;
+            while(crt._next != null) {
+                crt = crt._next;
+            }
+            crt._next = _front;
+            _front = _front._next;
+            crt._next._next = null;
+        }
+    }
+
+    public void tailToFront() {
+        if (_front != null && _front._next != null) {
+            ListNode prev = null;
+            ListNode crt = _front;
+            while(crt._next != null) {
+                prev = crt;
+                crt = crt._next;
+            }
+            crt._next = _front;
+            _front = crt;
+            prev._next = null;
+        }
     }
 
     @Override

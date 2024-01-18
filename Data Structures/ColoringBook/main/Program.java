@@ -157,6 +157,8 @@ public class Program {
         floodS(56, 165, Color.pink);
         _frame.stop();
         floodQ(406,395, Color.cyan);
+        _frame.stop();
+        floodS(220, 312, Color.magenta);
     }
     
     /**

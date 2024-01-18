@@ -8,6 +8,10 @@ public class ListNode {
         _next = next;
     }
 
+    public int getData() {
+        return _data;
+    }
+
     @Override
     public String toString() {
         return "" + _data;

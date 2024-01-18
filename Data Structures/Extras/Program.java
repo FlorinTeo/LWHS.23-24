@@ -11,5 +11,14 @@ public class Program {
         System.out.println(list);
         list.swap(0);
         System.out.println(list);
+        list.frontToTail();
+        System.out.println(list);
+        list.tailToFront();
+        System.out.println(list);
+        list = new LinkedIntList(33);
+        list.frontToTail();
+        System.out.println(list);
+        list.tailToFront();
+        System.out.println(list);
     }
 }
