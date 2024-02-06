@@ -40,6 +40,7 @@ public class Generator {
      * Loads the list of questions found in the ".template" sub-folder.
      * @throws IOException
      */
+    @SuppressWarnings("resource")
     private void loadQuestions(Path pTemplate) throws IOException {
         List<Question> mcq = new LinkedList<Question>();
         List<Question> frq = new LinkedList<Question>();
