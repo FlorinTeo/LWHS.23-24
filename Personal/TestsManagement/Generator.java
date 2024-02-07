@@ -48,22 +48,27 @@ public class Generator {
 
         for (Path qDir : Files.walk(pTemplate, 1).toArray(Path[]::new)) {
             if (Files.isDirectory(qDir) && !qDir.getFileName().toString().startsWith(".")) {
-                // Load the question from the given directory
-                Question question = new Question(qDir);
-                // Dispatch question to its specific bucket
-                switch(question.getType().toLowerCase()) {
-                    case Question._MCQ: // multiple-choice question or bundle
-                    case Question._MCB:
-                        mcq.add(question);
-                        break;
-                    case Question._FRQ: // free-response question
-                        frq.add(question);
-                        break;
-                    case Question._APX: // appendix
-                        apx.add(question);
-                        break;
-                    default:
-                        throw new RuntimeException("Invalid question type");
+                try {
+                    // Load the question from the given directory
+                    Question question = new Question(qDir);
+                    // Dispatch question to its specific bucket
+                    switch(question.getType().toLowerCase()) {
+                        case Question._MCQ: // multiple-choice question or bundle
+                        case Question._MCB:
+                            mcq.add(question);
+                            break;
+                        case Question._FRQ: // free-response question
+                            frq.add(question);
+                            break;
+                        case Question._APX: // appendix
+                            apx.add(question);
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid question type");
+                    }
+                } catch(Exception e) {
+                    System.out.println(qDir);
+                    throw e;
                 }
             }
         }
