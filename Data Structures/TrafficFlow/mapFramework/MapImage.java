@@ -1,6 +1,7 @@
 package TrafficFlow.mapFramework;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +44,10 @@ public class MapImage extends Drawing {
     // Routes to be overlaid on the map
     private Set<String> _overlays = new HashSet<String>();
 
+    // Top-Left and Bottom-Right pixel coordinates for the intersection area of the image
+    private Point _centerTL = null;
+    private Point _centerBR = null;
+
     // Region: [private] File IO
     /**
      * Private class definition used for serialization/deserialization of the
@@ -51,6 +56,8 @@ public class MapImage extends Drawing {
     private class MapMetadata {
         private String _mapName = "";
         private HashMap<String, String> _mapOverlaysRaw = new HashMap<String, String>();
+        private Point _centerTL;
+        private Point _centerBR;
     };
     
     private static String imageToBase64(BufferedImage image) throws IOException {
@@ -90,6 +97,9 @@ public class MapImage extends Drawing {
         BufferedImage image = ImageIO.read(imageStream);
         
         MapImage mapImage = new MapImage(mapMetadata._mapName, image);
+        mapImage._centerTL = mapMetadata._centerTL;
+        mapImage._centerBR = mapMetadata._centerBR;
+
         for(Map.Entry<String, String> mapOverlayRaw : mapMetadata._mapOverlaysRaw.entrySet())
         {
             mapImage._mapOverlays.put(
@@ -166,6 +176,8 @@ public class MapImage extends Drawing {
                     mapOverlay.getKey(),
                     imageToBase64(mapOverlay.getValue()));
         }
+        mapMetadata._centerTL = _centerTL;
+        mapMetadata._centerBR = _centerBR;
         Gson serializer = new Gson();
         String jsonMapRoutes = serializer.toJson(mapMetadata);
         Path mapImagePath = Paths.get(mapImageFileName);
@@ -190,6 +202,11 @@ public class MapImage extends Drawing {
         super(baseMap);
         _mapName = mapName;
         _mapOverlays = new HashMap<String, BufferedImage>();
+    }
+
+    public void setCenter(Point tl, Point br) {
+        _centerTL = tl;
+        _centerBR = br;
     }
     
     /**
@@ -259,8 +276,20 @@ public class MapImage extends Drawing {
      * @return True if the routes do not collide, false otherwise.
      */
     public boolean collide(String... routes) {
-        for (int x = 0; x < getWidth(); x++) {
-            for (int y = 0; y < getHeight(); y++) {
+        int xMin = 0;
+        int yMin = 0;
+        if (_centerTL != null) {
+            xMin = (int)_centerTL.getX();
+            yMin = (int)_centerTL.getY();
+        }
+        int xMax = getWidth();
+        int yMax = getHeight();
+        if (_centerBR != null) {
+            xMax = (int)_centerBR.getX()+1;
+            yMax = (int)_centerBR.getY()+1;
+        }
+        for (int x = xMin; x < xMax; x++) {
+            for (int y = yMin; y < yMax; y++) {
                 String lastOpaque = null;
                 for(String route : routes) {
                     if (!_mapOverlays.containsKey(route)) {
