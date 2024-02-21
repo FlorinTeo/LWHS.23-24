@@ -186,13 +186,13 @@ public class WebDoc {
     }
 
     private int genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
-        if (gMeta.getMCQuestions().size() == 0) {
+        if (gMeta.getMCQCount() == 0) {
             return 0;
         }
 
         String s1Html = _section1
             .replaceAll("#TNAME#", gMeta.getName())
-            .replace("#QNUM#", "" + gMeta.getMCQuestions().size());
+            .replace("#QNUM#", "" + gMeta.getMCQCount());
 
         int iMCQ = s1Html.indexOf(_TAG_SECTION1_MCQ);
         bw.write(s1Html.substring(0, iMCQ));
@@ -229,7 +229,7 @@ public class WebDoc {
         bw.write(apxHtml.substring(0, iAPX));
         int nPages = gMeta.genApxHtml(bw, _appendixPage);
         bw.write(apxHtml.substring(iAPX + _TAG_APPENDIX_PAGE.length()));
-        return 1 + nPages;
+        return nPages;
     }
     // #endregion: [private methods] Writing HTML web document parts
 
@@ -267,6 +267,14 @@ public class WebDoc {
             bw.write(_PRINT_BREAK);
             nPages++;
         }
+        // fill in the appendix pages
+        if (gMeta.getAppendix().size() != 0) {
+            nPages += genAppendix(bw, gMeta);
+            if (nPages % 2 != 0) {
+                bw.write(_PRINT_BREAK);
+                nPages++;
+            }
+        }
         // fill in the section 1 questions
         nPages += genSection1Html(bw, gMeta, false);
         if (nPages % 2 != 0) {
@@ -275,14 +283,6 @@ public class WebDoc {
         }
         // fill in the section 2 pages
         nPages += genSection2Html(bw, gMeta, false);
-        if (gMeta.getAppendix().size() != 0) {
-            if (nPages % 2 != 0) {
-                bw.write(_PRINT_BREAK);
-                nPages++;
-            }
-            // fill in the appendix pages
-            genAppendix(bw, gMeta);
-        }
         bw.close();
 
         nPages = 0;
