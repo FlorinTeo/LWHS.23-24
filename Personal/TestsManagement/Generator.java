@@ -122,7 +122,7 @@ public class Generator {
         return output;
     }
 
-        /**
+    /**
      * Generates .meta and index.html for the full set of questions loaded in this generator.
      * @throws IOException
      */

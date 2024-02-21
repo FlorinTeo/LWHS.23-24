@@ -211,7 +211,7 @@ public class GMeta {
     }
 
     public int genApxHtml(BufferedWriter bw, String format) throws IOException {
-        int nPages = 1;
+        int nPages = 0;
         for (int i = 0; i < _appendix.size(); i++) {
             Question q = _appendix.get(i);
             String qID = _isAnonymized ? "" + (i+1) : q.getName();
