@@ -23,17 +23,17 @@ class Graphs1_tests extends TestsCore {
         // Read an undirected Graph from the file "basic1.txt".
         // Verify the output of the isUGraph() method and that
         // the graph internal state and structure is left un-altered.
-        Graph<Integer> g1 = readGraph("Graphs/data/basic1.txt", Integer.class);
+        Graph<Integer> g1 = readGraph("/Graphs/data/basic1.txt", Integer.class);
         assertTrue(g1.isUGraph());
         assertTrue(g1.checkState(0));
-        assertSameGraph("Graphs/data/basic1.txt", g1);
+        assertSameGraph("/Graphs/data/basic1.txt", g1);
         
         // Read a directed Graph from the file "basic2.txt"
         // and redo the verifications.
-        Graph<String> g2 = readGraph("Graphs/data/basic2.txt");
+        Graph<String> g2 = readGraph("/Graphs/data/basic2.txt");
         assertFalse(g2.isUGraph());
         assertTrue(g2.checkState(0));
-        assertSameGraph("Graphs/data/basic2.txt", g2);
+        assertSameGraph("/Graphs/data/basic2.txt", g2);
     }
     
     /**____ CONNECTED GRAPH _____<br>
@@ -52,7 +52,7 @@ class Graphs1_tests extends TestsCore {
         
         // Read a disconnected Graph from a file and verify
         // the output of the isConnected() method.  
-        g = readGraph("Graphs/data/basic3.txt", Character.class);
+        g = readGraph("/Graphs/data/basic3.txt", Character.class);
         assertFalse(g.isConnected());
         
         // Add a few Edges to make it connected and verify again.
@@ -71,7 +71,7 @@ class Graphs1_tests extends TestsCore {
     public void test_isDAGraph() throws FileNotFoundException {
         // Read a partitioned directed acyclic Graph from the file
         // and verify the output of the isDAGraph() method.
-        Graph<String> g = readGraph("Graphs/data/basic4.txt");
+        Graph<String> g = readGraph("/Graphs/data/basic4.txt");
         assertTrue(g.isDAGraph());
         
         // Add an edge to make the graph connected DAG
@@ -97,7 +97,7 @@ class Graphs1_tests extends TestsCore {
     public void test_adjacencyMatrix() throws FileNotFoundException {
         // Read a complex (partitioned) graph from a file
         // and verify the adjacency matrix returned by getAdjacencyMatrix()
-        Graph<String> g = readGraph("Graphs/data/basic4.txt");
+        Graph<String> g = readGraph("/Graphs/data/basic4.txt");
         String[] expArr = {
           ".xxx.....",
           ".........",

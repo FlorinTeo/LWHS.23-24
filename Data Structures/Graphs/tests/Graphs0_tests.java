@@ -59,13 +59,13 @@ public class Graphs0_tests extends TestsCore {
      */
     @Test
     public void test_readGraph() throws FileNotFoundException {
-        Graph<String> g = readGraph("Graphs/data/basic1.txt");
+        Graph<String> g = readGraph("/Graphs/data/basic1.txt");
         
         // The Graph contains five Nodes in their initial state (0)
         // and their links described in the initial file.
         assertEquals(5, g.size());
         assertTrue(g.checkState(0));
-        assertSameGraph("Graphs/data/basic1.txt", g);
+        assertSameGraph("/Graphs/data/basic1.txt", g);
     }
 
     /**
@@ -101,8 +101,8 @@ public class Graphs0_tests extends TestsCore {
     @Test
     public void test_removeNode() throws FileNotFoundException {
         // Read the test graph (three linked nodes) from the file
-        Graph<String> g = readGraph("Graphs/data/basic0.txt");
-        assertSameGraph("Graphs/data/basic0.txt", g);
+        Graph<String> g = readGraph("/Graphs/data/basic0.txt");
+        assertSameGraph("/Graphs/data/basic0.txt", g);
         
         // Remove one node and verify the structure of updated Graph
         g.removeNode("three");

@@ -4,13 +4,27 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import Graphs.main.Graph;
 
 public class TestsCore {
     
-    public static <T extends Comparable<T>> T parseT(String s, Class<T> realType) {
+    private Scanner getScanner(String graphFile) throws FileNotFoundException {
+        URL url = this.getClass().getResource(graphFile);
+        File file = new File(url.getFile());
+        String filePath = file.getAbsolutePath();
+        try {
+            filePath = java.net.URLDecoder.decode(filePath, StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+        }
+        System.out.println(file.getAbsolutePath());
+        return new Scanner(new File(filePath));
+    }
+    
+    public <T extends Comparable<T>> T parseT(String s, Class<T> realType) {
         if (realType == Integer.class) {
             return realType.cast(Integer.parseInt(s));
         } else if (realType == String.class) {
@@ -27,8 +41,8 @@ public class TestsCore {
         }
     }
 
-    public static <T extends Comparable<T>> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
-        Scanner input = new Scanner(new File(graphFile));
+    public <T extends Comparable<T>> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
+        Scanner input = getScanner(graphFile);
         Map<String, List<String>> map = new HashMap<String, List<String>>();
         while(input.hasNextLine()) {
             String line = input.nextLine();
@@ -60,14 +74,14 @@ public class TestsCore {
         return graph;
     }
 
-    public static Graph<String> readGraph(String graphFile) throws FileNotFoundException {
+    public Graph<String> readGraph(String graphFile) throws FileNotFoundException {
         return readGraph(graphFile, String.class);
     }
     
-    public static void assertSameGraph(String graphFile, Graph<?> g) throws FileNotFoundException {
+    public void assertSameGraph(String graphFile, Graph<?> g) throws FileNotFoundException {
         String expected = "";
         boolean first = true;
-        Scanner parser = new Scanner(new File(graphFile));
+        Scanner parser = getScanner(graphFile);
         while(parser.hasNextLine()) {
             if (!first) {
                 expected += "\n";
