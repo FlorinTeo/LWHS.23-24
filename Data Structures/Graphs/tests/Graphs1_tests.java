@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import Graphs.main.Graph;
 
-class Graphs1_tests extends TestsCore {
+public class Graphs1_tests extends TestsCore {
 
     /**____ UNDIRECTED GRAPH ____<br>
      * Unit tests for checking if a Graph is undirected.

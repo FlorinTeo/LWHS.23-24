@@ -1,6 +1,7 @@
 package Graphs.main;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Class definition for a generic (Directed) Graph.
@@ -192,5 +193,63 @@ public class Graph<T extends Comparable<T>> {
         }
         
         return output;
+    }
+
+    /**
+     * Generates a map grouping all nodes in the graph by their out-degree.
+     * @return a map where each out-degree value in the graph (key) is associated
+     * with the set of nodes (value) having that out-degree.
+     */
+    public TreeMap<Integer, TreeSet<T>> getOutDegrees() {
+        // TODO: Implement this method according to
+        // TODO: the specification in javadocs
+        return null;
+    }
+
+    /**
+     * Generates a map grouping all nodes in the graph by their in-degree.
+     * @return a map where each in-degree value in the graph (key) is associated
+     * with the set of nodes (value) having that in-degree.
+     */
+    public TreeMap<Integer, TreeSet<T>> getInDegrees() {
+        // TODO: Implement this method according to
+        // TODO: the specification in javadocs
+        return null;
+    }
+
+    /**
+     * Generates the topological sort of this graph, where all nodes in the graph
+     * are grouped by their index in topological order. The first index is 0.
+     * @return a map associating each position in the topological sort (key)
+     * with the set of Nodes at that position (value). If the Graph is not DAG, the method 
+     * returns null.
+     */
+    public TreeMap<Integer, TreeSet<T>> topoSort() {
+        // TODO: Implement this method according to
+        // TODO: the specification in javadocs
+        return null;
+    }
+
+    /**
+     * Generates the count of the partitions in the graph.
+     * @return count of partitions.
+     */
+    public int countPartitions() {
+        // TODO: Implement this method according to
+        // TODO: the specification in javadocs
+        return 0;
+    }
+
+    /**
+     * Generates the Dijkstra distances between the node containing fromData and all the
+     * other nodes in the graph.
+     * @param fromData
+     * @return a map where the key is each Node in the Graph (given by its data)
+     * and the value is the Dijkstra distance from the <i>source</i> Node to that node.
+     */
+    public TreeMap<T, Integer> dijkstra(T fromData) {
+        // TODO: Implement this method according to
+        // TODO: the specification in javadocs
+        return null;
     }
 }
