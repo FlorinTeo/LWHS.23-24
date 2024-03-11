@@ -1,4 +1,5 @@
 package Graphs.main;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,12 +91,32 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     }
     
     /**
+     * Resets the state of this Node to a given value.
+     * @param value - the value to be set into the _state
+     * @see Node#_state
+     */
+    public void reset(int value) {
+        _state = value;
+    }
+    
+    /**
      * Adds a new directed graph Edge linking this Node to the otherNode.
      * @param otherNode - reference to the Node at the other end of the Edge.
      * @see Node#removeEdge(Node)
      */
     public void addEdge(Node<T> otherNode) {
         _edges.put(otherNode._data.hashCode(), otherNode);
+    }
+    
+    /**
+     * Removes the directed graph Edge linking this Node to the otherNode.
+     * <br><u>Note:</u> The <i>otherNode</i> does not get removed from the Graph, nor does
+     * an Edge that may link <i>otherNode</i> (as an origin) and this Node (as a target).
+     * @param otherNode - reference to The node at the other end of the Edge.
+     * @see Node#addEdge(Node)
+     */
+    public void removeEdge(Node<T> otherNode) {
+        _edges.remove(otherNode.getData().hashCode());
     }
     
     /**
@@ -131,5 +152,95 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     @Override
     public int compareTo(Node<T> other) {
         return _data.compareTo(other._data);
+    }
+
+    public boolean isUNode() {
+        boolean uNode = true;
+        for (Node<?> n : _edges.values()) {
+            if (n._state != 1 && n._edges.get(_data.hashCode()) != this) {
+                uNode = false;
+                break;
+            }
+        }
+        _state = 1;
+        return uNode;
+    }
+    
+    public void traverse() {
+        _state = 1;
+        for (Node<?> n : _edges.values()) {
+            if (n.getState() == 0) {
+                n.traverse();
+            }
+        }
+    }
+    
+    /**
+     * Expand the marking in any of the children of this node
+     * (if any) to this node itself, then propagate it further 
+     * in the graph through traversal.
+     * @return true of the state of this node has changed.
+     */
+    public boolean expand() {
+        if (_state == 1) {
+            return false;
+        }
+        for (Node<?> n : _edges.values()) {
+            if (n.getState() == 1) {
+                traverse();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean loops(Node<T> root) {
+        _state = 1;
+        for (Node<T> n : _edges.values()) {
+            if (n == root || (n._state == 0 && n.loops(root))) {
+                return true;
+            }
+        }
+        return false;
+    }
+        
+    public Collection<Node<T>> getNeighbors() {
+        return _edges.values();
+    }
+    
+    public void topoSort() {
+        if (_state == 0) {
+            for(Node<?> n : _edges.values()) {
+                n.topoSort();
+                _state = Math.max(_state, n.getState());
+            }
+            _state++;
+        }
+    }
+    
+    public void dijkstra(int distance) {
+        if (_state <= distance) {
+            return;
+        }
+        _state = distance;
+        for(Node<T> neighbor : _edges.values()) {
+            neighbor.dijkstra(distance+1);
+        }
+    }
+    
+    public boolean hasPath(Node<T> toNode) {
+        if (this == toNode) {
+            return true;
+        }
+        _state = 1;
+        for(Node<T> node : _edges.values()) {
+            if (node._state == 0) {
+                if (node.hasPath(toNode)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }

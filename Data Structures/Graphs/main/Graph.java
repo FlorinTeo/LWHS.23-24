@@ -1,5 +1,9 @@
 package Graphs.main;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -109,8 +113,13 @@ public class Graph<T extends Comparable<T>> {
      * @see Graph#addEdge(Comparable, Comparable)
      */
     public void removeEdge(T from, T to) {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
+        Node<T> fromNode = _nodes.get(from.hashCode());
+        Node<T> toNode = _nodes.get(to.hashCode());
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+        
+        fromNode.removeEdge(toNode);
     }
     
     /**
@@ -121,50 +130,13 @@ public class Graph<T extends Comparable<T>> {
      * @param data - Node to be removed from the Graph.
      */
     public void removeNode(T data) {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
+        Node<T> node = _nodes.get(data.hashCode());
+        for(Node<T> n : _nodes.values()) {
+            n.removeEdge(node);
+        }
+        _nodes.remove(data.hashCode());
     }
-
-    /**
-     * Checks if the Graph is undirected.
-     * @return true if Graph is undirected, false otherwise.
-     */
-    public boolean isUGraph() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return false;
-    }
-
-    /**
-     * Checks is the Graph is connected.
-     * @return true if the Graph is connected, false otherwise.
-     */
-    public boolean isConnected() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return false;
-    }
-
-    /**
-     * Checks if the Graph is Directed Acyclic graph.
-     * @return true if Graph is Directed Acyclic, false otherwise.
-     */
-    public boolean isDAGraph() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return false;
-    }
-
-    /**
-     * Generates the adjacency matrix for this Graph.
-     * @return the adjacency matrix.
-     */
-    public int[][] getAdjacencyMatrix() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return null;
-    }
-
+    
     /**
      * Gives a multi-line String representation of this Graph. Each line in the returned
      * string represent a Node in the graph, followed by its outgoing (egress) Edges.
@@ -194,62 +166,236 @@ public class Graph<T extends Comparable<T>> {
         
         return output;
     }
+    
+    public void reset() {
+        reset(0);
+    }
+    
+    public void reset(int value) {
+        for(Node<T> node : _nodes.values()) {
+            node.reset(value);
+        }
+    }
+    
+    public boolean isUGraph() {
+        boolean uGraph = true;
+        for(Node<?> node : _nodes.values()) {
+            if (!node.isUNode()) {
+                uGraph = false;
+                break;
+            }
+        }
+        
+        reset();
+        return uGraph;
+    }
+    
+    public boolean isConnected() {
+        boolean connected = true;
+        Iterator<Node<T>> iNodes = _nodes.values().iterator();
+        while(connected && iNodes.hasNext()) {
+            Node<T> node = iNodes.next();
+            // traverse the grap starting from node
+            node.traverse();
+            
+            // expand the visited nodes based on proximity
+            // to other visited nodes. Stop when no expansion happened.
+            boolean again = true;
+            while (again) {
+                again = false;
+                for (Node<?> n : _nodes.values()) {
+                    again = again || n.expand();
+                }
+            }
+            
+            // verify if any node was left not visited
+            for (Node<?> n : _nodes.values()) {
+                if (n.getState() != 1) {
+                    connected = false;
+                    break;
+                }
+            }
+        }
+        
+        reset();
+        return connected;
+    }
+    
+    public boolean isDAGraph() {
+        boolean dag = true;
+        Iterator<Node<T>> iNodes = _nodes.values().iterator();
+        while(dag && iNodes.hasNext()) {
+            Node<T> n = iNodes.next();
+            dag = !n.loops(n);
+            reset();
+        }        
+        return dag;
+    }
 
-    /**
-     * Generates a map grouping all nodes in the graph by their out-degree.
-     * @return a map where each out-degree value in the graph (key) is associated
-     * with the set of nodes (value) having that out-degree.
-     */
+    public int[][] getAdjacencyMatrix() {
+        int[][] arr = new int[this.size()][this.size()];
+        Map<Node<T>, Integer> map = new HashMap<Node<T>, Integer>();
+        int iN = 0;
+        for(Node<T> n : _nodes.values()) {
+            map.put(n, iN++);
+        }
+        for(Node<T> n : _nodes.values()) {
+            int i = map.get(n);
+            for(Node<T> nn : n.getNeighbors()) {
+                int j = map.get(nn);
+                arr[i][j] = 1;
+            }
+        }
+        return arr;
+    }
+    
     public TreeMap<Integer, TreeSet<T>> getOutDegrees() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return null;
+        TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
+        for(Node<T> n : _nodes.values()) {
+            int outDegree = n.getNeighbors().size();
+            TreeSet<T> set = map.get(outDegree);
+            if (set == null) {
+                set = new TreeSet<T>();
+                map.put(outDegree, set);
+            }
+            set.add(n.getData());
+        }
+        return map;
     }
-
-    /**
-     * Generates a map grouping all nodes in the graph by their in-degree.
-     * @return a map where each in-degree value in the graph (key) is associated
-     * with the set of nodes (value) having that in-degree.
-     */
+    
     public TreeMap<Integer, TreeSet<T>> getInDegrees() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return null;
+        TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
+        for(Node<T> node : _nodes.values()) {
+            int inDegree = 0;
+            for (Node<T> other : _nodes.values()) {
+                if (node == other) {
+                    continue;
+                }
+                if (other.getNeighbors().contains(node)) {
+                    inDegree++;
+                }
+            }
+            
+            TreeSet<T> set = map.get(inDegree);
+            if (set == null) {
+                set = new TreeSet<T>();
+                map.put(inDegree, set);
+            }
+            set.add(node.getData());
+        }
+        
+        return map;
     }
-
-    /**
-     * Generates the topological sort of this graph, where all nodes in the graph
-     * are grouped by their index in topological order. The first index is 0.
-     * @return a map associating each position in the topological sort (key)
-     * with the set of Nodes at that position (value). If the Graph is not DAG, the method 
-     * returns null.
-     */
+    
     public TreeMap<Integer, TreeSet<T>> topoSort() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return null;
-    }
+        if (!this.isDAGraph()) {
+            return null;
+        }
+        
+        int maxTopo = 0;
+        for(Node<?> n : _nodes.values()) {
+            if (n.getState() == 0) {
+                n.topoSort();
+                maxTopo = Math.max(maxTopo, n.getState());
+            }
+        }
+        
+        TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
+        for (Node<T> n : _nodes.values()) {
+            int topoSort = maxTopo - n.getState();
+            TreeSet<T> set = map.get(topoSort);
+            if (set == null) {
+                set = new TreeSet<T>();
+                map.put(topoSort, set);
+            }
+            set.add(n.getData());
+        }
 
-    /**
-     * Generates the count of the partitions in the graph.
-     * @return count of partitions.
-     */
+        reset();
+        return map;
+    }
+    
+    private void expand() {
+        boolean again = true;
+        while (again){
+            again = false;
+            for(Node<T> n : _nodes.values()) {
+                if (n.getState() == 0 && n.expand()) {
+                    again = true;
+                }
+            } 
+        }
+    }
+    
     public int countPartitions() {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return 0;
-    }
+        // counter to receive the final number of partitions
+        int count = 0;
+        
+        // Put all the graph's nodes in a queue
+        Queue<Node<T>> q = new LinkedList<Node<T>>();
+        q.addAll(_nodes.values());
 
-    /**
-     * Generates the Dijkstra distances between the node containing fromData and all the
-     * other nodes in the graph.
-     * @param fromData
-     * @return a map where the key is each Node in the Graph (given by its data)
-     * and the value is the Dijkstra distance from the <i>source</i> Node to that node.
-     */
+        // Loop through the queue until all nodes have been visited
+        while(!q.isEmpty()) {
+            Node<T> n = q.remove();
+            // a node already visited is just dropped from the queue
+            if (n.getState() != 0) {
+                continue;
+            }
+            
+            // here we have n as not visited yet, for sure it indicates
+            // a new partition.
+            count++;
+            
+            // traverse all the nodes starting from n then
+            // expand the traversal to all the other nodes not visited
+            // yet which may be connected to any of the visited nodes.
+            n.traverse();
+            expand();
+        }
+        
+        reset();
+        
+        return count;
+    }
+    
     public TreeMap<T, Integer> dijkstra(T fromData) {
-        // TODO: Implement this method according to
-        // TODO: the specification in javadocs
-        return null;
+        TreeMap<T, Integer> distances = null;
+        Node<T> fromNode = _nodes.get(fromData.hashCode());
+        if (fromNode != null) {
+            reset(Integer.MAX_VALUE);
+            distances = new TreeMap<T, Integer>();
+            // calculate dijkstra distances starting fromNode
+            fromNode.dijkstra(0);
+            // build map
+            for(Node<T> n : _nodes.values()) {
+                int distance = n.getState();
+                if (distance == Integer.MAX_VALUE) {
+                    distance = -1;
+                }
+                distances.put(n.getData(), distance);
+            }
+            reset();
+        }
+        return distances;
+    }
+    
+    /**
+     * Determines if a path exists between the nodes containing
+     * fromData and toData.
+     * @param fromData - data value of the origin node.
+     * @param toData - data value of the target node.
+     * @return true if a path exists, false otherwise
+     * @throws RuntimeException if a node cannot be found in the graph.
+     */
+    public boolean hasPath(T fromData, T toData) throws RuntimeException {
+        Node<T> fromNode = _nodes.get(fromData.hashCode());
+        Node<T> toNode = _nodes.get(toData.hashCode());
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) in the graph!");
+        }
+        
+        reset();
+        return fromNode.hasPath(toNode);
     }
 }
