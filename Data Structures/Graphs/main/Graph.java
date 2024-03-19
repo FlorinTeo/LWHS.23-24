@@ -292,17 +292,16 @@ public class Graph<T extends Comparable<T>> {
             return null;
         }
         
-        int maxTopo = 0;
-        for(Node<?> n : _nodes.values()) {
-            if (n.getState() == 0) {
-                n.topoSort();
-                maxTopo = Math.max(maxTopo, n.getState());
-            }
+        Queue<Node<T>> queue = new LinkedList<Node<T>>(this._nodes.values());
+        while(!queue.isEmpty()) {
+            Node<T> node = queue.remove();
+            Queue<Node<T>> modifiedNodes = node.topoCheck();
+            queue.addAll(modifiedNodes);
         }
         
         TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
         for (Node<T> n : _nodes.values()) {
-            int topoSort = maxTopo - n.getState();
+            int topoSort = n.getState();
             TreeSet<T> set = map.get(topoSort);
             if (set == null) {
                 set = new TreeSet<T>();

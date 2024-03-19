@@ -1,7 +1,9 @@
 package Graphs.main;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * Class definition for a generic Node in a Graph.
@@ -208,14 +210,15 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         return _edges.values();
     }
     
-    public void topoSort() {
-        if (_state == 0) {
-            for(Node<?> n : _edges.values()) {
-                n.topoSort();
-                _state = Math.max(_state, n.getState());
+    public Queue<Node<T>> topoCheck() {
+        Queue<Node<T>> changedNodes = new LinkedList<Node<T>>();
+        for(Node<T> n : _edges.values()) {
+            if (n._state <= _state) {
+                n._state = (_state + 1);
+                changedNodes.add(n);
             }
-            _state++;
         }
+        return changedNodes;
     }
     
     public void dijkstra(int distance) {
