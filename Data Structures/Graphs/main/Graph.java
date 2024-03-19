@@ -2,6 +2,7 @@ package Graphs.main;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -288,17 +289,24 @@ public class Graph<T extends Comparable<T>> {
     }
     
     public TreeMap<Integer, TreeSet<T>> topoSort() {
+        // return promptly if the graph is not directed, acyclic
         if (!this.isDAGraph()) {
             return null;
         }
         
+        // place all nodes in a queue
         Queue<Node<T>> queue = new LinkedList<Node<T>>(this._nodes.values());
+        // as long as the queue is not empty ...
         while(!queue.isEmpty()) {
+            // ... remove the first node from the queue
+            // and have it check all its neighbors that need touched.
+            // If any, they are returned back to be added to the queue for another check.
             Node<T> node = queue.remove();
             Queue<Node<T>> modifiedNodes = node.topoCheck();
             queue.addAll(modifiedNodes);
         }
         
+        // All nodes have their topo order in the state field. Group them in the returning map
         TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
         for (Node<T> n : _nodes.values()) {
             int topoSort = n.getState();
@@ -314,48 +322,51 @@ public class Graph<T extends Comparable<T>> {
         return map;
     }
     
-    private void expand() {
-        boolean again = true;
-        while (again){
-            again = false;
-            for(Node<T> n : _nodes.values()) {
-                if (n.getState() == 0 && n.expand()) {
-                    again = true;
-                }
-            } 
-        }
-    }
-    
     public int countPartitions() {
         // counter to receive the final number of partitions
-        int count = 0;
-        
-        // Put all the graph's nodes in a queue
-        Queue<Node<T>> q = new LinkedList<Node<T>>();
-        q.addAll(_nodes.values());
+        int partition = 0;
 
-        // Loop through the queue until all nodes have been visited
+        // Group all nodes by their partition
+        Map<Integer, List<Node<T>>> partitions = new TreeMap<Integer, List<Node<T>>>();
+
+        // Put all the graph's nodes in a queue
+        Queue<Node<T>> q = new LinkedList<Node<T>>(_nodes.values());
+
+        // q contains all unmarked nodes. Loop through it until it drains out
         while(!q.isEmpty()) {
-            Node<T> n = q.remove();
-            // a node already visited is just dropped from the queue
-            if (n.getState() != 0) {
-                continue;
+            // increment the partition count and mark all nodes with that partition
+            partition++;
+            q.peek().mark(partition);
+
+            // iterate through all nodes, and if they are not already marked
+            // and are linked to any of the other mark nodes, mark them as well.
+            // And do this until there's no change in the graph.
+            boolean again = true;
+            while (again) {
+                again = false;
+                for(Node<T> n : _nodes.values()) {
+                    if (n.getState() == 0 && n.nextToMark(partition)) {
+                        n.mark(partition);
+                        again = true;
+                    }
+                }
             }
-            
-            // here we have n as not visited yet, for sure it indicates
-            // a new partition.
-            count++;
-            
-            // traverse all the nodes starting from n then
-            // expand the traversal to all the other nodes not visited
-            // yet which may be connected to any of the visited nodes.
-            n.traverse();
-            expand();
+
+            // All nodes that could be marked, were marked. Time to collect them
+            partitions.put(partition, new LinkedList<Node<T>>());
+            for (int i = q.size(); i > 0; i--) {
+                Node<T> n = q. remove();
+                if (n.getState() == partition) {
+                    partitions.get(partition).add(n);
+                } else {
+                    q.add(n);
+                }
+            }
         }
-        
+
         reset();
-        
-        return count;
+        System.out.println(partitions);
+        return partitions.keySet().size();
     }
     
     public TreeMap<T, Integer> dijkstra(T fromData) {

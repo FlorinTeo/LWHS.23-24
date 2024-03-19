@@ -176,7 +176,25 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
             }
         }
     }
-    
+
+    public void mark(int state) {
+        _state = state;
+        for (Node<T> n : _edges.values()) {
+            if (n.getState() != state) {
+                n.mark(state);
+            }
+        }
+    }
+
+    public boolean nextToMark(int state) {
+        for (Node<T> n : _edges.values()) {
+            if (n.getState() == state) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Expand the marking in any of the children of this node
      * (if any) to this node itself, then propagate it further 
