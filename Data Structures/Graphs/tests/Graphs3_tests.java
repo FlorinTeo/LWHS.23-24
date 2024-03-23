@@ -1,9 +1,14 @@
 package Graphs.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.Queue;
 import java.util.TreeMap;
 
 import org.junit.Test;
@@ -87,8 +92,22 @@ public class Graphs3_tests extends TestsCore {
         assertEquals("{A=0, B=1, C=2, D=2, E=3, F=2, G=1}", dm.toString());
     }
     
+    //____ EULERIAN CIRQUIT ____
+    /**
+     * Eulerian Path is a path in graph that visits every edge exactly once.
+     * Eulerian Circuit is an Eulerian Path which starts and ends on the same vertex. 
+     * @throws FileNotFoundException 
+     * @see https://www.geeksforgeeks.org/euler-circuit-directed-graph/
+     */
     @Test
-    public void test_eulerianCircuit() {
-        fail("Not yet implemented");
+    public void test_eulerianCircuit() throws FileNotFoundException {
+        Graph<String> g = readGraph("/Graphs/data/eulerian1.txt");
+        assertTrue(g.isEulerian());
+        assertEquals("[C, A, B]", g.getCycle("B").toString());
+        g = readGraph("/Graphs/data/eulerian2.txt");
+        assertFalse(g.isEulerian());
+        assertEquals("[G, H, J, F]", g.getCycle("F").toString());
+        g = readGraph("/Graphs/data/eulerian3.txt");
+        assertNull(g.getCycle("W"));
     }
 }

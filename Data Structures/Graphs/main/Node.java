@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 
 /**
  * Class definition for a generic Node in a Graph.
@@ -273,5 +274,36 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         }
         
         return false;
+    }
+
+    /**
+     * Determines if the node verifies the eulerian property:
+     * has as many outgoing (egress) as incoming (ingress) edges.
+     * @return true if node verifies the eulerian property, false otherwise.
+     */
+    public boolean isEulerian() {
+        return (this._edges.size() == this._inEdges.size());
+    }
+
+    /**
+     * Determines if there is a path from this node to the target node,
+     * and if one exists, returns a stack of all nodes in the cycle, with
+     * the target node on the bottom of the stack.
+     * @return queue of nodes in the cycle if one exists, null otherwise.
+     */
+    public Stack<Node<T>> getCycle(Node<T> targetNode) {
+        if (_state == 1) {
+            return (this == targetNode) ? new Stack<Node<T>>() : null;
+        }
+        _state = 1;
+        Stack<Node<T>> cycle = null;
+        for(Node<T> node : _edges.values()) {
+            cycle = node.getCycle(targetNode);
+            if (cycle != null) {
+                cycle.push(node);
+                return cycle;
+            }
+        }
+        return null;
     }
 }

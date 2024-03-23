@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -402,10 +403,78 @@ public class Graph<T extends Comparable<T>> {
         Node<T> fromNode = _nodes.get(fromData.hashCode());
         Node<T> toNode = _nodes.get(toData.hashCode());
         if (fromNode == null || toNode == null) {
-            throw new RuntimeException("Node(s) in the graph!");
+            throw new RuntimeException("Node(s) not in the graph!");
         }
         
         reset();
         return fromNode.hasPath(toNode);
+    }
+
+    /**
+     * Determines if the graph is eulerian: It is
+     * strongly connected (can reach each node from any other node) and
+     * each node verifies the eulerian property (has as many incoming as
+     * outgoing edges).
+     * @return true if graph is eulerian, false otherwise.
+     */
+    public boolean isEulerian() {
+        if (!isConnected()) {
+            return false;
+        }
+
+        for(Node<T> n : this._nodes.values()) {
+            if (!n.isEulerian()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines a cycle in the graph, starting from the node
+     * containing data. If no such path exists returns null, otherwise
+     * the path is returned as a queue, with the target node at the bottom.
+     * @return the path in the form 
+     */
+    public Queue<T> getCycle(T data) {
+        this.reset(0);
+        Node<T> node = _nodes.get(data.hashCode());
+        if (node == null) {
+            throw new RuntimeException("Node not in the graph!");
+        }
+        
+        Stack<Node<T>> cycle = node.getCycle(node);
+        Queue<T> result = null;
+        if (cycle != null) {
+            result = new LinkedList<T>();
+            while(!cycle.isEmpty()) {
+                result.add(cycle.pop().getData());
+            }
+        }
+
+        return result;
+    }
+
+    public Queue<T> getEulerianCycle() {
+        this.reset(0);
+        
+        // if graph is not eulerian, return null
+        if (!isEulerian()) {
+            return null;
+        }
+
+        // if graph contains no nodes, the eulerian cycle is empty
+        if (_nodes.size() == 0) {
+            return new LinkedList<T>();
+        }
+        
+        // get the first node (any node is good) and bootstrap the cycle
+        Node<T> node = _nodes.values().iterator().next();
+        Queue<T> result = new LinkedList<T>();
+        result.add(node.getData());
+
+        return result;
+
     }
 }
