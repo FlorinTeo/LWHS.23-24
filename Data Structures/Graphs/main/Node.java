@@ -26,6 +26,13 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see java.lang.Object#hashCode()
      */
     private Map<Integer, Node<T>> _edges;
+
+    /**
+     * Collection of incoming (ingress) edges, targeting this node.
+     * <br>This is a private Map keying each of the remote (egress) nodes
+     * by the hashCode() of their data;
+     */
+    private Map<Integer, Node<T>> _inEdges;
     
     /**
      * The generic data contained in this Node. The type of the data
@@ -57,6 +64,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public Node(T data) {
         _data = data;
         _edges = new HashMap<Integer, Node<T>>();
+        _inEdges = new HashMap<Integer, Node<T>>();
         _state = 0;
     }
     
@@ -108,6 +116,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      */
     public void addEdge(Node<T> otherNode) {
         _edges.put(otherNode._data.hashCode(), otherNode);
+        otherNode._inEdges.put(this._data.hashCode(), this);
     }
     
     /**
@@ -118,6 +127,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#addEdge(Node)
      */
     public void removeEdge(Node<T> otherNode) {
+        otherNode._inEdges.remove(this._data.hashCode());
         _edges.remove(otherNode.getData().hashCode());
     }
     
