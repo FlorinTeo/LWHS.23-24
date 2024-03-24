@@ -28,24 +28,24 @@ public class Program {
     }
 
     public static void main(String[] args) {
-        // Map<String, String> firstMap = new HashMap<String, String>();
-        // firstMap.put("zVal", "pi");
-        // firstMap.put("yVal", "e");
-        // firstMap.put("xVal", "g");
-        // System.out.println(firstMap);
+        Map<String, String> firstMap = new HashMap<String, String>();
+        firstMap.put("zVal", "pi");
+        firstMap.put("yVal", "e");
+        firstMap.put("xVal", "g");
+        System.out.println(firstMap);
 
-        // Map<String, Double> secondMap = new HashMap<String, Double>();
-        // secondMap.put("g", 9.81);
-        // secondMap.put("pi", 3.14);
-        // secondMap.put("e", 2.71);
-        // System.out.println(secondMap);
+        Map<String, Double> secondMap = new HashMap<String, Double>();
+        secondMap.put("g", 9.81);
+        secondMap.put("pi", 3.14);
+        secondMap.put("e", 2.71);
+        System.out.println(secondMap);
 
-        // Map<String, Double> result = combine(firstMap, secondMap);
-        // System.out.println(result.get("yVal"));
-        // System.out.println(result);
+        Map<String, Double> result = combine(firstMap, secondMap);
+        System.out.println(result.get("yVal"));
+        System.out.println(result);
 
-        // Set<String> keys = result.keySet();
-        // System.out.println(keys);
+        Set<String> keys = result.keySet();
+        System.out.println(keys);
 
         // frq question 5
         Map<Integer, String> map1 = new HashMap<Integer, String>();
