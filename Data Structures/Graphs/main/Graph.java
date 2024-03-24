@@ -435,6 +435,7 @@ public class Graph<T extends Comparable<T>> {
      * Determines a cycle in the graph, starting from the node
      * containing data. If no such path exists returns null, otherwise
      * the path is returned as a queue, with the target node at the bottom.
+     * @param data - data label pointing to the starting and ending node in the cycle
      * @return the path in the form 
      */
     public ArrayList<T> getCycle(T data) {
@@ -448,6 +449,12 @@ public class Graph<T extends Comparable<T>> {
         return node.getPath(node);
     }
 
+    /**
+     * Determines an eulerian circuit in the graph. If no circuit exists,
+     * returns null, otherwise the circuit is the list of nodes, starting and
+     * ending from one of them.
+     * @return - array list of nodes' data, in the order of the circuit.
+     */
     public ArrayList<T> getEulerianCircuit() {
         // if graph is not eulerian, return null
         if (!isEulerian()) {

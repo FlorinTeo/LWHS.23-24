@@ -35,6 +35,10 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      */
     private Map<Integer, Node<T>> _inEdges;
 
+    /**
+     * Queue of nodes which had not been reached from this node.
+     * Used as an internal state tracking for eulerian circuit.
+     */
     private Queue<Node<T>> _unvisited;
     
     /**
@@ -109,7 +113,8 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#_state
      */
     public void reset(int value) {
-        this._unvisited = new LinkedList<Node<T>>();
+        // initialize the _unvisited queue with all the nodes from the outgoing edges
+        _unvisited = new LinkedList<Node<T>>();
         _unvisited.addAll(_edges.values());
         _state = value;
     }
