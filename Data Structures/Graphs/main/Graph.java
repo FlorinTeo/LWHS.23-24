@@ -1,4 +1,6 @@
 package Graphs.main;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -437,44 +439,36 @@ public class Graph<T extends Comparable<T>> {
      * the path is returned as a queue, with the target node at the bottom.
      * @return the path in the form 
      */
-    public Queue<T> getCycle(T data) {
-        this.reset(0);
+    public ArrayList<T> getCycle(T data) {
         Node<T> node = _nodes.get(data.hashCode());
         if (node == null) {
             throw new RuntimeException("Node not in the graph!");
         }
-        
-        Stack<Node<T>> cycle = node.getCycle(node);
-        Queue<T> result = null;
-        if (cycle != null) {
-            result = new LinkedList<T>();
-            while(!cycle.isEmpty()) {
-                result.add(cycle.pop().getData());
-            }
-        }
-
-        return result;
+        // reset the graph
+        reset();
+        // get the path starting from node and leading back to the same node 
+        return node.getPath(node);
     }
 
-    public Queue<T> getEulerianCycle() {
-        this.reset(0);
-        
+    public ArrayList<T> getEulerianCircuit() {
         // if graph is not eulerian, return null
         if (!isEulerian()) {
             return null;
         }
-
-        // if graph contains no nodes, the eulerian cycle is empty
-        if (_nodes.size() == 0) {
-            return new LinkedList<T>();
+        // reset the graph
+        reset();
+        // initialize the resulting cycle with any node, if it exists
+        ArrayList<T> cycle = new ArrayList<T>();
+        if (_nodes.size() != 0) {
+            cycle.add(_nodes.values().iterator().next().getData());
         }
-        
-        // get the first node (any node is good) and bootstrap the cycle
-        Node<T> node = _nodes.values().iterator().next();
-        Queue<T> result = new LinkedList<T>();
-        result.add(node.getData());
-
-        return result;
-
+        for(int i = 0; i < cycle.size(); i++) {
+            Node<T> n = _nodes.get(cycle.get(i).hashCode());
+            if (n.hasUnvisited()) {
+                ArrayList<T> newCycle = n.getPath(n);
+                cycle.addAll(i+1, newCycle);
+            }
+        }
+        return cycle;
     }
 }

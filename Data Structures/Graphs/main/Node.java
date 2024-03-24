@@ -1,10 +1,10 @@
 package Graphs.main;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Stack;
 
 /**
  * Class definition for a generic Node in a Graph.
@@ -34,6 +34,8 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * by the hashCode() of their data;
      */
     private Map<Integer, Node<T>> _inEdges;
+
+    private Queue<Node<T>> _unvisited;
     
     /**
      * The generic data contained in this Node. The type of the data
@@ -98,7 +100,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#reset()
      */
     public void reset() {
-        _state = 0;
+        reset(0);
     }
     
     /**
@@ -107,6 +109,8 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#_state
      */
     public void reset(int value) {
+        this._unvisited = new LinkedList<Node<T>>();
+        _unvisited.addAll(_edges.values());
         _state = value;
     }
     
@@ -286,24 +290,26 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     }
 
     /**
-     * Determines if there is a path from this node to the target node,
-     * and if one exists, returns a stack of all nodes in the cycle, with
-     * the target node on the bottom of the stack.
-     * @return queue of nodes in the cycle if one exists, null otherwise.
+     * Determines the path from this node to the target node, if one exists.
+     * If it does, returns the array list of all nodes in the path, with the 
+     * target node at the last index.
+     * @return array list of nodes in the path if one exists, null otherwise.
      */
-    public Stack<Node<T>> getCycle(Node<T> targetNode) {
-        if (_state == 1) {
-            return (this == targetNode) ? new Stack<Node<T>>() : null;
-        }
-        _state = 1;
-        Stack<Node<T>> cycle = null;
-        for(Node<T> node : _edges.values()) {
-            cycle = node.getCycle(targetNode);
-            if (cycle != null) {
-                cycle.push(node);
-                return cycle;
+    public ArrayList<T> getPath(Node<T> targetNode) {
+        ArrayList<T> path = null;
+        for(int i = _unvisited.size(); i > 0; i--) {
+            Node<T> n = _unvisited.remove();
+            path = (n == targetNode) ? new ArrayList<T>() : n.getPath(targetNode);
+            if (path != null) {
+                path.add(0, n._data);
+                break;
             }
+            _unvisited.add(n);
         }
-        return null;
+        return path;
+    }
+
+    public boolean hasUnvisited() {
+        return !_unvisited.isEmpty();
     }
 }

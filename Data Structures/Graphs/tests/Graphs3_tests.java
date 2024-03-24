@@ -104,10 +104,27 @@ public class Graphs3_tests extends TestsCore {
         Graph<String> g = readGraph("/Graphs/data/eulerian1.txt");
         assertTrue(g.isEulerian());
         assertEquals("[C, A, B]", g.getCycle("B").toString());
+        assertEquals("[A, B, C, A, D, E, A]", g.getEulerianCircuit().toString());
+
         g = readGraph("/Graphs/data/eulerian2.txt");
         assertFalse(g.isEulerian());
         assertEquals("[G, H, J, F]", g.getCycle("F").toString());
+        assertNull(g.getEulerianCircuit());
+
         g = readGraph("/Graphs/data/eulerian3.txt");
+        assertFalse(g.isEulerian());
         assertNull(g.getCycle("W"));
+        assertEquals("[Y, Z, X]", g.getCycle("X").toString());
+        assertNull(g.getEulerianCircuit());
+
+        g = readGraph("/Graphs/data/eulerian4.txt");
+        assertTrue(g.isEulerian());
+        assertEquals("[2, 3, 4, 5, 1]", g.getCycle("1").toString());
+        assertEquals("[1, 2, 3, 5, 6, 1, 3, 4, 5, 1]", g.getEulerianCircuit().toString());
+
+        g = readGraph("/Graphs/data/eulerian5.txt");
+        assertTrue(g.isEulerian());
+        assertEquals("[B, C, A]", g.getCycle("A").toString());
+        assertEquals("[A, B, D, F, E, D, C, E, B, C, A]", g.getEulerianCircuit().toString());
     }
 }
