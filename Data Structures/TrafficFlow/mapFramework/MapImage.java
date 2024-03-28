@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
@@ -237,7 +238,7 @@ public class MapImage extends Drawing {
      * @see #getRoutes()
      */
     public Set<String> getOverlays() {
-        return _overlays;
+        return new TreeSet<String>(_overlays);
     }
     
     /**
