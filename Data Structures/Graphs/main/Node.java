@@ -317,4 +317,20 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public boolean hasUnvisited() {
         return !_unvisited.isEmpty();
     }
+
+    public Queue<T> getEulerianCycle(Node<T> targetNode) {
+        Queue<T> cycle = (this == targetNode) ? new LinkedList<T>() : null;
+        for(int i = _unvisited.size(); i > 0; i--){
+            Node<T> nextNode = _unvisited.remove();
+            Queue<T> nextCycle = nextNode.getEulerianCycle(targetNode);
+            if (nextCycle != null) {
+                cycle = new LinkedList<T>();
+                cycle.add(nextNode.getData());
+                cycle.addAll(nextCycle);
+                break;
+            }
+            _unvisited.add(nextNode);
+        }        
+        return cycle;
+    }
 }

@@ -476,4 +476,20 @@ public class Graph<T extends Comparable<T>> {
         }
         return cycle;
     }
+
+    public Queue<T> getEulerianCycle() {
+        Queue<T> cycle = null;
+        // if graph is not eulerian, return null
+        if (isEulerian()) {
+            // reset the graph
+            reset();
+            cycle = new LinkedList<T>();
+            if(_nodes.size() > 0) {
+                Node<T> firstNode = _nodes.values().iterator().next();
+                cycle.add(firstNode.getData());
+                cycle.addAll(firstNode.getEulerianCycle(firstNode));
+            }
+        }
+        return cycle;
+    }
 }
