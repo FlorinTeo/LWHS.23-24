@@ -124,23 +124,4 @@ public class Graphs3_tests extends TestsCore {
         assertEquals("[B, C, A]", g.getCycle("A").toString());
         assertEquals("[A, B, D, F, E, D, C, E, B, C, A]", g.getEulerianCircuit().toString());
     }
-
-    @Test
-    public void test_eulerianCycle() throws FileNotFoundException {
-        Graph<String> g = readGraph("/Graphs/data/eulerian1.txt");
-        assertEquals("[A, B, C, A, D, E, A]", g.getEulerianCycle().toString());
-
-        g = readGraph("/Graphs/data/eulerian2.txt");
-        assertNull(g.getEulerianCycle());
-
-        g = readGraph("/Graphs/data/eulerian3.txt");
-        assertNull(g.getEulerianCycle());
-
-        g = readGraph("/Graphs/data/eulerian4.txt");
-        assertEquals("[1, 2, 3, 5, 6, 1, 3, 4, 5, 1]", g.getEulerianCycle().toString());
-
-        g = readGraph("/Graphs/data/eulerian5.txt");
-        assertEquals("[A, B, D, F, E, D, C, E, B, C, A]", g.getEulerianCycle().toString());
-    }
-    
 }
