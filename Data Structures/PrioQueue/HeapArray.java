@@ -46,6 +46,7 @@ public class HeapArray<E extends Comparable<E>> implements PriorityQueue<E> {
     }
     // EndRegion: Helper methods
     
+    @SuppressWarnings("unchecked")
     public HeapArray(Class<E> eClass) {
         elements = (E[]) Array.newInstance(eClass, 2);
         size = 0;
