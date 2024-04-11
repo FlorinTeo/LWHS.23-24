@@ -11,7 +11,7 @@ public class Point implements Comparable<Point> {
     private int _y;
 
     public static Point parsePoint(String strPoint) {
-        Matcher matcher = _POINT_REGEX.matcher(strPoint);
+        Matcher matcher = _POINT_REGEX.matcher(strPoint.trim());
         if (!matcher.matches()) {
             throw new IllegalArgumentException(String.format("Invalid format: '%s' is not a Point.", strPoint));
         }
@@ -27,15 +27,9 @@ public class Point implements Comparable<Point> {
         _y = y;
     }
 
-    public String toString(boolean brief) {
-        return brief
-            ? _label
-            : String.format("%s : {%d,%d}", _label, _x, _y);
-    }
-
     @Override
     public String toString() {
-        return toString(false);
+        return String.format("%s : %d,%d", _label, _x, _y);
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 
 import AStar.main.Point;
-import Graphs.main.Graph;
+import AStar.main.Graph;
 
 public class basic_tests extends TestsCore {
 
@@ -22,6 +22,6 @@ public class basic_tests extends TestsCore {
         Graph<Point> g = readGraph("/AStar/data/demo_graph.txt", Point.class);
         assertEquals(12, g.size());
         assertTrue(g.checkState(0));
-        assertSameGraph("/Graphs/data/demo_graph.txt", g);
+        assertSameGraph("/AStar/data/demo_graph.txt", g);
     }
 }

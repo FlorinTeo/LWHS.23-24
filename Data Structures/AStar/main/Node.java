@@ -123,11 +123,12 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public String toString() {
         String output = _data.toString() + " > ";
         boolean first = true;
-        for(Node<?> n : _edges.values()) {
+        for(Node<T> n : _edges.values()) {
             if (!first) {
                 output += " ";
             }
-            output += n._data.toString();
+            String[] strN = n._data.toString().split("\\s+:\\s+");
+            output += strN[0];
             first = false;
         }
         return output;

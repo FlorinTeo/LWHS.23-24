@@ -1,6 +1,7 @@
 package AStar.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import AStar.main.Point;
-import Graphs.main.Graph;
+import AStar.main.Graph;
 
 public class TestsCore {
     
@@ -46,7 +47,8 @@ public class TestsCore {
 
     public <T extends Comparable<T>> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
         Scanner input = getScanner(graphFile);
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        Map<String, List<String>> linksMap = new HashMap<String, List<String>>();
+        Map<String, T> nodesMap = new HashMap<String, T>();
         while(input.hasNextLine()) {
             String line = input.nextLine();
             String[] tokens = line.split(">");
@@ -54,23 +56,23 @@ public class TestsCore {
                 input.close();
                 throw new RuntimeException("Syntax error in parsing graph!");
             }
+            String[] data = tokens[0].trim().split("\\s+:\\s+");
             String[] links = tokens[1].trim().split("\\s+");
-            map.put(
-                    tokens[0].trim(),
-                    Arrays.asList(links));
+            T n = parseT(tokens[0], realType);
+            linksMap.put(data[0], Arrays.asList(links));
+            nodesMap.put(data[0], n);
         }
         input.close();
         
         Graph<T> graph = new Graph<T>();
-        for(String node : map.keySet()) {
-            T n = parseT(node, realType);
+        for(T n : nodesMap.values()) {
             graph.addNode(n);
         }
         
-        for(Map.Entry<String, List<String>> kvp : map.entrySet()) {
-            T fromNode = parseT(kvp.getKey(), realType);
-            for(String v : kvp.getValue()) {
-                T toNode = parseT(v, realType);
+        for(Map.Entry<String, T> kvp : nodesMap.entrySet()) {
+            T fromNode = kvp.getValue();
+            for(String v : linksMap.get(kvp.getKey())) {
+                T toNode= nodesMap.get(v);
                 graph.addEdge(fromNode, toNode);
             }
         }
@@ -83,17 +85,31 @@ public class TestsCore {
     }
     
     public void assertSameGraph(String graphFile, Graph<?> g) throws FileNotFoundException {
-        String expected = "";
-        boolean first = true;
         Scanner parser = getScanner(graphFile);
+        Set<String> expected = new TreeSet<String>();
+        Set<String> actual = new TreeSet<String>();
         while(parser.hasNextLine()) {
-            if (!first) {
-                expected += "\n";
+            String line = parser.nextLine().trim();
+            if (line.isEmpty()) {
+                continue;
             }
-            expected += parser.nextLine();
-            first = false;
+            expected.add(line);
+        }
+        for(String line : g.toString().split("\n")) {
+            actual.add(line);
         }
         parser.close();
-        assertEquals(expected, g.toString());
+        assertEquals(expected.size(), actual.size());
+        Iterator<String> iExpected = expected.iterator();
+        Iterator<String> iActual = actual.iterator();
+        while(iExpected.hasNext()) {
+            assertSameNode(iExpected.next(), iActual.next());
+        }
+    }
+
+    public void assertSameNode(String expectedNode, String actualNode) {
+        Set<String> expectedTokens = new TreeSet<String>(Arrays.asList(expectedNode.split("\\s+")));
+        Set<String> actualTokens = new TreeSet<String>(Arrays.asList(actualNode.split("\\s+")));
+        assertTrue(expectedTokens.equals(actualTokens));
     }
 }

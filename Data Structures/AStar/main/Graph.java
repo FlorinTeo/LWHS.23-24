@@ -146,14 +146,13 @@ public class Graph<T extends Comparable<T>> {
     public String toString() {
         String output = "";
         boolean first = true;
-        for(Node<?> n : _nodes.values()) {
+        for(Node<T> n : _nodes.values()) {
             if (!first) {
                 output += "\n";
             }
             output += n.toString();
             first = false;
         }
-        
         return output;
     }
 }
