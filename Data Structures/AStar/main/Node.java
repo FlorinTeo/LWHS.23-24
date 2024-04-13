@@ -66,6 +66,9 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         return _data;
     }
 
+    public static String getLabel(String content) {
+        return content.split("\\s+:\\s+")[0];
+    }
     /**
      * Gets the label (lookup key) associated with this node. The label
      * is expected to be the string preceding the first ':' in the
@@ -73,7 +76,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @return the label parsed from the node's data.
      */
     public String getLabel() {
-        return _data.toString().split("\\s+:\\s+")[0];
+        return Node.getLabel(_data.toString());
     }
     
     /**

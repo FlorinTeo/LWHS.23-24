@@ -15,12 +15,12 @@ import java.util.TreeMap;
 public class Graph<T extends Comparable<T>> {
 
     /**
-     * Private Map keying each Node in the Graph by its data
+     * Private Map keying each Node in the Graph by its data label
      * <br>E.g: Given <pre>Node<String> n = new Node<String>("abc");</pre> added to the graph,
      * the _nodes map contains a Map.Entry with
      * <pre>key="abc"<br>value=n</pre>
      */
-    private Map<T, Node<T>> _nodes;
+    private Map<String, Node<T>> _nodes;
     
     /**
      * Constructs a new Graph as an empty container fit for Nodes of the type T.
@@ -28,7 +28,7 @@ public class Graph<T extends Comparable<T>> {
      * @see Node
      */
     public Graph() {
-        _nodes = new TreeMap<T, Node<T>>();
+        _nodes = new TreeMap<String, Node<T>>();
     }
     
     /**
@@ -59,72 +59,82 @@ public class Graph<T extends Comparable<T>> {
     
     /**
      * Adds a new Node to the Graph containing the <i>data</i>. The method throws
-     * if the Graph already contains a Node with data having the same data.
+     * if the Graph already contains a Node with the same data.
      * @param data - the data reference (of type T) contained in the new Node.
      * @throws RuntimeException if the Graph already contains a Node for the given data.
+     * @see Graph#removeNode(Object)
      */
     public void addNode(T data) {
-        if (_nodes.containsKey(data)) {
+        Node<T> node = new Node<T>(data);
+        String label = node.getLabel();
+        if (_nodes.containsKey(label)) {
             throw new RuntimeException("Ambiguous graph!");
         }
-        
-        _nodes.put(data, new Node<T>(data));
+        _nodes.put(label, node);
+    }
+
+    /**
+     * Removes the Node identified by a given key. The key can be either a
+     * data (instance of T) or the label (string) within the target node. 
+     * @param key - node data or label.
+     * @return the data in the node being removed, if one exist, or null otherwise.
+     * @see Graph#addNode(Object)
+     */
+    public T removeNode(Object key) {
+        String label = Node.getLabel(key.toString());
+        Node<T> node = _nodes.get(label);
+        if (node != null) {
+            for(Node<T> n : _nodes.values()) {
+                n.removeEdge(node);
+            }
+            _nodes.remove(label);
+        }
+        return node.getData();
     }
     
     /**
-     * Adds a new directed Edge to the Graph, linking the Nodes containing
-     * <i>from</i> and <i>to</i> data. It is expected the two Nodes exist
-     * otherwise the method throws an exception.
-     * @param from - Data inside the node where the Edge is starting.
-     * @param to - Data inside the Node where the Edge is ending.
+     * Adds a new directed Edge to the Graph, linking the Nodes identified by
+     * <i>fromKey</i> and <i>toKey</i>. The keys can be either data instances or
+     * labels (Strings) from within the target nodes. It is expected the two 
+     * nodes exist otherwise the method throws an exception.
+     * @param fromLabel - Label of the node where the Edge is starting.
+     * @param toLabel - Label of the node where the Edge is ending.
      * @throws RuntimeException if either of the two Nodes are not present in the Graph.
      * @see Node
-     * @see Graph#removeEdge(Comparable, Comparable)
+     * @see Graph#removeEdge(Object, Object)
      */
-    public void addEdge(T from, T to) {
-        Node<T> fromNode = _nodes.get(from);
-        Node<T> toNode = _nodes.get(to);
+    public void addEdge(Object fromKey, Object toKey) {
+        String fromLabel = Node.getLabel(fromKey.toString());
+        String toLabel = Node.getLabel(toKey.toString());
+        Node<T> fromNode = _nodes.get(fromLabel);
+        Node<T> toNode = _nodes.get(toLabel);
         if (fromNode == null || toNode == null) {
             throw new RuntimeException("Node(s) not in the graph!");
         }
-        
         fromNode.addEdge(toNode);
     }
     
     /**
      * Removes an existent directed Edge from the Graph, if one exists. 
-     * The Edge to be removed is linking the nodes containing the <i>from</i> 
-     * and <i>to</i> data references. The two Nodes must exist, otherwise the 
+     * The Edge to be removed is linking the nodes labeled <i>fromLabel</i> 
+     * and <i>toLabel</i>. The two Nodes must exist, otherwise the 
      * method throws an exception.
-     * @param from - Data inside the node at the starting point of the Edge.
-     * @param to - Data inside the node at the ending point of the Edge.
+     * @param fromLabel - Label of the node at the starting point of the Edge.
+     * @param toLabel - Label of the node at the ending point of the Edge.
      * @throws RuntimeException if either of the two Nodes are not present in the Graph.
      * @see Node
-     * @see Graph#addEdge(Comparable, Comparable)
+     * @see Graph#addEdge(String, String)
      */
-    public void removeEdge(T from, T to) {
-        Node<T> fromNode = _nodes.get(from);
-        Node<T> toNode = _nodes.get(to);
+    public void removeEdge(Object fromKey, Object toKey) {
+        String fromLabel = Node.getLabel(fromKey.toString());
+        String toLabel = Node.getLabel(toKey.toString());
+        Node<T> fromNode = _nodes.get(fromLabel);
+        Node<T> toNode = _nodes.get(toLabel);
         if (fromNode == null || toNode == null) {
             throw new RuntimeException("Node(s) not in the graph!");
         }
         
         fromNode.removeEdge(toNode);
-    }
-    
-    /**
-     * Removes a Node from the Graph if one exists, along with all
-     * its outgoing (egress) and incoming (ingress) edges. If there
-     * is no Node hosting the <i>data</i> reference the method does
-     * nothing.
-     * @param data - Node to be removed from the Graph.
-     */
-    public void removeNode(T data) {
-        Node<T> node = _nodes.get(data);
-        for(Node<T> n : _nodes.values()) {
-            n.removeEdge(node);
-        }
-        _nodes.remove(data);
     }
     
     /**
@@ -155,4 +165,9 @@ public class Graph<T extends Comparable<T>> {
         }
         return output;
     }
+
+    // public String routeDijkstra(String from, String to) {
+    //     Node<T> fromNode = _nodes.get(from);
+    //     Node<T> toNode = _nodes.get(to);
+    // }
 }
