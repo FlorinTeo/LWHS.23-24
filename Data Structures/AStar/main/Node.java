@@ -67,16 +67,17 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     }
 
     /**
-     * Gets the unique label from the given content string. The label
-     * is the substring of content starting at the 0 and ending at
+     * Gets the unique label from the given content object. The label
+     * is the substring of content's string, starting at the 0 and ending at
      * the first occurrence of ':'. If no ':' separator exists, the entire
-     * content is assumed to be the label.
-     * @param content - content string from which the label is extracted.
+     * string is assumed to be the label.
+     * @param content - object from which the label is extracted.
      * @return the label extracted from content.
      */
-    public static String getLabel(String content) {
-        return content.split("\\s+:\\s+")[0];
+    public static String getLabel(Object content) {
+        return content.toString().split("\\s+:\\s+")[0];
     }
+
     /**
      * Gets the label (lookup key) associated with this node. The label
      * is expected to be the string preceding the first ':' in the

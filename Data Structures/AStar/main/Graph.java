@@ -1,5 +1,8 @@
 package AStar.main;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 
 /**
@@ -55,6 +58,16 @@ public class Graph<T extends Comparable<T>> {
         }
         return true;
     }
+
+    /**
+     * Set the state within each of the nodes in the graph to the given value.
+     * @param state - value to be set in each node's state.
+     */
+    public void setState(int state) {
+        for (Node<T> n : _nodes.values()) {
+            n.setState(state);
+        }
+    }
     
     /**
      * Adds a new Node to the Graph containing the <i>data</i>. The method throws
@@ -77,17 +90,18 @@ public class Graph<T extends Comparable<T>> {
      * data (instance of T) or the label (string) within the target node. 
      * @param key - node data or label.
      * @return the data in the node being removed, if one exist, or null otherwise.
+     * @throws RuntimeException if the Node does not exist in the Graph.
      * @see Graph#addNode(Object)
      */
     public T removeNode(Object key) {
-        String label = Node.getLabel(key.toString());
-        Node<T> node = _nodes.get(label);
-        if (node != null) {
-            for(Node<T> n : _nodes.values()) {
-                n.removeEdge(node);
-            }
-            _nodes.remove(label);
+        Node<T> node = _nodes.get(Node.getLabel(key));
+        if (node == null) {
+            throw new RuntimeException("Node does not exist in graph!");
         }
+        for(Node<T> n : _nodes.values()) {
+            n.removeEdge(node);
+        }
+        _nodes.remove(node.getLabel());
         return node.getData();
     }
     
@@ -103,10 +117,8 @@ public class Graph<T extends Comparable<T>> {
      * @see Graph#removeEdge(Object, Object)
      */
     public void addEdge(Object fromKey, Object toKey) {
-        String fromLabel = Node.getLabel(fromKey.toString());
-        String toLabel = Node.getLabel(toKey.toString());
-        Node<T> fromNode = _nodes.get(fromLabel);
-        Node<T> toNode = _nodes.get(toLabel);
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
+        Node<T> toNode = _nodes.get(Node.getLabel(toKey));
         if (fromNode == null || toNode == null) {
             throw new RuntimeException("Node(s) not in the graph!");
         }
@@ -125,10 +137,8 @@ public class Graph<T extends Comparable<T>> {
      * @see Graph#addEdge(Object, Object)
      */
     public void removeEdge(Object fromKey, Object toKey) {
-        String fromLabel = Node.getLabel(fromKey.toString());
-        String toLabel = Node.getLabel(toKey.toString());
-        Node<T> fromNode = _nodes.get(fromLabel);
-        Node<T> toNode = _nodes.get(toLabel);
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
+        Node<T> toNode = _nodes.get(Node.getLabel(toKey));
         if (fromNode == null || toNode == null) {
             throw new RuntimeException("Node(s) not in the graph!");
         }
@@ -165,8 +175,35 @@ public class Graph<T extends Comparable<T>> {
         return output;
     }
 
-    // public String routeDijkstra(String from, String to) {
-    //     Node<T> fromNode = _nodes.get(from);
-    //     Node<T> toNode = _nodes.get(to);
-    // }
+    public String routeDijkstra(Object fromKey, Object toKey) {
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
+        Node<T> toNode = _nodes.get(Node.getLabel(toKey));
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+        setState(0);
+
+        String route = "";
+        Queue<Node<T>> queue = new LinkedList<Node<T>>();
+        queue.add(fromNode);
+        while(!queue.isEmpty()) {
+            Node<T> n = queue.remove();
+            if (n == toNode) {
+                route += n.getLabel();
+                return route;
+            }
+            if (n.getState() == 1) {
+                continue;
+            }
+            n.setState(1);
+            route += n.getLabel() + " > ";
+            Collection<Node<T>> neighbors = n.getNeighbors();
+            for(Node<T> neighbor : neighbors) {
+                if (neighbor.getState() == 0) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+        return "(no route)";
+    }
 }

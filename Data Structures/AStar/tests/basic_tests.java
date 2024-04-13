@@ -48,4 +48,11 @@ public class basic_tests extends TestsCore {
         assertTrue(gp.checkState(0));
         assertSameGraph("/AStar/data/demo_graph.txt", gp);
     }
+
+    @Test
+    public void test_routeDijkstra() throws FileNotFoundException {
+        Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
+        String routeAK = gp.routeDijkstra("A", "K");
+        System.out.println(routeAK);
+    }
 }
