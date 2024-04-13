@@ -19,9 +19,9 @@ public class basic_tests extends TestsCore {
      */
     @Test
     public void test_readGraph() throws FileNotFoundException {
-        Graph<Point> g = readGraph("/AStar/data/demo_graph.txt", Point.class);
-        assertEquals(12, g.size());
-        assertTrue(g.checkState(0));
-        assertSameGraph("/AStar/data/demo_graph.txt", g);
+        Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
+        assertEquals(12, gp.size());
+        assertTrue(gp.checkState(0));
+        assertSameGraph("/AStar/data/demo_graph.txt", gp);
     }
 }

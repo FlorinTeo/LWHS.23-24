@@ -65,6 +65,16 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public T getData() {
         return _data;
     }
+
+    /**
+     * Gets the label (lookup key) associated with this node. The label
+     * is expected to be the string preceding the first ':' in the
+     * node's data field.
+     * @return the label parsed from the node's data.
+     */
+    public String getLabel() {
+        return _data.toString().split("\\s+:\\s+")[0];
+    }
     
     /**
      * Gets the state of this Node. The state value is initially set to 0
@@ -127,8 +137,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
             if (!first) {
                 output += " ";
             }
-            String[] strN = n._data.toString().split("\\s+:\\s+");
-            output += strN[0];
+            output += n.getLabel();
             first = false;
         }
         return output;

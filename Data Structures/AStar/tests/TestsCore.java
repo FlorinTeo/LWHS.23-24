@@ -27,12 +27,13 @@ public class TestsCore {
     }
     
     public <T extends Comparable<T>> T parseT(String s, Class<T> realType) {
+        s = s.trim();
         if (realType == Integer.class) {
-            return realType.cast(Integer.parseInt(s.trim()));
+            return realType.cast(Integer.parseInt(s));
         } else if (realType == String.class) {
             return realType.cast(s);
         } else if (realType == Double.class) {
-            return realType.cast(Double.parseDouble(s.trim()));
+            return realType.cast(Double.parseDouble(s));
         } else if (realType == Character.class) {
             if (s.length() != 1) {
                 throw new RuntimeException("Invalid format in graph parsing!");
@@ -73,7 +74,9 @@ public class TestsCore {
             T fromNode = kvp.getValue();
             for(String v : linksMap.get(kvp.getKey())) {
                 T toNode= nodesMap.get(v);
-                graph.addEdge(fromNode, toNode);
+                if (toNode != null) {
+                    graph.addEdge(fromNode, toNode);
+                }
             }
         }
 
