@@ -53,7 +53,6 @@ public class Graph<T extends Comparable<T>> {
                 return false;
             }
         }
-        
         return true;
     }
     
@@ -123,7 +122,7 @@ public class Graph<T extends Comparable<T>> {
      * @param toLabel - Label of the node at the ending point of the Edge.
      * @throws RuntimeException if either of the two Nodes are not present in the Graph.
      * @see Node
-     * @see Graph#addEdge(String, String)
+     * @see Graph#addEdge(Object, Object)
      */
     public void removeEdge(Object fromKey, Object toKey) {
         String fromLabel = Node.getLabel(fromKey.toString());

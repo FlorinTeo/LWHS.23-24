@@ -20,16 +20,16 @@ import java.util.Map;
 public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     /**
      * The generic data contained in this Node. The type of the data
-     * needs to be a refrence, Comparable type such that Nodes can be
+     * needs to be a reference, Comparable type such that Nodes can be
      * compared to each other based on the data they contain.
      */
     private T _data;
 
     /**
      * Collection of outgoing (egress) Edges originating in this Node.
-     * <br>This is a private Map keying each of the neighboring Nodes by their data.
+     * <br>This is a private Map keying each of the neighboring Nodes by their label.
      */
-    private Map<T, Node<T>> _edges;
+    private Map<String, Node<T>> _edges;
     
     /**
      * State metadata contained in this Node. This can be used as needed
@@ -53,7 +53,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      */
     public Node(T data) {
         _data = data;
-        _edges = new HashMap<T, Node<T>>();
+        _edges = new HashMap<String, Node<T>>();
         _state = 0;
     }
     
@@ -66,6 +66,14 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         return _data;
     }
 
+    /**
+     * Gets the unique label from the given content string. The label
+     * is the substring of content starting at the 0 and ending at
+     * the first occurrence of ':'. If no ':' separator exists, the entire
+     * content is assumed to be the label.
+     * @param content - content string from which the label is extracted.
+     * @return the label extracted from content.
+     */
     public static String getLabel(String content) {
         return content.split("\\s+:\\s+")[0];
     }
@@ -108,7 +116,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#removeEdge(Node)
      */
     public void addEdge(Node<T> otherNode) {
-        _edges.put(otherNode._data, otherNode);
+        _edges.put(otherNode.getLabel(), otherNode);
     }
     
     /**
@@ -119,7 +127,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#addEdge(Node)
      */
     public void removeEdge(Node<T> otherNode) {
-        _edges.remove(otherNode.getData());
+        _edges.remove(otherNode.getLabel());
     }
     
     /**
