@@ -1,5 +1,4 @@
 package AStar.main;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
