@@ -53,12 +53,14 @@ public class TestsCore {
         while(input.hasNextLine()) {
             String line = input.nextLine();
             String[] tokens = line.split(">");
-            if (tokens.length != 2) {
+            if (tokens.length < 1) {
                 input.close();
                 throw new RuntimeException("Syntax error in parsing graph!");
             }
             String[] data = tokens[0].trim().split("\\s+:\\s+");
-            String[] links = tokens[1].trim().split("\\s+");
+            String[] links = tokens.length > 1
+                ? tokens[1].trim().split("\\s+")
+                : new String[0];
             T n = parseT(tokens[0], realType);
             linksMap.put(data[0], Arrays.asList(links));
             nodesMap.put(data[0], n);
