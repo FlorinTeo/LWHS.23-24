@@ -50,9 +50,9 @@ public class Graph<T extends Comparable<T>> {
      * given value, false otherwise.
      * @see Node#getState()
      */
-    public boolean checkState(int state) {
+    public boolean checkState(Object state) {
         for (Node<T> n : _nodes.values()) {
-            if (state != n.getState()) {
+            if (!n.checkState(state)) {
                 return false;
             }
         }
@@ -63,7 +63,7 @@ public class Graph<T extends Comparable<T>> {
      * Set the state within each of the nodes in the graph to the given value.
      * @param state - value to be set in each node's state.
      */
-    public void setState(int state) {
+    public void setState(Object state) {
         for (Node<T> n : _nodes.values()) {
             n.setState(state);
         }
@@ -175,35 +175,59 @@ public class Graph<T extends Comparable<T>> {
         return output;
     }
 
-    public String routeDijkstra(Object fromKey, Object toKey) {
+    @SuppressWarnings("unchecked")
+    public LinkedList<String> routeDijkstra(Object fromKey, Object toKey) {
+        // Check nodes exist in the graph, otherwise throw exception
         Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
         Node<T> toNode = _nodes.get(Node.getLabel(toKey));
         if (fromNode == null || toNode == null) {
             throw new RuntimeException("Node(s) not in the graph!");
         }
-        setState(0);
 
-        String route = "";
+        // Reset all Node states to null
+        setState(null);
+
+        // Mark fromNode Node (set its state) with a reference to itself and add it to a queue
+        fromNode.setState(fromNode);
         Queue<Node<T>> queue = new LinkedList<Node<T>>();
         queue.add(fromNode);
+
+        // We start with a boolean tracking whether we found the route or not (initially false)..
+        boolean found = false;
+        // .. then we loop until the queue is emptied out.
         while(!queue.isEmpty()) {
-            Node<T> n = queue.remove();
-            if (n == toNode) {
-                route += n.getLabel();
-                return route;
+            // Remove the first node from the queue.
+            Node<T> node = queue.remove();
+            // If the node is the target, we're done, mark that we found the route and break out.
+            if (node == toNode) {
+                found = true;
+                break;
             }
-            if (n.getState() == 1) {
-                continue;
-            }
-            n.setState(1);
-            route += n.getLabel() + " > ";
-            Collection<Node<T>> neighbors = n.getNeighbors();
-            for(Node<T> neighbor : neighbors) {
-                if (neighbor.getState() == 0) {
-                    queue.add(neighbor);
+            // We're not done, so loop through all the neighbors of node.
+            for(Node<T> neighbor : node.getNeighbors()) {
+                // If node had already been visited (it's state is not null), just skip it
+                if (!neighbor.checkState(null)) {
+                    continue;
                 }
+                // Otherwise mark it with a reference to this node and add it to the queue.
+                neighbor.setState(node);
+                queue.add(neighbor);
             }
         }
-        return "(no route)";
+
+        // if we couldn't find a route, just return null
+        if (!found) {
+            return null;
+        }
+
+        // We found a route, so retrace it from target to start, using the reference from the nodes' state.
+        LinkedList<String> result = new LinkedList<String>();
+        for(Node<T> crt = toNode; crt != fromNode; crt = (Node<T>)crt.getState()) {
+            result.add(0, crt.getLabel());
+        }
+        result.add(0, fromNode.getLabel());
+
+        // Return the list with all the node labels in the route, from start to target.
+        return result;
     }
 }

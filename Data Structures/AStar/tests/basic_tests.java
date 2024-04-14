@@ -1,9 +1,11 @@
 package AStar.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 
 import org.junit.Test;
 
@@ -45,14 +47,15 @@ public class basic_tests extends TestsCore {
     public void test_readGraph() throws FileNotFoundException {
         Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
         assertEquals(12, gp.size());
-        assertTrue(gp.checkState(0));
+        assertTrue(gp.checkState(null));
         assertSameGraph("/AStar/data/demo_graph.txt", gp);
     }
 
     @Test
     public void test_routeDijkstra() throws FileNotFoundException {
         Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
-        String routeAK = gp.routeDijkstra("A", "K");
-        System.out.println(routeAK);
+        assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
+        assertNull(gp.routeDijkstra("A", "I"));
+        assertEquals("[K, L, G, H, E, A, C]", gp.routeDijkstra("K", "C").toString());
     }
 }

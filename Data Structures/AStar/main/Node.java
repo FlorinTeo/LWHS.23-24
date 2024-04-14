@@ -38,7 +38,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#getState()
      * @see Node#setState()
      */
-    private int _state;
+    private Object _state;
     
     /**
      * Constructs a new Node containing the given <i>data</i> object.
@@ -54,7 +54,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public Node(T data) {
         _data = data;
         _edges = new HashMap<String, Node<T>>();
-        _state = 0;
+        _state = null;
     }
     
     /**
@@ -97,8 +97,19 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#Node(Comparable)
      * @see Node#setState()
      */
-    public int getState() {
+    public Object getState() {
         return _state;
+    }
+
+    /**
+     * Checks if the state of this Node matches a given one.
+     * @param state - state object to check.
+     * @return
+     */
+    public boolean checkState(Object state) {
+        return (_state == null) 
+            ? (state == null)
+            : _state.equals(state);
     }
     
     /**
@@ -106,7 +117,7 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @param value - the value to be set into the _state
      * @see Node#_state
      */
-    public void setState(int value) {
+    public void setState(Object value) {
         // initialize the _unvisited queue with all the nodes from the outgoing edges
         _state = value;
     }
