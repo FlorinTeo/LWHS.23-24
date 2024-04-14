@@ -8,7 +8,7 @@ public class HeapArray<E extends Comparable<E>> implements PriorityQueue<E> {
     private E[] elements;
     private int size;
     
-    // Region: Helper methods
+    // #region: Helper methods
     private int parent(int index) {
         return index/2;
     }
@@ -44,7 +44,7 @@ public class HeapArray<E extends Comparable<E>> implements PriorityQueue<E> {
             elements = Arrays.copyOf(elements, 2 * elements.length);
         }
     }
-    // EndRegion: Helper methods
+    // #endregion: Helper methods
     
     @SuppressWarnings("unchecked")
     public HeapArray(Class<E> eClass) {
