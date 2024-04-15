@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
-
 import org.junit.Test;
 
 import Graphs.main.Graph;
@@ -20,9 +19,9 @@ public class Graphs0_tests extends TestsCore {
         g.addNode(1);
         g.addNode(2);
         
-        // The Graph has two Nodes, in their initial state (0)
+        // The Graph has two Nodes, in their initial state (null)
         assertEquals(2, g.size());
-        assertTrue(g.checkState(0));
+        assertTrue(g.checkState(null));
         String expected = "1 > \n"
                         + "2 > ";
         assertEquals(expected, g.toString());
@@ -45,7 +44,7 @@ public class Graphs0_tests extends TestsCore {
         // and linked through edges: abc and def point to xyz,
         // in addition abc points to def. xyz doesn't point to any node.
         assertEquals(3, g.size());
-        assertTrue(g.checkState(0));
+        assertTrue(g.checkState(null));
         String expected = "abc > def xyz\n"
                         + "def > xyz\n"
                         + "xyz > ";
@@ -64,7 +63,7 @@ public class Graphs0_tests extends TestsCore {
         // The Graph contains five Nodes in their initial state (0)
         // and their links described in the initial file.
         assertEquals(5, g.size());
-        assertTrue(g.checkState(0));
+        assertTrue(g.checkState(null));
         assertSameGraph("/Graphs/data/basic1.txt", g);
     }
 

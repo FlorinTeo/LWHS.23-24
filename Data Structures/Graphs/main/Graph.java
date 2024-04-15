@@ -1,4 +1,5 @@
 package Graphs.main;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,13 +23,12 @@ import java.util.TreeSet;
 public class Graph<T extends Comparable<T>> {
 
     /**
-     * Private Map keying each Node in the Graph by the hashCode of its data
-     * E.g: Given <pre>Node<String> n = new Node<String>("abc");</pre> added to the graph,
+     * Private Map keying each Node in the Graph by its data label
+     * <br>E.g: Given <pre>Node<String> n = new Node<String>("abc");</pre> added to the graph,
      * the _nodes map contains a Map.Entry with
-     * <pre>key="abc".hashCode()<br>value=n<pre>
-     * @see java.lang.Object#hashCode()
+     * <pre>key="abc"<br>value=n</pre>
      */
-    private Map<Integer, Node<T>> _nodes;
+    private Map<String, Node<T>> _nodes;
     
     /**
      * Constructs a new Graph as an empty container fit for Nodes of the type T.
@@ -36,7 +36,7 @@ public class Graph<T extends Comparable<T>> {
      * @see Node
      */
     public Graph() {
-        _nodes = new TreeMap<Integer, Node<T>>();
+        _nodes = new TreeMap<String, Node<T>>();
     }
     
     /**
@@ -55,88 +55,23 @@ public class Graph<T extends Comparable<T>> {
      * given value, false otherwise.
      * @see Node#getState()
      */
-    public boolean checkState(int state) {
-        for (Node<?> n : _nodes.values()) {
-            if (state != n.getState()) {
+    public boolean checkState(Object state) {
+        for (Node<T> n : _nodes.values()) {
+            if (!n.checkState(state)) {
                 return false;
             }
         }
-        
         return true;
     }
-    
+
     /**
-     * Adds a new Node to the Graph containing the <i>data</i>. The method 
-     * throws if the Graph already contains a Node with data having the same
-     * hashCode().
-     * @param data - the data reference (of type T) contained in the new Node.
-     * @throws RuntimeException if the Graph already contains a Node for the
-     * given data.
-     * @see java.lang.Object#hashCode()
+     * Set the state within each of the nodes in the graph to the given value.
+     * @param state - value to be set in each node's state.
      */
-    public void addNode(T data) {
-        int nodeHash = data.hashCode();
-        if (_nodes.containsKey(nodeHash)) {
-            throw new RuntimeException("Ambiguous graph!");
+    public void setState(Object state) {
+        for (Node<T> n : _nodes.values()) {
+            n.setState(state);
         }
-        
-        _nodes.put(nodeHash, new Node<T>(data));
-    }
-    
-    /**
-     * Adds a new directed Edge to the Graph, linking the Nodes containing
-     * <i>from</i> and <i>to</i> data. It is expected the two Nodes exist
-     * otherwise the method throws an exception.
-     * @param from - Node where the Edge is starting.
-     * @param to - Node where the Edge is ending.
-     * @throws RuntimeException if either of the two Nodes are not present in the Graph.
-     * @see Node
-     * @see Graph#removeEdge(Comparable, Comparable)
-     */
-    public void addEdge(T from, T to) {
-        Node<T> fromNode = _nodes.get(from.hashCode());
-        Node<T> toNode = _nodes.get(to.hashCode());
-        if (fromNode == null || toNode == null) {
-            throw new RuntimeException("Node(s) not in the graph!");
-        }
-        
-        fromNode.addEdge(toNode);
-    }
-    
-    /**
-     * Removes an existent directed Edge from the Graph, if one exists. 
-     * The Edge to be removed is linking the nodes containing the <i>from</i> 
-     * and <i>to</i> data references. The two Nodes must exist, otherwise the 
-     * method throws an exception.
-     * @param from - Node at the starting point of the Edge.
-     * @param to - Node at the ending point of the Edge.
-     * @throws RuntimeException if either of the two Nodes are not present in the Graph.
-     * @see Node
-     * @see Graph#addEdge(Comparable, Comparable)
-     */
-    public void removeEdge(T from, T to) {
-        Node<T> fromNode = _nodes.get(from.hashCode());
-        Node<T> toNode = _nodes.get(to.hashCode());
-        if (fromNode == null || toNode == null) {
-            throw new RuntimeException("Node(s) not in the graph!");
-        }
-        
-        fromNode.removeEdge(toNode);
-    }
-    
-    /**
-     * Removes a Node from the Graph if one exists, along with all
-     * its outgoing (egress) and incoming (ingress) edges. If there
-     * is no Node hosting the <i>data</i> reference the method does
-     * nothing.
-     * @param data - Node to be removed from the Graph.
-     */
-    public void removeNode(T data) {
-        Node<T> node = _nodes.get(data.hashCode());
-        for(Node<T> n : _nodes.values()) {
-            n.removeEdge(node);
-        }
-        _nodes.remove(data.hashCode());
     }
     
     /**
@@ -158,40 +93,112 @@ public class Graph<T extends Comparable<T>> {
     public String toString() {
         String output = "";
         boolean first = true;
-        for(Node<?> n : _nodes.values()) {
+        for(Node<T> n : _nodes.values()) {
             if (!first) {
                 output += "\n";
             }
             output += n.toString();
             first = false;
         }
-        
         return output;
     }
     
-    public void reset() {
-        reset(0);
-    }
-    
-    public void reset(int value) {
-        for(Node<T> node : _nodes.values()) {
-            node.reset(value);
+    /**
+     * Adds a new Node to the Graph containing the <i>data</i>. The method throws
+     * if the Graph already contains a Node with the same data.
+     * @param data - the data reference (of type T) contained in the new Node.
+     * @throws RuntimeException if the Graph already contains a Node for the given data.
+     * @see Graph#removeNode(Object)
+     */
+    public void addNode(T data) {
+        Node<T> node = new Node<T>(data);
+        String label = node.getLabel();
+        if (_nodes.containsKey(label)) {
+            throw new RuntimeException("Ambiguous graph!");
         }
+        _nodes.put(label, node);
     }
     
+    /**
+     * Adds a new directed Edge to the Graph, linking the Nodes identified by
+     * <i>fromKey</i> and <i>toKey</i>. The keys can be either data instances or
+     * labels (Strings) from within the target nodes. It is expected the two 
+     * nodes exist otherwise the method throws an exception.
+     * @param fromLabel - Label of the node where the Edge is starting.
+     * @param toLabel - Label of the node where the Edge is ending.
+     * @throws RuntimeException if either of the two Nodes are not present in the Graph.
+     * @see Node
+     * @see Graph#removeEdge(Object, Object)
+     */
+    public void addEdge(Object fromKey, Object toKey) {
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
+        Node<T> toNode = _nodes.get(Node.getLabel(toKey));
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+        fromNode.addEdge(toNode);
+    }
+    
+    /**
+     * Removes the Node identified by a given key. The key can be either a
+     * data (instance of T) or the label (string) within the target node. 
+     * @param key - node data or label.
+     * @return the data in the node being removed, if one exist, or null otherwise.
+     * @throws RuntimeException if the Node does not exist in the Graph.
+     * @see Graph#addNode(Object)
+     */
+    public T removeNode(Object key) {
+        Node<T> node = _nodes.get(Node.getLabel(key));
+        if (node == null) {
+            throw new RuntimeException("Node does not exist in graph!");
+        }
+        for(Node<T> n : _nodes.values()) {
+            n.removeEdge(node);
+        }
+        _nodes.remove(node.getLabel());
+        return node.getData();
+    }
+    
+    /**
+     * Removes an existent directed Edge from the Graph, if one exists. 
+     * The Edge to be removed is linking the nodes labeled <i>fromLabel</i> 
+     * and <i>toLabel</i>. The two Nodes must exist, otherwise the 
+     * method throws an exception.
+     * @param fromLabel - Label of the node at the starting point of the Edge.
+     * @param toLabel - Label of the node at the ending point of the Edge.
+     * @throws RuntimeException if either of the two Nodes are not present in the Graph.
+     * @see Node
+     * @see Graph#addEdge(Object, Object)
+     */
+    public void removeEdge(Object fromKey, Object toKey) {
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromKey));
+        Node<T> toNode = _nodes.get(Node.getLabel(toKey));
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+        fromNode.removeEdge(toNode);
+    }
+    
+        /**
+     * Checks if the Graph is undirected.
+     * @return true if Graph is undirected, false otherwise.
+     */
     public boolean isUGraph() {
         boolean uGraph = true;
-        for(Node<?> node : _nodes.values()) {
+        for(Node<T> node : _nodes.values()) {
             if (!node.isUNode()) {
                 uGraph = false;
                 break;
             }
         }
-        
-        reset();
+        setState(null);
         return uGraph;
     }
-    
+
+    /**
+     * Checks is the Graph is connected.
+     * @return true if the Graph is connected, false otherwise.
+     */
     public boolean isConnected() {
         boolean connected = true;
         Iterator<Node<T>> iNodes = _nodes.values().iterator();
@@ -212,28 +219,36 @@ public class Graph<T extends Comparable<T>> {
             
             // verify if any node was left not visited
             for (Node<?> n : _nodes.values()) {
-                if (n.getState() != 1) {
+                if (n.getState() == null) {
                     connected = false;
                     break;
                 }
             }
         }
         
-        reset();
+        setState(null);
         return connected;
     }
-    
+
+    /**
+     * Checks if the Graph is Directed Acyclic graph.
+     * @return true if Graph is Directed Acyclic, false otherwise.
+     */
     public boolean isDAGraph() {
         boolean dag = true;
         Iterator<Node<T>> iNodes = _nodes.values().iterator();
         while(dag && iNodes.hasNext()) {
             Node<T> n = iNodes.next();
             dag = !n.loops(n);
-            reset();
+            setState(null);
         }        
         return dag;
     }
 
+    /**
+     * Generates the adjacency matrix for this Graph.
+     * @return the adjacency matrix.
+     */
     public int[][] getAdjacencyMatrix() {
         int[][] arr = new int[this.size()][this.size()];
         Map<Node<T>, Integer> map = new HashMap<Node<T>, Integer>();
@@ -251,6 +266,11 @@ public class Graph<T extends Comparable<T>> {
         return arr;
     }
     
+        /**
+     * Generates a map grouping all nodes in the graph by their out-degree.
+     * @return a map where each out-degree value in the graph (key) is associated
+     * with the set of nodes (value) having that out-degree.
+     */
     public TreeMap<Integer, TreeSet<T>> getOutDegrees() {
         TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
         for(Node<T> n : _nodes.values()) {
@@ -265,6 +285,11 @@ public class Graph<T extends Comparable<T>> {
         return map;
     }
     
+    /**
+     * Generates a map grouping all nodes in the graph by their in-degree.
+     * @return a map where each in-degree value in the graph (key) is associated
+     * with the set of nodes (value) having that in-degree.
+     */
     public TreeMap<Integer, TreeSet<T>> getInDegrees() {
         TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
         for(Node<T> node : _nodes.values()) {
@@ -288,13 +313,22 @@ public class Graph<T extends Comparable<T>> {
         
         return map;
     }
-    
+
+    /**
+     * Generates the topological sort of this graph, where all nodes in the graph
+     * are grouped by their index in topological order. The first index is 0.
+     * @return a map associating each position in the topological sort (key)
+     * with the set of Nodes at that position (value). If the Graph is not DAG, the method 
+     * returns null.
+     */
     public TreeMap<Integer, TreeSet<T>> topoSort() {
         // return promptly if the graph is not directed, acyclic
         if (!this.isDAGraph()) {
             return null;
         }
         
+        // Set state for all nodes to (int)0
+        setState(0);
         // place all nodes in a queue
         Queue<Node<T>> queue = new LinkedList<Node<T>>(this._nodes.values());
         // as long as the queue is not empty ...
@@ -310,7 +344,7 @@ public class Graph<T extends Comparable<T>> {
         // All nodes have their topo order in the state field. Group them in the returning map
         TreeMap<Integer, TreeSet<T>> map = new TreeMap<Integer, TreeSet<T>>();
         for (Node<T> n : _nodes.values()) {
-            int topoSort = n.getState();
+            int topoSort = (int)n.getState();
             TreeSet<T> set = map.get(topoSort);
             if (set == null) {
                 set = new TreeSet<T>();
@@ -319,13 +353,19 @@ public class Graph<T extends Comparable<T>> {
             set.add(n.getData());
         }
 
-        reset();
+        setState(null);
         return map;
     }
-    
+
+    /**
+     * Generates the count of the partitions in the graph.
+     * @return count of partitions.
+     */
     public int countPartitions() {
         // counter to receive the final number of partitions
         int partition = 0;
+        // Set state for all nodes to (int)0
+        setState(partition);
 
         // Group all nodes by their partition
         Map<Integer, List<Node<T>>> partitions = new TreeMap<Integer, List<Node<T>>>();
@@ -346,7 +386,7 @@ public class Graph<T extends Comparable<T>> {
             while (again) {
                 again = false;
                 for(Node<T> n : _nodes.values()) {
-                    if (n.getState() == 0 && n.nextToMark(partition)) {
+                    if ((int)n.getState() == 0 && n.nextToMark(partition)) {
                         n.mark(partition);
                         again = true;
                     }
@@ -357,7 +397,7 @@ public class Graph<T extends Comparable<T>> {
             partitions.put(partition, new LinkedList<Node<T>>());
             for (int i = q.size(); i > 0; i--) {
                 Node<T> n = q. remove();
-                if (n.getState() == partition) {
+                if ((int)n.getState() == partition) {
                     partitions.get(partition).add(n);
                 } else {
                     q.add(n);
@@ -365,56 +405,44 @@ public class Graph<T extends Comparable<T>> {
             }
         }
 
-        reset();
+        setState(null);
         System.out.println(partitions);
         return partitions.keySet().size();
     }
     
+    /**
+     * Generates the Dijkstra distances between the node containing fromData and all the
+     * other nodes in the graph.
+     * @param fromData
+     * @return a map where the key is each Node in the Graph (given by its data)
+     * and the value is the Dijkstra distance from the <i>source</i> Node to that node.
+     */
     public TreeMap<T, Integer> dijkstra(T fromData) {
+        setState(0);
         TreeMap<T, Integer> distances = null;
-        Node<T> fromNode = _nodes.get(fromData.hashCode());
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromData));
         if (fromNode != null) {
-            reset(Integer.MAX_VALUE);
+            setState(Integer.MAX_VALUE);
             distances = new TreeMap<T, Integer>();
             // calculate dijkstra distances starting fromNode
             fromNode.dijkstra(0);
             // build map
             for(Node<T> n : _nodes.values()) {
-                int distance = n.getState();
+                int distance = (int)n.getState();
                 if (distance == Integer.MAX_VALUE) {
                     distance = -1;
                 }
                 distances.put(n.getData(), distance);
             }
-            reset();
+            setState(null);
         }
         return distances;
     }
     
     /**
-     * Determines if a path exists between the nodes containing
-     * fromData and toData.
-     * @param fromData - data value of the origin node.
-     * @param toData - data value of the target node.
-     * @return true if a path exists, false otherwise
-     * @throws RuntimeException if a node cannot be found in the graph.
-     */
-    public boolean hasPath(T fromData, T toData) throws RuntimeException {
-        Node<T> fromNode = _nodes.get(fromData.hashCode());
-        Node<T> toNode = _nodes.get(toData.hashCode());
-        if (fromNode == null || toNode == null) {
-            throw new RuntimeException("Node(s) not in the graph!");
-        }
-        
-        reset();
-        return fromNode.hasPath(toNode);
-    }
-
-    /**
-     * Determines if the graph is eulerian: It is
-     * strongly connected (can reach each node from any other node) and
-     * each node verifies the eulerian property (has as many incoming as
-     * outgoing edges).
+     * A graph is eulerian if it is strongly connected (can reach each node from any other node)
+     * and each node verifies the eulerian property (has as many incoming as outgoing edges).
+     * Determines if the graph is eulerian
      * @return true if graph is eulerian, false otherwise.
      */
     public boolean isEulerian() {
@@ -432,27 +460,26 @@ public class Graph<T extends Comparable<T>> {
     }
 
     /**
-     * Determines a cycle in the graph, starting from the node
-     * containing data. If no such path exists returns null, otherwise
-     * the path is returned as a queue, with the target node at the bottom.
+     * Determines a cycle in the graph, starting and ending at the node containing given data.
+     * If no such path exists returns null, otherwise the path is returned as a queue, with
+     * the target node at the bottom of the queue.
      * @param data - data label pointing to the starting and ending node in the cycle
      * @return the path in the form 
      */
     public ArrayList<T> getCycle(T data) {
-        Node<T> node = _nodes.get(data.hashCode());
+        Node<T> node = _nodes.get(Node.getLabel(data));
         if (node == null) {
             throw new RuntimeException("Node not in the graph!");
         }
         // reset the graph
-        reset();
+        setState(null);
         // get the path starting from node and leading back to the same node 
         return node.getPath(node);
     }
 
     /**
-     * Determines an eulerian circuit in the graph. If no circuit exists,
-     * returns null, otherwise the circuit is the list of nodes, starting and
-     * ending from one of them.
+     * An eulerian circuit is a path in the graph traversing all edges but exactly once.
+     * Determine an eulerian circuit in the graph.
      * @return - array list of nodes' data, in the order of the circuit.
      */
     public ArrayList<T> getEulerianCircuit() {
@@ -461,19 +488,38 @@ public class Graph<T extends Comparable<T>> {
             return null;
         }
         // reset the graph
-        reset();
+        setState(null);
         // initialize the resulting cycle with any node, if it exists
         ArrayList<T> cycle = new ArrayList<T>();
         if (_nodes.size() != 0) {
             cycle.add(_nodes.values().iterator().next().getData());
         }
         for(int i = 0; i < cycle.size(); i++) {
-            Node<T> n = _nodes.get(cycle.get(i).hashCode());
+            Node<T> n = _nodes.get(Node.getLabel(cycle.get(i)));
             if (n.hasUnvisited()) {
                 ArrayList<T> newCycle = n.getPath(n);
                 cycle.addAll(i+1, newCycle);
             }
         }
         return cycle;
+    }
+
+        /**
+     * Determines if a path exists between the nodes containing
+     * fromData and toData.
+     * @param fromData - data value of the origin node.
+     * @param toData - data value of the target node.
+     * @return true if a path exists, false otherwise
+     * @throws RuntimeException if a node cannot be found in the graph.
+     */
+    public boolean hasPath(T fromData, T toData) throws RuntimeException {
+        Node<T> fromNode = _nodes.get(Node.getLabel(fromData));
+        Node<T> toNode = _nodes.get(Node.getLabel(toData));
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+        
+        setState(null);
+        return fromNode.hasPath(toNode);
     }
 }

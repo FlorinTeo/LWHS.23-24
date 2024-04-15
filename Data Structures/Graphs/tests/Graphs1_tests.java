@@ -25,14 +25,14 @@ public class Graphs1_tests extends TestsCore {
         // the graph internal state and structure is left un-altered.
         Graph<Integer> g1 = readGraph("/Graphs/data/basic1.txt", Integer.class);
         assertTrue(g1.isUGraph());
-        assertTrue(g1.checkState(0));
+        assertTrue(g1.checkState(null));
         assertSameGraph("/Graphs/data/basic1.txt", g1);
         
         // Read a directed Graph from the file "basic2.txt"
         // and redo the verifications.
         Graph<String> g2 = readGraph("/Graphs/data/basic2.txt");
         assertFalse(g2.isUGraph());
-        assertTrue(g2.checkState(0));
+        assertTrue(g2.checkState(null));
         assertSameGraph("/Graphs/data/basic2.txt", g2);
     }
     

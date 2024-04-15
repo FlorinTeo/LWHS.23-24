@@ -1,4 +1,5 @@
 package Graphs.main;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.Queue;
  * Class definition for a generic Node in a Graph.
  * The node contains a collection of references to other nodes
  * representing outgoing (egress) edges in the graph.
- * @param <T> - reference type of the node.
+ * @param <T> reference type of the node.
  * The type T needs to implement the Comparable interface, such as nodes can
  * be compared to each other.<br>
  * E.g.: Node&lt;Integer&gt; n = new Node&ltInteger&gt(16);
@@ -21,19 +22,24 @@ import java.util.Queue;
  */
 public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     /**
-     * Collection of outgoing (egress) Edges originating in this Node.
-     * <br>This is a private Map keying each of the neighboring Nodes by 
-     * the hashCode() of their data.
-     * @see java.lang.Object#hashCode()
+     * The generic data contained in this Node. The type of the data
+     * needs to be a reference, Comparable type such that Nodes can be
+     * compared to each other based on the data they contain.
      */
-    private Map<Integer, Node<T>> _edges;
+    private T _data;
+
+    /**
+     * Collection of outgoing (egress) Edges originating in this Node.
+     * <br>This is a private Map keying each of the neighboring Nodes by their label.
+     */
+    private Map<String, Node<T>> _edges;
 
     /**
      * Collection of incoming (ingress) edges, targeting this node.
      * <br>This is a private Map keying each of the remote (egress) nodes
-     * by the hashCode() of their data;
+     * by the data label;
      */
-    private Map<Integer, Node<T>> _inEdges;
+    private Map<String, Node<T>> _inEdges;
 
     /**
      * Queue of nodes which had not been reached from this node.
@@ -42,20 +48,13 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     private Queue<Node<T>> _unvisited;
     
     /**
-     * The generic data contained in this Node. The type of the data
-     * needs to be a refrence, Comparable type such that Nodes can be
-     * compared to each other based on the data they contain.
-     */
-    private T _data;
-    
-    /**
      * State metadata contained in this Node. This can be used as needed
      * either to mark nodes as "visited" or to tag them with a numerical
      * value depending on the algorithm being implemented.
      * @see Node#getState()
-     * @see Node#reset()
+     * @see Node#setState()
      */
-    private int _state;
+    private Object _state;
     
     /**
      * Constructs a new Node containing the given <i>data</i> object.
@@ -70,49 +69,72 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      */
     public Node(T data) {
         _data = data;
-        _edges = new HashMap<Integer, Node<T>>();
-        _inEdges = new HashMap<Integer, Node<T>>();
-        _state = 0;
+        _edges = new HashMap<String, Node<T>>();
+        _inEdges = new HashMap<String, Node<T>>();
+        _state = null;
     }
     
     /**
      * Gets the data embedded in this Node.
-     * @return - reference to an object of the Comparable type T.
+     * @return reference to an object of the Comparable type T.
      * @see Node#_data
      */
     public T getData() {
         return _data;
+    }
+
+    /**
+     * Gets the unique label from the given content object. The label
+     * is the substring of content's string, starting at the 0 and ending at
+     * the first occurrence of ':'. If no ':' separator exists, the entire
+     * string is assumed to be the label.
+     * @param content - object from which the label is extracted.
+     * @return the label extracted from content.
+     */
+    public static String getLabel(Object content) {
+        return content.toString().split("\\s+:\\s+")[0];
+    }
+
+    /**
+     * Gets the label (lookup key) associated with this node. The label
+     * is expected to be the string preceding the first ':' in the
+     * node's data field.
+     * @return the label parsed from the node's data.
+     */
+    public String getLabel() {
+        return Node.getLabel(_data.toString());
     }
     
     /**
      * Gets the state of this Node. The state value is initially set to 0
      * and is intended to be used by various graph algorithms as they are
      * implemented in the Node class.
-     * @return - the integer value standing for the Node's state.
+     * @return the integer value standing for the Node's state.
      * @see Node#_state
      * @see Node#Node(Comparable)
-     * @see Node#reset()
+     * @see Node#setState()
      */
-    public int getState() {
+    public Object getState() {
         return _state;
     }
-    
+
     /**
-     * Resets the state of this Node to its initial value (0).
-     * @see Node#_state
-     * @see Node#Node(Comparable)
-     * @see Node#reset()
+     * Checks if the state of this Node matches a given one.
+     * @param state - state object to check.
+     * @return
      */
-    public void reset() {
-        reset(0);
+    public boolean checkState(Object state) {
+        return (_state == null) 
+            ? (state == null)
+            : _state.equals(state);
     }
     
     /**
-     * Resets the state of this Node to a given value.
+     * Sets the state of this Node to a given value.
      * @param value - the value to be set into the _state
      * @see Node#_state
      */
-    public void reset(int value) {
+    public void setState(Object value) {
         // initialize the _unvisited queue with all the nodes from the outgoing edges
         _unvisited = new LinkedList<Node<T>>();
         _unvisited.addAll(_edges.values());
@@ -125,8 +147,8 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#removeEdge(Node)
      */
     public void addEdge(Node<T> otherNode) {
-        _edges.put(otherNode._data.hashCode(), otherNode);
-        otherNode._inEdges.put(this._data.hashCode(), this);
+        _edges.put(otherNode.getLabel(), otherNode);
+        otherNode._inEdges.put(this.getLabel(), this);
     }
     
     /**
@@ -137,8 +159,8 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
      * @see Node#addEdge(Node)
      */
     public void removeEdge(Node<T> otherNode) {
-        otherNode._inEdges.remove(this._data.hashCode());
-        _edges.remove(otherNode.getData().hashCode());
+        otherNode._inEdges.remove(this.getLabel());
+        _edges.remove(otherNode.getLabel());
     }
     
     /**
@@ -155,11 +177,11 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     public String toString() {
         String output = _data.toString() + " > ";
         boolean first = true;
-        for(Node<?> n : _edges.values()) {
+        for(Node<T> n : _edges.values()) {
             if (!first) {
                 output += " ";
             }
-            output += n._data.toString();
+            output += n.getLabel();
             first = false;
         }
         return output;
@@ -176,10 +198,18 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         return _data.compareTo(other._data);
     }
 
+    /**
+     * Returns the neighboring nodes of this Node.
+     * @return collection of Node<T> neighboring nodes.
+     */
+    public Collection<Node<T>> getNeighbors() {
+        return new LinkedList<Node<T>>(_edges.values());
+    }
+
     public boolean isUNode() {
         boolean uNode = true;
-        for (Node<?> n : _edges.values()) {
-            if (n._state != 1 && n._edges.get(_data.hashCode()) != this) {
+        for (Node<T> n : _edges.values()) {
+            if (n._state == null && n._edges.get(this.getLabel()) != this) {
                 uNode = false;
                 break;
             }
@@ -187,20 +217,60 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         _state = 1;
         return uNode;
     }
-    
+
     public void traverse() {
         _state = 1;
-        for (Node<?> n : _edges.values()) {
-            if (n.getState() == 0) {
+        for (Node<T> n : _edges.values()) {
+            if (n.getState() == null) {
                 n.traverse();
             }
         }
     }
 
+     /**
+     * Expand the marking in any of the children of this node
+     * (if any) to this node itself, then propagate it further 
+     * in the graph through traversal.
+     * @return true of the state of this node has changed.
+     */
+    public boolean expand() {
+        if (_state != null) {
+            return false;
+        }
+        for (Node<T> n : _edges.values()) {
+            if (n.getState() != null) {
+                traverse();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean loops(Node<T> root) {
+        _state = 1;
+        for (Node<T> n : _edges.values()) {
+            if (n == root || (n._state == null && n.loops(root))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Queue<Node<T>> topoCheck() {
+        Queue<Node<T>> changedNodes = new LinkedList<Node<T>>();
+        for(Node<T> n : _edges.values()) {
+            if ((int)n._state <= (int)_state) {
+                n._state = ((int)_state + 1);
+                changedNodes.add(n);
+            }
+        }
+        return changedNodes;
+    }
+
     public void mark(int state) {
         _state = state;
         for (Node<T> n : _edges.values()) {
-            if (n.getState() != state) {
+            if ((int)n.getState() != state) {
                 n.mark(state);
             }
         }
@@ -208,59 +278,15 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
 
     public boolean nextToMark(int state) {
         for (Node<T> n : _edges.values()) {
-            if (n.getState() == state) {
+            if ((int)n.getState() == state) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Expand the marking in any of the children of this node
-     * (if any) to this node itself, then propagate it further 
-     * in the graph through traversal.
-     * @return true of the state of this node has changed.
-     */
-    public boolean expand() {
-        if (_state == 1) {
-            return false;
-        }
-        for (Node<?> n : _edges.values()) {
-            if (n.getState() == 1) {
-                traverse();
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public boolean loops(Node<T> root) {
-        _state = 1;
-        for (Node<T> n : _edges.values()) {
-            if (n == root || (n._state == 0 && n.loops(root))) {
-                return true;
-            }
-        }
-        return false;
-    }
-        
-    public Collection<Node<T>> getNeighbors() {
-        return _edges.values();
-    }
-    
-    public Queue<Node<T>> topoCheck() {
-        Queue<Node<T>> changedNodes = new LinkedList<Node<T>>();
-        for(Node<T> n : _edges.values()) {
-            if (n._state <= _state) {
-                n._state = (_state + 1);
-                changedNodes.add(n);
-            }
-        }
-        return changedNodes;
-    }
-    
     public void dijkstra(int distance) {
-        if (_state <= distance) {
+        if ((int)_state <= distance) {
             return;
         }
         _state = distance;
@@ -268,14 +294,14 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
             neighbor.dijkstra(distance+1);
         }
     }
-    
+
     public boolean hasPath(Node<T> toNode) {
         if (this == toNode) {
             return true;
         }
         _state = 1;
         for(Node<T> node : _edges.values()) {
-            if (node._state == 0) {
+            if ((int)node._state == 0) {
                 if (node.hasPath(toNode)) {
                     return true;
                 }
