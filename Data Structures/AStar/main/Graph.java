@@ -14,7 +14,7 @@ import java.util.TreeMap;
  * E.g.:<pre>Graph&lt;String&gt; g = new Graph&ltString&gt();</pre>
  * @see Node
  */
-public class Graph<T extends Comparable<T>> {
+public class Graph<T extends Point> {
 
     /**
      * Private Map keying each Node in the Graph by its data label

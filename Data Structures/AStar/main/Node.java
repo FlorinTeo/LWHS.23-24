@@ -17,7 +17,7 @@ import java.util.Map;
  * @see Node#_state
  * @see Graph
  */
-public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
+public class Node<T extends Point> implements Comparable<Node<T>> {
     /**
      * The generic data contained in this Node. The type of the data
      * needs to be a reference, Comparable type such that Nodes can be

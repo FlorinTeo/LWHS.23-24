@@ -26,27 +26,16 @@ public class TestsCore {
         return new Scanner(new File(filePath));
     }
     
-    public <T extends Comparable<T>> T parseT(String s, Class<T> realType) {
+    public <T extends Point> T parseT(String s, Class<T> realType) {
         s = s.trim();
-        if (realType == Integer.class) {
-            return realType.cast(Integer.parseInt(s));
-        } else if (realType == String.class) {
-            return realType.cast(s);
-        } else if (realType == Double.class) {
-            return realType.cast(Double.parseDouble(s));
-        } else if (realType == Character.class) {
-            if (s.length() != 1) {
-                throw new RuntimeException("Invalid format in graph parsing!");
-            }
-            return realType.cast(s.charAt(0));
-        } else if (realType == Point.class) {
+        if (realType == Point.class) {
             return realType.cast(Point.parsePoint(s));
         } else {
             throw new RuntimeException("Unsupported type in graph parsing!");
         }
     }
 
-    public <T extends Comparable<T>> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
+    public <T extends Point> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
         Scanner input = getScanner(graphFile);
         Map<String, List<String>> linksMap = new HashMap<String, List<String>>();
         Map<String, T> nodesMap = new HashMap<String, T>();
@@ -83,10 +72,6 @@ public class TestsCore {
         }
 
         return graph;
-    }
-
-    public Graph<String> readGraph(String graphFile) throws FileNotFoundException {
-        return readGraph(graphFile, String.class);
     }
     
     public void assertSameGraph(String graphFile, Graph<?> g) throws FileNotFoundException {
