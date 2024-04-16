@@ -1,4 +1,4 @@
-package PrioQueue;
+package PriorityQueues_Solved.main;
 
 public interface PriorityQueue<E> {
     void add(E value);

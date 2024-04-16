@@ -1,4 +1,4 @@
-package PrioQueue;
+package PriorityQueues_Solved.main;
 
 public class HeapTree<E extends Comparable<E>> implements PriorityQueue<E>{
 
