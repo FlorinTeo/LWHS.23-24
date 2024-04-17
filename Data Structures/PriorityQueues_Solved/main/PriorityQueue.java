@@ -1,6 +1,6 @@
 package PriorityQueues_Solved.main;
 
-public interface PriorityQueue<E> {
+public interface PriorityQueue<E extends Comparable<E>> {
     void add(E value);
     void clear();
     boolean isEmpty();
