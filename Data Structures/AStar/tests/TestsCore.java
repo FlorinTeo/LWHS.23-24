@@ -8,11 +8,14 @@ import java.io.FileNotFoundException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import AStar.main.Point;
 import AStar.main.Graph;
 
 public class TestsCore {
+    private static final Pattern _POINT_REGEX = Pattern.compile("([A-Za-z])\\s*:\\s*(\\d+),(\\d+)");
     
     private Scanner getScanner(String graphFile) throws FileNotFoundException {
         URL url = this.getClass().getResource(graphFile);
@@ -26,19 +29,21 @@ public class TestsCore {
         return new Scanner(new File(filePath));
     }
     
-    public <T extends Point> T parseT(String s, Class<T> realType) {
-        s = s.trim();
-        if (realType == Point.class) {
-            return realType.cast(Point.parsePoint(s));
-        } else {
-            throw new RuntimeException("Unsupported type in graph parsing!");
+    public Point parsePoint(String strPoint) {
+        Matcher matcher = _POINT_REGEX.matcher(strPoint.trim());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException(String.format("Invalid format: '%s' is not a Point.", strPoint));
         }
+        String label = matcher.group(1);
+        int x = Integer.parseInt(matcher.group(2));
+        int y = Integer.parseInt(matcher.group(3));
+        return new Point(label, x, y);
     }
 
-    public <T extends Point> Graph<T> readGraph(String graphFile, Class<T> realType) throws FileNotFoundException {
+    public Graph readGraph(String graphFile) throws FileNotFoundException {
         Scanner input = getScanner(graphFile);
         Map<String, List<String>> linksMap = new HashMap<String, List<String>>();
-        Map<String, T> nodesMap = new HashMap<String, T>();
+        Map<String, Point> pointsMap = new HashMap<String, Point>();
         while(input.hasNextLine()) {
             String line = input.nextLine();
             String[] tokens = line.split(">");
@@ -46,27 +51,25 @@ public class TestsCore {
                 input.close();
                 throw new RuntimeException("Syntax error in parsing graph!");
             }
-            String[] data = tokens[0].trim().split("\\s+:\\s+");
-            String[] links = tokens.length > 1
-                ? tokens[1].trim().split("\\s+")
-                : new String[0];
-            T n = parseT(tokens[0], realType);
-            linksMap.put(data[0], Arrays.asList(links));
-            nodesMap.put(data[0], n);
+            Point point = parsePoint(tokens[0]);
+            String[] links = (tokens.length > 1) ? tokens[1].trim().split("\\s+") : new String[0];
+            pointsMap.put(point.getLabel(), point);
+            linksMap.put(point.getLabel(), Arrays.asList(links));
+
         }
         input.close();
         
-        Graph<T> graph = new Graph<T>();
-        for(T n : nodesMap.values()) {
-            graph.addNode(n);
+        Graph graph = new Graph();
+        for(Point p : pointsMap.values()) {
+            graph.addNode(p);
         }
         
-        for(Map.Entry<String, T> kvp : nodesMap.entrySet()) {
-            T fromNode = kvp.getValue();
+        for(Map.Entry<String, Point> kvp : pointsMap.entrySet()) {
+            Point fromPoint = kvp.getValue();
             for(String v : linksMap.get(kvp.getKey())) {
-                T toNode= nodesMap.get(v);
-                if (toNode != null) {
-                    graph.addEdge(fromNode, toNode);
+                Point toPoint = pointsMap.get(v);
+                if (toPoint != null) {
+                    graph.addEdge(fromPoint.getLabel(), toPoint.getLabel());
                 }
             }
         }
@@ -74,7 +77,7 @@ public class TestsCore {
         return graph;
     }
     
-    public void assertSameGraph(String graphFile, Graph<?> g) throws FileNotFoundException {
+    public void assertSameGraph(String graphFile, Graph g) throws FileNotFoundException {
         Scanner parser = getScanner(graphFile);
         Set<String> expected = new TreeSet<String>();
         Set<String> actual = new TreeSet<String>();

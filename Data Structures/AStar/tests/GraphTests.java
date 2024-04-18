@@ -8,10 +8,9 @@ import java.io.FileNotFoundException;
 
 import org.junit.Test;
 
-import AStar.main.Point;
 import AStar.main.Graph;
 
-public class basic_tests extends TestsCore {
+public class GraphTests extends TestsCore {
 
     /**
      * Unit test for reading a Graph from a file and verifying
@@ -20,7 +19,7 @@ public class basic_tests extends TestsCore {
      */
     @Test
     public void test_readGraph() throws FileNotFoundException {
-        Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
+        Graph gp = readGraph("/AStar/data/demo_graph.txt");
         assertEquals(12, gp.size());
         assertTrue(gp.checkState(null));
         assertSameGraph("/AStar/data/demo_graph.txt", gp);
@@ -28,7 +27,7 @@ public class basic_tests extends TestsCore {
 
     @Test
     public void test_routeDijkstra() throws FileNotFoundException {
-        Graph<Point> gp = readGraph("/AStar/data/demo_graph.txt", Point.class);
+        Graph gp = readGraph("/AStar/data/demo_graph.txt");
         assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
         assertNull(gp.routeDijkstra("A", "I"));
         assertEquals("[K, L, G, H, E, A, C]", gp.routeDijkstra("K", "C").toString());
