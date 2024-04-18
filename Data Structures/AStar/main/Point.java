@@ -1,6 +1,8 @@
 package AStar.main;
 
 public class Point implements Comparable<Point> {
+    private final static Point _ORIGIN = new Point("Origin", 0, 0);
+
     private String _label;
     private int _x;
     private int _y;
@@ -27,13 +29,9 @@ public class Point implements Comparable<Point> {
         return Math.sqrt(Math.pow(_x - other._x, 2) + Math.pow(_y - other._y, 2));
     }
 
-    public double distanceToOrigin() {
-        return Math.sqrt(Math.pow(_x, 2) + Math.pow(_y, 2));
-    }
-
     @Override
     public int compareTo(Point other) {
-        return (int)Math.signum(this.distanceToOrigin() - other.distanceToOrigin());
+        return (int)Math.signum(this.distance(_ORIGIN) - other.distance(_ORIGIN));
     }
 
     @Override
