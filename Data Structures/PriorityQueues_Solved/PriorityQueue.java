@@ -1,4 +1,4 @@
-package PriorityQueues_Solved.main;
+package PriorityQueues_Solved;
 
 public interface PriorityQueue<E extends Comparable<E>> {
     void add(E value);

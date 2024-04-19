@@ -1,4 +1,4 @@
-package PriorityQueues_Solved.main;
+package PriorityQueues_Solved;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

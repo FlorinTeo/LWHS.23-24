@@ -1,4 +1,4 @@
-package PriorityQueues_Solved.tests;
+package PriorityQueues_Solved;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -6,13 +6,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import PriorityQueues_Solved.main.HeapPriorityQueue;
-import PriorityQueues_Solved.main.Point;
+public class PriorityQueuesTests {
 
-public class HeapPriorityQueueTests {
     @Test
-    public void HeapPQ_IntegerTests() {
-        HeapPriorityQueue<Integer> intPQ = new HeapPriorityQueue<Integer>(Integer.class);
+    public void tests_HeapIntPriorityQueue() {
+        HeapIntPriorityQueue intPQ = new HeapIntPriorityQueue();
         intPQ.add(15);
         assertEquals(15, (int)intPQ.peek());
         intPQ.add(20);
@@ -28,7 +26,18 @@ public class HeapPriorityQueueTests {
     }
 
     @Test
-    public void HeapPQ_PointTests() {
+    public void test_Point() {
+        Point p = new Point(0, 0);
+        assertEquals(0, p.compareTo(Point.ORIGIN));
+        assertEquals(0, Point.ORIGIN.compareTo(p));
+        Point p1 = new Point(1, 1);
+        Point p2 = new Point(1, 2);
+        assertEquals(-1, p1.compareTo(p2));
+        assertEquals(1, p2.compareTo(p1));
+    }
+
+    @Test
+    public void test_HeapPriorityQueue() {
         HeapPriorityQueue<Point> pointPQ = new HeapPriorityQueue<>(Point.class);
         pointPQ.add(new Point(1, 1));
         pointPQ.add(new Point(2, 2));
