@@ -8,6 +8,7 @@ public class Node implements Comparable<Node> {
     private Point _point;
     private Map<String, Node> _neighbors;
     private Object _state;
+    private double _cost;
     
     public Node(Point data) {
         _point = data;
@@ -18,6 +19,7 @@ public class Node implements Comparable<Node> {
     public Point getPoint() {
         return _point;
     }
+
 
     public String getLabel() {
         return _point.getLabel();
@@ -33,6 +35,19 @@ public class Node implements Comparable<Node> {
     
     public void setState(Object value) {
         _state = value;
+    }
+
+    
+    public double getCost() {
+        return _cost;
+    }
+
+    public void setCost(double cost) {
+        _cost = cost;
+    }
+
+    public double getDistance(Node otherNode) {
+        return _point.distance(otherNode._point);
     }
     
     public void addNeighbor(Node otherNode) {
@@ -63,6 +78,6 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node other) {
-        return _point.compareTo(other._point);
+        return (int)Math.signum(this._cost - other._cost);
     }
 }

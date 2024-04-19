@@ -32,4 +32,12 @@ public class GraphTests extends TestsCore {
         assertNull(gp.routeDijkstra("A", "I"));
         assertEquals("[K, L, G, H, E, A, C]", gp.routeDijkstra("K", "C").toString());
     }
+
+    @Test
+    public void test_routeAStar() throws FileNotFoundException {
+        Graph gp = readGraph("/AStar/data/demo_graph.txt");
+        assertEquals("[A, B, D, G, K]", gp.routeAStar("A", "K").toString());
+        assertNull(gp.routeAStar("A", "I"));
+        assertEquals("[K, L, G, H, E, A, C]", gp.routeAStar("K", "C").toString());
+    }
 }
