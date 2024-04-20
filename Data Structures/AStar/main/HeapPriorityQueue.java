@@ -3,7 +3,7 @@ package AStar.main;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class HeapArray<E extends Comparable<E>> implements PriorityQueue<E> {
+public class HeapPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E> {
 
     private E[] elements;
     private int size;
@@ -47,7 +47,7 @@ public class HeapArray<E extends Comparable<E>> implements PriorityQueue<E> {
     // #endregion: Helper methods
     
     @SuppressWarnings("unchecked")
-    public HeapArray(Class<E> eClass) {
+    public HeapPriorityQueue(Class<E> eClass) {
         elements = (E[]) Array.newInstance(eClass, 2);
         size = 0;
     }

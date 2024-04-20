@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import AStar.main.PriorityQueue;
-import AStar.main.HeapArray;
+import AStar.main.HeapPriorityQueue;
 import AStar.main.Point;
 
-public class HeapArrayTests {
+public class HeapPriorityQueueTests {
 
     @Test
     public void test_heap() {
-        PriorityQueue<Point> pq = new HeapArray<Point>(Point.class);
+        PriorityQueue<Point> pq = new HeapPriorityQueue<Point>(Point.class);
         pq.add(new Point("Origin", 0, 0));
         pq.add(new Point("A", 1, 1));
         pq.add(new Point("B", -1, -1));

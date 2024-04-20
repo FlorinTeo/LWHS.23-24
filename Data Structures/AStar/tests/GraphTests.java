@@ -19,25 +19,28 @@ public class GraphTests extends TestsCore {
      */
     @Test
     public void test_readGraph() throws FileNotFoundException {
-        Graph gp = readGraph("/AStar/data/demo_graph.txt");
+        Graph gp = readGraph("/AStar/data/graph1.txt");
         assertEquals(12, gp.size());
-        assertTrue(gp.checkState(null));
-        assertSameGraph("/AStar/data/demo_graph.txt", gp);
+        assertSameGraph("/AStar/data/graph1.txt", gp);
     }
 
     @Test
     public void test_routeDijkstra() throws FileNotFoundException {
-        Graph gp = readGraph("/AStar/data/demo_graph.txt");
-        assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
+        Graph gp = readGraph("/AStar/data/graph1.txt");
         assertNull(gp.routeDijkstra("A", "I"));
-        assertEquals("[K, L, G, H, E, A, C]", gp.routeDijkstra("K", "C").toString());
+        assertEquals("[K, L, G, H, E, A, C]", gp.routeDijkstra("K", "C").toString());        
+        assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
+        gp = readGraph("/AStar/data/graph2.txt");
+        assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
     }
 
     @Test
     public void test_routeAStar() throws FileNotFoundException {
-        Graph gp = readGraph("/AStar/data/demo_graph.txt");
+        Graph gp = readGraph("/AStar/data/graph1.txt");
+        assertEquals("[K, L, G, H, E, A, C]", gp.routeAStar("K", "C").toString());
         assertEquals("[A, B, D, G, K]", gp.routeAStar("A", "K").toString());
         assertNull(gp.routeAStar("A", "I"));
-        assertEquals("[K, L, G, H, E, A, C]", gp.routeAStar("K", "C").toString());
+        gp = readGraph("/AStar/data/graph2.txt");
+        assertEquals("[A, C, E, G, K]", gp.routeAStar("A", "K").toString());
     }
 }

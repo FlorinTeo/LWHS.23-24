@@ -14,19 +14,10 @@ public class Graph {
     public int size() {
         return _nodes.size();
     }
-    
-    public boolean checkState(Object state) {
-        for (Node n : _nodes.values()) {
-            if (!n.checkState(state)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
-    public void setState(Object state) {
+    private void reset() {
         for (Node n : _nodes.values()) {
-            n.setState(state);
+            n.setState(null);
         }
     }
     
@@ -93,10 +84,10 @@ public class Graph {
         }
 
         // Reset all Node states to null
-        setState(null);
+        reset();
 
         // Mark fromNode Node (set its state) with a reference to itself and add it to a queue
-        fromNode.setState(fromNode);
+        fromNode.setState(fromNode, toNode);
         Queue<Node> queue = new LinkedList<Node>();
         queue.add(fromNode);
 
@@ -114,7 +105,7 @@ public class Graph {
             // We're not done, so loop through all the neighbors of node.
             for(Node neighbor : node.getNeighbors()) {
                 // If node had already been visited (it's state is not null), just skip it
-                if (!neighbor.checkState(null)) {
+                if (neighbor.getState() != null) {
                     continue;
                 }
                 // Otherwise mark it with a reference to this node and add it to the queue.
@@ -130,7 +121,7 @@ public class Graph {
 
         // We found a route, so retrace it from target to start, using the reference from the nodes' state.
         LinkedList<String> result = new LinkedList<String>();
-        for(Node crt = toNode; crt != fromNode; crt = (Node)crt.getState()) {
+        for(Node crt = toNode; crt != fromNode; crt = crt.getState()) {
             result.add(0, crt.getLabel());
         }
         result.add(0, fromNode.getLabel());
@@ -148,26 +139,19 @@ public class Graph {
         }
 
         // Reset all Node states to null
-        setState(null);
+        reset();
 
         // Mark fromNode Node (set its state) with a reference to itself and add it to a queue
         fromNode.setState(fromNode);
-        fromNode.setCost(0);
-        Queue<Node> queue = new LinkedList<Node>();
+        PriorityQueue<Node> queue = new HeapPriorityQueue<Node>(Node.class);
         queue.add(fromNode);
 
         // We start with a boolean tracking whether we found the route or not (initially false)..
         boolean found = false;
-        Node lastNode = null;
-        double distanceSoFar = 0;
         // .. then we loop until the queue is emptied out.
         while(!queue.isEmpty()) {
             // Remove the first node from the queue.
             Node node = queue.remove();
-            if (lastNode != null) {
-                distanceSoFar += node.getDistance(lastNode);
-                lastNode = node;
-            }
             // If the node is the target, we're done, mark that we found the route and break out.
             if (node == toNode) {
                 found = true;
@@ -176,12 +160,11 @@ public class Graph {
             // We're not done, so loop through all the neighbors of node.
             for(Node neighbor : node.getNeighbors()) {
                 // If node had already been visited (it's state is not null), just skip it
-                if (!neighbor.checkState(null)) {
+                if (neighbor.getState() != null) {
                     continue;
                 }
                 // Otherwise mark it with a reference to this node and add it to the queue.
-                neighbor.setState(node);
-                neighbor.setCost(distanceSoFar + neighbor.getDistance(node) + neighbor.getDistance(toNode));
+                neighbor.setState(node, toNode);
                 queue.add(neighbor);
             }
         }
@@ -193,7 +176,7 @@ public class Graph {
 
         // We found a route, so retrace it from target to start, using the reference from the nodes' state.
         LinkedList<String> result = new LinkedList<String>();
-        for(Node crt = toNode; crt != fromNode; crt = (Node)crt.getState()) {
+        for(Node crt = toNode; crt != fromNode; crt = crt.getState()) {
             result.add(0, crt.getLabel());
         }
         result.add(0, fromNode.getLabel());

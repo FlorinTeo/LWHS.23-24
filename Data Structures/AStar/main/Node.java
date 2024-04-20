@@ -7,13 +7,17 @@ import java.util.Map;
 public class Node implements Comparable<Node> {
     private Point _point;
     private Map<String, Node> _neighbors;
-    private Object _state;
+
+    private Node _previous;
+    private double _distanceSoFar;
     private double _cost;
     
     public Node(Point data) {
         _point = data;
         _neighbors = new HashMap<String, Node>();
-        _state = null;
+        _previous = null;
+        _distanceSoFar = 0;
+        _cost = 0;
     }
     
     public Point getPoint() {
@@ -24,30 +28,21 @@ public class Node implements Comparable<Node> {
     public String getLabel() {
         return _point.getLabel();
     }
-
-    public Object getState() {
-        return _state;
+        
+    public Node getState() {
+        return _previous;
     }
 
-    public boolean checkState(Object value) {
-        return (_state == null) ? (value == null) : _state.equals(value);
-    }
-    
-    public void setState(Object value) {
-        _state = value;
+    public void setState(Node previous) {
+        _previous = previous;
+        _distanceSoFar = 0;
+        _cost = 0;
     }
 
-    
-    public double getCost() {
-        return _cost;
-    }
-
-    public void setCost(double cost) {
-        _cost = cost;
-    }
-
-    public double getDistance(Node otherNode) {
-        return _point.distance(otherNode._point);
+    public void setState(Node previous, Node target) {
+        _previous = previous;
+        _distanceSoFar = previous._distanceSoFar + _point.distance(previous._point);
+        _cost = _distanceSoFar + _point.distance(target._point);
     }
     
     public void addNeighbor(Node otherNode) {
