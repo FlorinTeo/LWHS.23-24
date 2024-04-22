@@ -1,31 +1,23 @@
-package AStar.main;
+package AStar_Solved.main;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-/**
- * The Node class represents a Node in a graph of Points. In addition to the  point itself,
- * a Node contains references to the neighboring nodes in the graph, and other internal state information
- * needed to track progress in route calculations.
- * Nodes can be compared to each other based on a specific heuristic applicable to the routing algorithm (i.e. A*)
- */
 public class Node implements Comparable<Node> {
-
-    // Point object (data) stored in this node. Each point contains a _label and _x, _y coordinates.
     private Point _point;
-    // Map of nodes neighboring this node, indexed by the labels of their _point.
     private Map<String, Node> _neighbors;
-    // Internal state of the node: null (if node was not visited) or reference to the previous node that reached to this node.
+
     private Node _previous;
-    // Accumulated distance from the beginning of the route: sum of the lengths of all edges along the route from start to this node.
     private double _distanceSoFar;
+    private double _cost;
     
     public Node(Point data) {
         _point = data;
         _neighbors = new HashMap<String, Node>();
         _previous = null;
         _distanceSoFar = 0;
+        _cost = 0;
     }
     
     public Point getPoint() {
@@ -43,9 +35,16 @@ public class Node implements Comparable<Node> {
 
     public void setState(Node previous) {
         _previous = previous;
-        _distanceSoFar = previous._distanceSoFar + _point.distance(previous._point);
+        _distanceSoFar = 0;
+        _cost = 0;
     }
 
+    public void setState(Node previous, Node target) {
+        _previous = previous;
+        _distanceSoFar = previous._distanceSoFar + _point.distance(previous._point);
+        _cost = _distanceSoFar + _point.distance(target._point);
+    }
+    
     public void addNeighbor(Node otherNode) {
         _neighbors.put(otherNode.getLabel(), otherNode);
     }
@@ -74,6 +73,6 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node other) {
-        return this._point.compareTo(other._point);
+        return (int)Math.signum(this._cost - other._cost);
     }
 }

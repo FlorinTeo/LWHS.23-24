@@ -1,4 +1,4 @@
-package AStar.main;
+package AStar_Solved.main;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -53,26 +53,6 @@ public class HeapPriorityQueue<E extends Comparable<E>> implements PriorityQueue
     }
     
     @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    @Override
-    public void clear() {
-        size = 0;
-    }
-
-    @Override
-    public E peek() {
-        return size > 0 ? elements[1] : null;
-    }
-
-    @Override
     public void add(E value) {
         // add the value to the end of the array and resize as needed
         int i = size + 1;
@@ -89,6 +69,21 @@ public class HeapPriorityQueue<E extends Comparable<E>> implements PriorityQueue
             swap(i, iParent);
             i = iParent;
         }
+    }
+
+    @Override
+    public void clear() {
+        size = 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    @Override
+    public E peek() {
+        return size > 0 ? elements[1] : null;
     }
 
     @Override
@@ -127,5 +122,10 @@ public class HeapPriorityQueue<E extends Comparable<E>> implements PriorityQueue
         
         // return the element that was saved at the very beginning.
         return elem;
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 }

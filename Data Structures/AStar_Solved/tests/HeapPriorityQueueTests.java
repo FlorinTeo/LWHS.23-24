@@ -1,11 +1,11 @@
-package AStar.tests;
+package AStar_Solved.tests;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import AStar.main.PriorityQueue;
-import AStar.main.HeapPriorityQueue;
-import AStar.main.Point;
+import AStar_Solved.main.PriorityQueue;
+import AStar_Solved.main.HeapPriorityQueue;
+import AStar_Solved.main.Point;
 
 public class HeapPriorityQueueTests {
 
@@ -23,4 +23,5 @@ public class HeapPriorityQueueTests {
         assertEquals("D", pq.remove().getLabel());
         assertEquals(1, pq.size());
     }
+    
 }
