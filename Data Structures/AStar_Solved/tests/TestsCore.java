@@ -15,7 +15,7 @@ import AStar_Solved.main.Point;
 import AStar_Solved.main.Graph;
 
 public class TestsCore {
-    private static final Pattern _POINT_REGEX = Pattern.compile("([A-Za-z])\\s*:\\s*(\\d+),(\\d+)");
+    private static final Pattern _POINT_REGEX = Pattern.compile("([0-9A-Za-z])\\s*:\\s*(\\d+),(\\d+)");
     
     private Scanner getScanner(String graphFile) throws FileNotFoundException {
         URL url = this.getClass().getResource(graphFile);

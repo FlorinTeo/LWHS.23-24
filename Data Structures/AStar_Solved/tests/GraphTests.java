@@ -29,6 +29,9 @@ public class GraphTests extends TestsCore {
         assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
         gp = readGraph("/AStar/data/graph2.txt");
         assertEquals("[A, B, D, G, K]", gp.routeDijkstra("A", "K").toString());
+        gp = readGraph("/AStar/data/graph3.txt");
+        assertEquals("[A, F, D, K, J, I, L, X, Z]", gp.routeDijkstra("A", "Z").toString());
+        
     }
 
     @Test
@@ -39,5 +42,7 @@ public class GraphTests extends TestsCore {
         assertNull(gp.routeAStar("A", "I"));
         gp = readGraph("/AStar/data/graph2.txt");
         assertEquals("[A, C, E, G, K]", gp.routeAStar("A", "K").toString());
+        gp = readGraph("/AStar/data/graph3.txt");
+        assertEquals("[A, F, D, K, U, P, V, L, X, Z]", gp.routeAStar("A", "Z").toString());
     }
 }
