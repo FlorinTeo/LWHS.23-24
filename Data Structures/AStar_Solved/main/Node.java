@@ -33,10 +33,22 @@ public class Node implements Comparable<Node> {
         return _previous;
     }
 
-    public void setState(Node previous) {
-        _previous = previous;
-        _distanceSoFar = 0;
-        _cost = 0;
+    public boolean setState(Node previous) {
+        if (previous == null) {
+            _previous = null;
+            _distanceSoFar = 0;
+            _cost = 0;
+            return true;
+        }
+
+        double distanceSoFar = previous._distanceSoFar + previous._point.distance(_point);
+        if (_previous == null || distanceSoFar < _distanceSoFar) {
+            _previous = previous;
+            _distanceSoFar = distanceSoFar;
+            _cost = 0;
+            return true;
+        }
+        return false;
     }
 
     public void setState(Node previous, Node target) {
@@ -44,7 +56,11 @@ public class Node implements Comparable<Node> {
         _distanceSoFar = previous._distanceSoFar + _point.distance(previous._point);
         _cost = _distanceSoFar + _point.distance(target._point);
     }
-    
+
+    public double getDistanceSoFar() {
+        return _distanceSoFar;
+    }
+
     public void addNeighbor(Node otherNode) {
         _neighbors.put(otherNode.getLabel(), otherNode);
     }

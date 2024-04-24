@@ -6,9 +6,20 @@ import java.util.TreeMap;
 
 public class Graph {
     private Map<String, Node> _nodes;
+
+    private int _queueAddCount;
+    private double _traveledDistance;
     
     public Graph() {
         _nodes = new TreeMap<String, Node>();
+    }
+
+    public int getQueueAddCount() {
+        return _queueAddCount;
+    }
+
+    public double getTraveledDistance() {
+        return _traveledDistance;
     }
     
     public int size() {
@@ -16,6 +27,8 @@ public class Graph {
     }
 
     private void reset() {
+        _queueAddCount = 0;
+        _traveledDistance = 0.0;
         for (Node n : _nodes.values()) {
             n.setState(null);
         }
@@ -75,7 +88,7 @@ public class Graph {
         return output;
     }
 
-    public LinkedList<String> routeDijkstra(String fromLabel, String toLabel) {
+    public LinkedList<String> routeFirstPath(String fromLabel, String toLabel) {
         // Check nodes exist in the graph, otherwise throw exception
         Node fromNode = _nodes.get(fromLabel);
         Node toNode = _nodes.get(toLabel);
@@ -87,9 +100,10 @@ public class Graph {
         reset();
 
         // Mark fromNode Node (set its state) with a reference to itself and add it to a queue
-        fromNode.setState(fromNode, toNode);
+        fromNode.setState(fromNode);
         Queue<Node> queue = new LinkedList<Node>();
         queue.add(fromNode);
+        _queueAddCount++;
 
         // We start with a boolean tracking whether we found the route or not (initially false)..
         boolean found = false;
@@ -111,6 +125,7 @@ public class Graph {
                 // Otherwise mark it with a reference to this node and add it to the queue.
                 neighbor.setState(node);
                 queue.add(neighbor);
+                _queueAddCount++;
             }
         }
 
@@ -125,6 +140,63 @@ public class Graph {
             result.add(0, crt.getLabel());
         }
         result.add(0, fromNode.getLabel());
+        _traveledDistance = toNode.getDistanceSoFar();
+
+        // Return the list with all the node labels in the route, from start to target.
+        return result;
+    }
+
+    public LinkedList<String> routeDijkstra(String fromLabel, String toLabel) {
+        // Check nodes exist in the graph, otherwise throw exception
+        Node fromNode = _nodes.get(fromLabel);
+        Node toNode = _nodes.get(toLabel);
+        if (fromNode == null || toNode == null) {
+            throw new RuntimeException("Node(s) not in the graph!");
+        }
+
+        // Reset all Node states to null
+        reset();
+
+        // Mark fromNode Node (set its state) with a reference to itself and add it to a queue
+        fromNode.setState(fromNode, toNode);
+        Queue<Node> queue = new LinkedList<Node>();
+        queue.add(fromNode);
+        _queueAddCount++;
+
+        // We start with a boolean tracking whether we found the route or not (initially false)..
+        boolean found = false;
+        // .. then we loop until the queue is emptied out.
+        while(!queue.isEmpty()) {
+            // Remove the first node from the queue.
+            Node node = queue.remove();
+            // If the node is the target, we're done, mark that we found the route and break out.
+            if (node == toNode) {
+                found = true;
+                break;
+            }
+            // We're not done, so loop through all the neighbors of node.
+            for(Node neighbor : node.getNeighbors()) {
+                // If node had already been visited (it's state is not null), just skip it
+                if (neighbor.setState(node)) {
+                    queue.add(neighbor);
+                    _queueAddCount++;
+                }
+            }
+        }
+
+        // if we couldn't find a route, just return null
+        if (!found) {
+            return null;
+        }
+
+        // We found a route, so retrace it from target to start, using the reference from the nodes' state.
+        LinkedList<String> result = new LinkedList<String>();
+        for(Node crt = toNode; crt != fromNode; crt = crt.getState()) {
+            result.add(0, crt.getLabel());
+        }
+        result.add(0, fromNode.getLabel());
+
+        _traveledDistance = toNode.getDistanceSoFar();
 
         // Return the list with all the node labels in the route, from start to target.
         return result;
@@ -145,6 +217,7 @@ public class Graph {
         fromNode.setState(fromNode);
         PriorityQueue<Node> queue = new HeapPriorityQueue<Node>(Node.class);
         queue.add(fromNode);
+        _queueAddCount++;
 
         // We start with a boolean tracking whether we found the route or not (initially false)..
         boolean found = false;
@@ -166,6 +239,7 @@ public class Graph {
                 // Otherwise mark it with a reference to this node and add it to the queue.
                 neighbor.setState(node, toNode);
                 queue.add(neighbor);
+                _queueAddCount++;
             }
         }
 
@@ -180,6 +254,8 @@ public class Graph {
             result.add(0, crt.getLabel());
         }
         result.add(0, fromNode.getLabel());
+
+        _traveledDistance = toNode.getDistanceSoFar();
 
         // Return the list with all the node labels in the route, from start to target.
         return result;
