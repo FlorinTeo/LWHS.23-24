@@ -4,14 +4,26 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+/**
+ * The Graph represents a collection of Nodes (each of which is a Point) along with all their connections.
+ * A Graph is akin to a road network in the real life, in which street intersections are represented by Nodes,
+ * and each street segment is represented by the connections between the nodes.
+ */
 public class Graph {
-    private Map<String, Node> _nodes;
 
+    // Map of all the nodes in the graph, indexed by the label of the Point object inside the node
+    private Map<String, Node> _nodes;
+    // Count of all the queue.add() calls, as a measure of algorithm complexity
     private int _queueAddCount;
+    // Distance traveled during the last route calculation as a measure of algorithm optimality
     private double _traveledDistance;
     
     public Graph() {
         _nodes = new TreeMap<String, Node>();
+    }
+
+    public int size() {
+        return _nodes.size();
     }
 
     public int getQueueAddCount() {
@@ -22,10 +34,6 @@ public class Graph {
         return _traveledDistance;
     }
     
-    public int size() {
-        return _nodes.size();
-    }
-
     private void reset() {
         _queueAddCount = 0;
         _traveledDistance = 0.0;

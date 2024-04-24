@@ -12,6 +12,10 @@ public class Graph {
 
     // Map of all the nodes in the graph, indexed by the label of the Point object inside the node
     private Map<String, Node> _nodes;
+    // Count of all the queue.add() calls, as a measure of algorithm complexity
+    private int _queueAddCount;
+    // Distance traveled during the last route calculation as a measure of algorithm optimality
+    private double _traveledDistance;
     
     public Graph() {
         _nodes = new TreeMap<String, Node>();
@@ -19,6 +23,14 @@ public class Graph {
     
     public int size() {
         return _nodes.size();
+    }
+
+    public int getQueueAddCount() {
+        return _queueAddCount;
+    }
+
+    public double getTraveledDistance() {
+        return _traveledDistance;
     }
 
     public void addNode(Point point) {
@@ -75,7 +87,7 @@ public class Graph {
     }
 
     /**
-     * Implements the Dijkstra algorithm to calculate a route that starts at {fromLabel} point 
+     * Implements the FirstPath algorithm to calculate a route that starts at {fromLabel} point 
      * and ends at {toLabel} point.The route is returned as a list of strings, each of which is the
      * label of the point visited in the route ordered from start {fromLabel} to target {toLabel}.
      * @param fromLabel - label of the starting point
@@ -83,7 +95,7 @@ public class Graph {
      * @return - list of point labels in the route, or null if a route does not exist.
      * @throws RuntimeException if {fromLabel} and/or {toLabel} cannot be resolved to nodes in the graph.
      */
-    public LinkedList<String> routeDijkstra(String fromLabel, String toLabel) {
+    public LinkedList<String> routeFirstPath(String fromLabel, String toLabel) {
         // Get the fromNode and toNode containing the points labeled with fromLabel and toLabel
         // Check both nodes exist, otherwise throw exception
         // Reset the state of the graph: sets _previous references inside each node to null.
@@ -104,6 +116,24 @@ public class Graph {
             // Add the label of the point in the node to the result list
         // end loop
         // Return the route list:
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Implements the Dijkstra algorithm to calculate a route that starts at {fromLabel} point 
+     * and ends at {toLabel} point.The route is returned as a list of strings, each of which is the
+     * label of the point visited in the route ordered from start {fromLabel} to target {toLabel}.
+     * @param fromLabel - label of the starting point
+     * @param toLabel - label of the target point
+     * @return - list of point labels in the route, or null if a route does not exist.
+     * @throws RuntimeException if {fromLabel} and/or {toLabel} cannot be resolved to nodes in the graph.
+     */
+    public LinkedList<String> routeDijkstra(String fromLabel, String toLabel) {
+        // Modify the routeFirstPath implementation to verify if the state of a neighboring node
+        // improves at each step (rather than skipping the node if it was already visible, like
+        // in FirstPath algorithm). If the state improves, re-add it to the queue.
+        // _previous points the the previous step in the route (fromNode points to itself)
+        // _distanceSoFar should reflect the sum of edge lengths from start to the node
         throw new UnsupportedOperationException();
     }
 
