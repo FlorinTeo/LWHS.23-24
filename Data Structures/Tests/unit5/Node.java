@@ -1,6 +1,9 @@
 package Tests.unit5;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * Class definition for a generic Node in a Graph.
@@ -195,14 +198,31 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
         if (this == target) {
             return true;
         }
-        if (_state == 1) {
-            return false;
-        }
         _state = 1;
         for(Node<T> n : _edges.values()) {
-            if (n.hasPath(target)) {
+            if (n._state != 1 && n.hasPath(target)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public Collection<Node<T>> getNeighbors() {
+        return _edges.values();
+    }
+
+    public boolean hasPathQ(Node<T> target) {
+        Queue<Node<T>> q = new LinkedList<Node<T>>();
+        q.addAll(_edges.values());
+        while(!q.isEmpty()) {
+            Node<T> n = q.remove();
+            if (n == target) {
+                return true;
+            }
+            if (n._state == 0) {
+                q.addAll(n._edges.values());
+            }
+            n._state = 1;
         }
         return false;
     }

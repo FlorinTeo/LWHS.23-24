@@ -1,6 +1,8 @@
 package Tests.unit5;
 
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 
 /**
@@ -201,5 +203,37 @@ public class Graph<T extends Comparable<T>> {
         }
         reset(0);
         return fromN.hasPath(toN);
+    }
+
+    public boolean hasPathQ(T from, T to) {
+        Node<T> fromN = _nodes.get(from.hashCode());
+        Node<T> toN = _nodes.get(to.hashCode());
+        if (fromN == null || toN == null) {
+            throw new RuntimeException();
+        }
+        reset(0);
+        Queue<Node<T>> q = new LinkedList<Node<T>>();
+        q.addAll(fromN.getNeighbors());
+        while(!q.isEmpty()) {
+            Node<T> n = q.remove();
+            if (n == toN) {
+                return true;
+            }
+            if (n.getState() == 0) {
+                q.addAll(n.getNeighbors());
+            }
+            n.reset(1);
+        }
+        return false;
+    }
+
+    public boolean hasPathNQ(T from, T to) {
+        Node<T> fromN = _nodes.get(from.hashCode());
+        Node<T> toN = _nodes.get(to.hashCode());
+        if (fromN == null || toN == null) {
+            throw new RuntimeException();
+        }
+        reset(0);
+        return fromN.hasPathQ(toN);
     }
 }
