@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Class modeling a website record in CommonCrawl, which can be retrieved from a URL like below:
  * https://index.commoncrawl.org/CC-MAIN-2024-18-index?url=*.lwhs.org&output=json
  * The structure of the record is as follows:
+ * <pre>
  * {
  *    "urlkey": "org,lwsd,lwhs)/",
  *    "timestamp": "20240416131624",
@@ -20,11 +21,11 @@ import com.google.gson.annotations.SerializedName;
  *    "languages": "eng",
  *    "encoding": "UTF-8"
  * }
- * 
- * Prompt for CoPilot/GPT for more information:
+ * </pre>
+ * Prompt for CoPilot/GPT for more information:<p><i>
  * "I'm scraping CommonCrawl with a URL like this: https://index.commoncrawl.org/CC-MAIN-2024-18-index?url=*.lwhs.org&output=json.
  * I'm getting JSON objects with fields such as urlkey, timestamp, url, mime, mime-detected, status, digest, length, offset,
- * filename, languages and encoding. What is their meaning?"
+ * filename, languages and encoding. What does each of them mean?"</i></p>
  */
 public class CommonCrawlRecord {
     public String urlKey;
