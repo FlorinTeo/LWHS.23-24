@@ -195,34 +195,30 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
     }
 
     public boolean hasPath(Node<T> target) {
-        if (this == target) {
-            return true;
-        }
         _state = 1;
         for(Node<T> n : _edges.values()) {
-            if (n._state != 1 && n.hasPath(target)) {
+            if (n == target || (n._state == 0 && n.hasPath(target))) {
                 return true;
             }
         }
         return false;
     }
 
-    public Collection<Node<T>> getNeighbors() {
-        return _edges.values();
-    }
-
     public boolean hasPathQ(Node<T> target) {
+        _state = 1;
         Queue<Node<T>> q = new LinkedList<Node<T>>();
-        q.addAll(_edges.values());
+        q.add(this);
         while(!q.isEmpty()) {
             Node<T> n = q.remove();
             if (n == target) {
                 return true;
             }
-            if (n._state == 0) {
-                q.addAll(n._edges.values());
+            for (Node<T> neighbor : n._edges.values()) {
+                if (neighbor._state == 0) {
+                    neighbor._state = 1;
+                    q.add(neighbor);
+                }
             }
-            n._state = 1;
         }
         return false;
     }

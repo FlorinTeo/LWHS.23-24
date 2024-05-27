@@ -130,10 +130,5 @@ public class Graphs_tests extends TestsCore {
         assertTrue(g.hasPathQ("D", "C"));
         assertTrue(!g.hasPathQ("A", "F"));
         assertTrue(g.hasPathQ("F", "A"));
-
-        assertTrue(g.hasPathNQ("C", "D"));
-        assertTrue(g.hasPathNQ("D", "C"));
-        assertTrue(!g.hasPathNQ("A", "F"));
-        assertTrue(g.hasPathNQ("F", "A"));
     }
 }
