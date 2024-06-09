@@ -17,7 +17,7 @@ public class ReaderThread extends Thread {
                 throw new InterruptedException();
             }
             String s = input.nextLine();
-            System.out.println(s);    
+            System.out.println(s);
         } catch (Exception e) {
             System.out.println("[TIMED OUT]");
         }
