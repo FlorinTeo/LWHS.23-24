@@ -1,4 +1,4 @@
-package Threading.three;
+package Threading.print;
 
 public class Program {
     public static void main(String[] args) throws InterruptedException {

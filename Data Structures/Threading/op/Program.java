@@ -1,4 +1,4 @@
-package Threading.four;
+package Threading.op;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

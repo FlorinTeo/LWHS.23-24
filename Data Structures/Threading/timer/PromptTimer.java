@@ -1,4 +1,4 @@
-package Threading.one;
+package Threading.timer;
 import java.util.TimerTask;
 
 public class PromptTimer extends TimerTask {

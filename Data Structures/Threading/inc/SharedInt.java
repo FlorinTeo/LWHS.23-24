@@ -1,4 +1,4 @@
-package Threading.five;
+package Threading.inc;
 
 public class SharedInt {
     private int _number = 0;

@@ -1,4 +1,4 @@
-package Threading.three;
+package Threading.print;
 
 public class PrintRunnable implements Runnable {
     private String _message;

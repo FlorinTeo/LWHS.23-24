@@ -1,4 +1,4 @@
-package Threading.five;
+package Threading.inc;
 
 public class Program {
     public static void main(String[] args) throws InterruptedException {

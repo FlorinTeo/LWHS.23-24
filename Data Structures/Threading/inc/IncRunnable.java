@@ -1,4 +1,4 @@
-package Threading.five;
+package Threading.inc;
 
 public class IncRunnable implements Runnable {
     private SharedInt _sharedInt;
