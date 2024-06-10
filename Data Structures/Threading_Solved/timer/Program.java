@@ -1,4 +1,4 @@
-package Threading.timer;
+package Threading_Solved.timer;
 import java.util.Scanner;
 import java.util.Timer;
 

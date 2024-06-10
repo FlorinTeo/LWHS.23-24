@@ -1,4 +1,4 @@
-package Threading.inc;
+package Threading_Solved.inc;
 
 public class SharedInt {
     private int _number = 0;

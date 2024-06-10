@@ -1,4 +1,4 @@
-package Threading.op;
+package Threading_Solved.op;
 
 public class OpRunnable implements Runnable {
     private String _message;

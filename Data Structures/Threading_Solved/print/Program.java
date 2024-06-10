@@ -1,4 +1,4 @@
-package Threading.print;
+package Threading_Solved.print;
 
 public class Program {
     public static void main(String[] args) throws InterruptedException {

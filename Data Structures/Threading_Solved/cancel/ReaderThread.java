@@ -1,4 +1,4 @@
-package Threading.cancel;
+package Threading_Solved.cancel;
 
 import java.util.Scanner;
 

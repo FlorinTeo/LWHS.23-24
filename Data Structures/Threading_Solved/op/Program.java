@@ -1,4 +1,4 @@
-package Threading.op;
+package Threading_Solved.op;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
