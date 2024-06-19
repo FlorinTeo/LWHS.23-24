@@ -102,8 +102,8 @@ public class Program {
         }
         String word = args[1].toUpperCase();
         String urlCheck = String.format(_URL_CHECK, _sessionID, word);
-        Answer answer = getAnswer(urlCheck);
-        System.out.println(answer);
+        AnswerGame answerGame = new AnswerGame(getAnswer(urlCheck), false);
+        System.out.println(answerGame);
     }
 
      /**
@@ -116,8 +116,8 @@ public class Program {
             throw new RuntimeException("New Wordle session needs to be created first!");
         }
         String urlReveal = String.format(_URL_REVEAL, _sessionID);
-        Answer answer = getAnswer(urlReveal);
-        System.out.println(answer);
+        AnswerGame answerGame = new AnswerGame(getAnswer(urlReveal), true);
+        System.out.println(answerGame);
     }
 
      /**
