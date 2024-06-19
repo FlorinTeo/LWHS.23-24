@@ -21,7 +21,9 @@ public class AnswerGame extends Answer {
     @Override
     public String toString() {
         String output = "";
-        if (_isReveal) {
+        if (_httpCode >= 400) {
+            output += String.format("Error: %s", _content);
+        } else if (_isReveal) {
             output += String.format("Secret word is : %s\n", _word);
             output +=                      "_________ GAME SPOILED _________";
         } else {

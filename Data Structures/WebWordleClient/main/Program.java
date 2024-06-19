@@ -3,6 +3,8 @@ package WebWordleClient.main;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -76,8 +78,9 @@ public class Program {
      * Creates a new Wordle session.
      * @param args - args[0] is the command "NEW", args[1] (optional) is the name of the session.
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainNew(String[] args) throws IOException {
+    private static void mainNew(String[] args) throws IOException, URISyntaxException {
         if (_sessionID != null) {
             throw new RuntimeException("Current Wordle session needs to be closed first!");
         }
@@ -92,8 +95,9 @@ public class Program {
      * Checks a Wordle word in the context of the current game session.
      * @param args - args[0] is the command "CHECK", args[1] is the word to be checked.
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainCheck(String[] args) throws IOException {
+    private static void mainCheck(String[] args) throws IOException, URISyntaxException {
         if (args.length != 2) {
             throw new RuntimeException("Missing {WWORD} argument!");
         }
@@ -110,8 +114,9 @@ public class Program {
      * Reveals the secret Wordle word of the current game session.
      * @param args - args[0] is the command "REVEAL".
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainReveal(String[] args) throws IOException {
+    private static void mainReveal(String[] args) throws IOException, URISyntaxException {
         if (_sessionID == null) {
             throw new RuntimeException("New Wordle session needs to be created first!");
         }
@@ -124,8 +129,9 @@ public class Program {
      * Prints the statistics of the current game session.
      * @param args - args[0] is the command "STATS".
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainStats(String[] args) throws IOException {
+    private static void mainStats(String[] args) throws IOException, URISyntaxException {
         if (_sessionID == null) {
             throw new RuntimeException("New Wordle session needs to be created first!");
         }
@@ -139,8 +145,9 @@ public class Program {
      * Prints the statistics of the current server.
      * @param args - args[0] is the command "SERVER".
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainServer(String[] args) throws IOException {
+    private static void mainServer(String[] args) throws IOException, URISyntaxException {
         String urlStats = String.format(_URL_STATS, "");
         AnswerStats answerStats = new AnswerStats(getAnswer(urlStats), true);
         System.out.println(answerStats);
@@ -150,8 +157,9 @@ public class Program {
      * Closes the current Wordle session by calling the Web-Wordle server with the 'close' URL.
      * @param args - args[0] is the command "CLOSE"
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    private static void mainClose(String[] args) throws IOException {
+    private static void mainClose(String[] args) throws IOException, URISyntaxException {
         if (_sessionID == null) {
             throw new RuntimeException("New Wordle session needs to be created first!");
         }
@@ -166,10 +174,12 @@ public class Program {
      * @param urlString - URL to be used to reach the Web-Wordle server.
      * @return Answer object containing the HTTP status code and the content of the resposne.
      * @throws IOException
+     * @throws URISyntaxException 
      */
-    private static Answer getAnswer(String urlString) throws IOException {
+    private static Answer getAnswer(String urlString) throws IOException, URISyntaxException {
         // establish the connection
-        URL url = new URL(urlString);
+        URI uri = new URI(urlString);
+        URL url = uri.toURL();
         HttpURLConnection urlCnx = (HttpURLConnection)url.openConnection();
         // get the response status code: 200 means success, 400 means some error (ref: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
         int httpCode = urlCnx.getResponseCode();
