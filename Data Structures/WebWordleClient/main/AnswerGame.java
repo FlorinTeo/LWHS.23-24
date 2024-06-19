@@ -23,14 +23,14 @@ public class AnswerGame extends Answer {
         String output = "";
         if (_isReveal) {
             output += String.format("Secret word is : %s\n", _word);
-            output +=                      "____+~~~~ GAME SPOILED ~~~~+____";
+            output +=                      "_________ GAME SPOILED _________";
         } else {
             output += String.format("Word checked : %s\n", _word);
             output += String.format("Hints        : %s\n", _message);
             if (this._httpCode == 200) {
-                output += String.format("____+~~~~ GAME SOLVED ~~~~+____");
+                output += String.format("_________ GAME SOLVED _________");
             } else {
-                output += String.format("____+~~~~~ TRY AGAIN ~~~~~+____");
+                output += String.format("__________ TRY AGAIN __________");
             }
         }
         return output;
