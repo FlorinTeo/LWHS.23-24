@@ -21,15 +21,19 @@ public class AnswerStats extends Answer {
     @Override
     public String toString() {
         String output = "";
-        if (_isServer) {
-            output += String.format("Server state   : %s\n", _state);
-            output += String.format("Sessions count : %d\n", _count);
+        if (_httpCode >= 400) {
+            output += String.format("Error: %s\n", _content);
         } else {
-            output += String.format("Game state : %s\n", _state);
-            output += String.format("Guesses    : %d\n", _count);
-        }
-        for(String session : _sessions) {
-            output += String.format("        %s\n", session);
+            if (_isServer) {
+                output += String.format("Server state   : %s\n", _state);
+                output += String.format("Sessions count : %d\n", _count);
+            } else {
+                output += String.format("Game state : %s\n", _state);
+                output += String.format("Guesses    : %d\n", _count);
+            }
+            for(String session : _sessions) {
+                output += String.format("        %s\n", session);
+            }
         }
         output +="_____________";
         return output;

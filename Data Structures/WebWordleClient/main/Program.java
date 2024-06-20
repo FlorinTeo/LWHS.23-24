@@ -26,9 +26,11 @@ public class Program {
     // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=8C537D99&cmd=close"
     private static final String _URL_CLOSE = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=%s&cmd=close";
 
-    public static void main(String[] args) {
-        System.out.println("Hellow to WebWorldleClient!");
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=reset&pwd={wouldn't you like to know it :-)}";
+    private static final String _URL_RESET = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=reset&pwd=%s";
 
+    public static void main(String[] args) {
+        System.out.println("Hello to WebWorldleClient!");
         Scanner console = new Scanner(System.in);
         System.out.printf("Command or ? for help > ");
         args = console.nextLine().split(" ");
@@ -46,6 +48,8 @@ public class Program {
                     mainClose(args);
                 } else if (args[0].equalsIgnoreCase("SERVER")) {
                     mainServer(args);
+                } else if (args[0].equalsIgnoreCase("RESET")) {
+                    mainReset(args);
                 } else if (args[0].equalsIgnoreCase("?")) {
                     mainHelp(args);
                 } else {
@@ -59,7 +63,6 @@ public class Program {
             args = console.nextLine().split(" ");
         }
         console.close();
-
         System.out.println("Goodbye!");
     }
 
@@ -70,6 +73,7 @@ public class Program {
         System.out.println("    stats         - gives statistics of the current game session.");
         System.out.println("    close         - closes the current Wordle game session.");
         System.out.println("    server        - gives server statistics across all sessions.");
+        System.out.println("    reset {PWD}   - !resets the server state (deletes all sessions)! **requires password**");
         System.out.println("    ?             - list of available commands.");
         System.out.println("    quit          - quits the program.");
     }
@@ -169,6 +173,24 @@ public class Program {
         _sessionID = null;
     }
 
+     /**
+     * Resets the server state. !! Destructive !! Removes all session from the server.
+     * Command doesn't require wordle open session but needs a valid password recognized by the server!
+     * @param args - args[0] is the command "RESET", args[1] is the mandatory password.
+     * @throws IOException 
+     * @throws URISyntaxException 
+     */
+    private static void mainReset(String[] args) throws IOException, URISyntaxException {
+        if (args.length != 2) {
+            throw new RuntimeException("Missing {PWD} argument!");
+        }
+        String password = args[1];
+        String urlReset = String.format(_URL_RESET, password);
+        AnswerStats answerStats = new AnswerStats(getAnswer(urlReset), true);
+        System.out.println(answerStats);
+        _sessionID = null;
+    }
+
     /**
      * Connects to the Web-Wordle server with the given {urlString} and returns the answer from the request.
      * @param urlString - URL to be used to reach the Web-Wordle server.
@@ -194,3 +216,4 @@ public class Program {
         return new Answer(httpCode, content);
     }
 }
+ 
