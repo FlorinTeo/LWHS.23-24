@@ -11,23 +11,23 @@ import java.util.Scanner;
 public class Program {
     private static String _sessionID = null;
 
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=new&name=MyName" (&name parameter is optional)
-    private static final String _URL_NEW = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=new%s";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=new&name=MyName" (&name parameter is optional)
+    private static final String _URL_NEW = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=new%s";
     
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=check&sid=8C537D99&word=SLATE"
-    private static final String _URL_CHECK = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=%s&cmd=check&word=%s";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=check&sid=8C537D99&word=SLATE"
+    private static final String _URL_CHECK = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?sid=%s&cmd=check&word=%s";
 
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=reveal&sid=8C537D99"
-    private static final String _URL_REVEAL = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=%s&cmd=reveal";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=reveal&sid=8C537D99"
+    private static final String _URL_REVEAL = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?sid=%s&cmd=reveal";
 
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=stats&sid=8C537D99" (&sid parameter is optional)
-    private static final String _URL_STATS = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=stats%s";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=stats&sid=8C537D99" (&sid parameter is optional)
+    private static final String _URL_STATS = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=stats%s";
 
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=8C537D99&cmd=close"
-    private static final String _URL_CLOSE = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?sid=%s&cmd=close";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?sid=8C537D99&cmd=close"
+    private static final String _URL_CLOSE = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?sid=%s&cmd=close";
 
-    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=reset&pwd={wouldn't you like to know it :-)}";
-    private static final String _URL_RESET = "http://lwhs.westus2.cloudapp.azure.com:8080/web-wordle/api?cmd=reset&pwd=%s";
+    // i.e: "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=reset&pwd={wouldn't you like to know it :-)}";
+    private static final String _URL_RESET = "http://lwhs.westus2.cloudapp.azure.com:8080/web-apis/wordle?cmd=reset&pwd=%s";
 
     public static void main(String[] args) {
         System.out.println("Hello to WebWorldleClient!");
