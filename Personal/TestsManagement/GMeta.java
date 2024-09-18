@@ -19,7 +19,7 @@ public class GMeta {
     private String _name;
 
     /**
-     * Maps the name/index of a question with the specific question and it's choices in the chosen (same/shuffled) order.
+     * Maps the name/index of a question with the specific question and its choices in the chosen (same/shuffled) order.
      * I.e:  
      *     "_display": {
      *         "1": "Q3 dbace",
@@ -102,6 +102,10 @@ public class GMeta {
         return _mcQuestions;
     }
 
+    public int getFRQCount() {
+        return _frQuestions.size();
+    }
+    
     public List<Question> getFRQuestions() {
         return _frQuestions;
     }

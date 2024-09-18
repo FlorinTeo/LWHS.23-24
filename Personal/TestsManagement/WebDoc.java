@@ -11,7 +11,7 @@ import java.util.Queue;
 
 public class WebDoc {
     public static final String _PRINT_BREAK = "<div style=\"break-after:page\"></div><br>";
-    public static final int _MAX_PX_PER_PAGE = 1000;
+    public static final int _MAX_PX_PER_PAGE = 800;
     public static final int _FRQ_ANSWER_PAGES = 4;
 
     private static final String _TAG_STYLE = "<!--======== STYLE ========-->";
@@ -175,14 +175,18 @@ public class WebDoc {
 
         bw.write(bkHtml.substring(iMCQ + _TAG_ANSWERS_MCQ.length(), iFRQ));
         bw.newLine();
-        //Write frq answer pages
-        for (int i = 0; i < _FRQ_ANSWER_PAGES; i++) {
-            String bkFRQPage = _answersFRQ.replace("#GRIDPATH#", gMeta.getPathPrefix());
-            bw.write(bkFRQPage);
+
+        //Write frq answer pages if there are any such questions
+        if (gMeta.getFRQCount() > 0) {
+            for (int i = 0; i < _FRQ_ANSWER_PAGES; i++) {
+                String bkFRQPage = _answersFRQ.replace("#GRIDPATH#", gMeta.getPathPrefix());
+                bw.write(bkFRQPage);
+            }
+
+            bw.write(bkHtml.substring(iFRQ + _TAG_ANSWERS_FRQ.length()));
         }
 
-        bw.write(bkHtml.substring(iFRQ + _TAG_ANSWERS_FRQ.length()));
-        return 2 + _FRQ_ANSWER_PAGES;
+        return 2 + (gMeta.getFRQCount() > 0 ? _FRQ_ANSWER_PAGES : 0);
     }
 
     private int genSection1Html(BufferedWriter bw, GMeta gMeta, boolean answers) throws IOException {
@@ -277,12 +281,16 @@ public class WebDoc {
         }
         // fill in the section 1 questions
         nPages += genSection1Html(bw, gMeta, false);
-        if (nPages % 2 != 0) {
-            bw.write(_PRINT_BREAK);
-            nPages++;
+
+        // fill in the section 2 questions, if there are any
+        if (gMeta.getFRQCount() > 0) {
+            if (nPages % 2 != 0) {
+                bw.write(_PRINT_BREAK);
+                nPages++;
+            }
+            // fill in the section 2 pages
+            nPages += genSection2Html(bw, gMeta, false);
         }
-        // fill in the section 2 pages
-        nPages += genSection2Html(bw, gMeta, false);
         bw.close();
 
         nPages = 0;
