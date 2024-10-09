@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Program {
 
-    // Test generator singleton
+    // Test generator singleton 
     private static Generator _generator;
 
       @SuppressWarnings("resource")
