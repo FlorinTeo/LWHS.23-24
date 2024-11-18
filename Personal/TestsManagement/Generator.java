@@ -174,14 +174,14 @@ public class Generator {
     * Generates .meta and index.html files for each variant of the given test
     * @throws IOException
     */
-    public void genTestVariants(String testName, String[] vIDs, boolean regenMeta) throws IOException {
+    public void genTestVariants(String testName, String[] vIDs, List<String> excFRQs, boolean regenMeta) throws IOException {
         Path pTest = Paths.get(_pRoot.toString(), testName);
         GMeta mTest = new GMeta(pTest);
         for(int i = 0; i < vIDs.length; i++) {
             Path pVariant = Paths.get(pTest.toString(), vIDs[i]);
             GMeta mVariant;
             if (regenMeta) {
-                mVariant = new GMeta(mTest.getName() + "." + vIDs[i], mTest.getQuestions());
+                mVariant = new GMeta(mTest.getName() + "." + vIDs[i], mTest.getQuestions(excFRQs));
                 mVariant.adjustPath("../../.template/");
                 mVariant.anonymize(true);
                 mVariant.save(pVariant);

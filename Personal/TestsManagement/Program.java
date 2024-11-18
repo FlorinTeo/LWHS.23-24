@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Program {
@@ -141,13 +144,19 @@ public class Program {
             throw new IllegalArgumentException("Missing or invalid test name!");
         }
         String testName = argParser.next();
+
         String[] vIDs = {};
         if (!argParser.hasNext()) {
             throw new IllegalArgumentException("Missing or invalid variant arguments!");
         }
         vIDs = argParser.next().split(",");
+
+        List<String> excFRQs = new ArrayList<String>();
+        if (argParser.hasNext()) {
+            excFRQs = Arrays.asList(argParser.next().split(","));
+        }
         
-        _generator.genTestVariants(testName, vIDs, regenMeta);
+        _generator.genTestVariants(testName, vIDs, excFRQs, regenMeta);
         System.out.println("DONE");
     }
 }

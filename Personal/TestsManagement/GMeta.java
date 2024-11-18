@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,15 @@ public class GMeta {
 
     private void reset() {
         _name = "";
-        _display = new TreeMap<String, String>();
+        _display = new TreeMap<String, String>(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2)
+            {
+                return (o1.matches("-?\\d+(\\.\\d+)?") && o2.matches("-?\\d+(\\.\\d+)?"))
+                    ? Integer.compare(Integer.parseInt(o1), Integer.parseInt(o2))
+                    : o1.compareTo(o2);
+            }
+        });
         _mcQuestions = new LinkedList<Question>();
         _frQuestions = new LinkedList<Question>();
         _appendix = new LinkedList<Question>();
@@ -114,10 +123,18 @@ public class GMeta {
         return _appendix;
     }
 
-    public List<Question> getQuestions() {
+    public List<Question> getQuestions(List<String> excFRQs) {
         List<Question> allQuestions = new LinkedList<Question>();
+        // add all multiple choice questions
         allQuestions.addAll(_mcQuestions);
-        allQuestions.addAll(_frQuestions);
+        // add all the non-filtered free response question
+        for(int i = 0; i < _frQuestions.size(); i++) {
+            if (excFRQs.contains(""+ (i + 1))) {
+                continue;
+            }
+            allQuestions.add(_frQuestions.get(i));
+        }
+        // add all appendix pages
         allQuestions.addAll(_appendix);
         return allQuestions;
     }
