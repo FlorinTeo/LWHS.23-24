@@ -274,6 +274,8 @@ public class WebDoc {
         // fill in the appendix pages
         if (gMeta.getAppendix().size() != 0) {
             nPages += genAppendix(bw, gMeta);
+            bw.write(WebDoc._PRINT_BREAK);
+            bw.newLine();     
             if (nPages % 2 != 0) {
                 bw.write(_PRINT_BREAK);
                 nPages++;

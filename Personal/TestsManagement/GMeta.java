@@ -234,11 +234,14 @@ public class GMeta {
     public int genApxHtml(BufferedWriter bw, String format) throws IOException {
         int nPages = 0;
         for (int i = 0; i < _appendix.size(); i++) {
+            if (i > 0) {
+                bw.write(WebDoc._PRINT_BREAK);
+                bw.newLine();    
+            }
             Question q = _appendix.get(i);
             String qID = _isAnonymized ? "" + (i+1) : q.getName();
             String hAppendix = q.editApxHtml(format, qID);
             bw.write(hAppendix);
-            bw.newLine();
             nPages++;
         }
         return nPages;
